@@ -4,12 +4,12 @@ Web frontend for IMENA Family Times, a private family platform that preserves
 the history, stories and relationships of the IMENA family and its three
 subfamilies: **Wihogora**, **Light** and **Hope**.
 
-| Item          | Detail                                  |
-| ------------- | --------------------------------------- |
-| Framework     | Next.js 15 (App Router) with TypeScript |
-| Styling       | Tailwind CSS v4                         |
-| Package manager | pnpm                                  |
-| Design source | Figma file "IMENA FAMILY TIMES"         |
+| Item            | Detail                                  |
+| --------------- | --------------------------------------- |
+| Framework       | Next.js 15 (App Router) with TypeScript |
+| Styling         | Tailwind CSS v4                         |
+| Package manager | pnpm                                    |
+| Design source   | Figma file "IMENA FAMILY TIMES"         |
 
 ## Requirements
 
@@ -30,27 +30,27 @@ The app runs at http://localhost:3000.
 
 ## Scripts
 
-| Command           | Purpose                        |
-| ----------------- | ------------------------------ |
-| `pnpm dev`        | Start the development server   |
-| `pnpm build`      | Production build               |
-| `pnpm start`      | Serve the production build     |
-| `pnpm lint`       | ESLint checks                  |
-| `pnpm typecheck`  | TypeScript, no emit            |
-| `pnpm format`     | Format with Prettier           |
-| `pnpm test`       | Unit tests (Vitest)            |
-| `pnpm test:e2e`   | End-to-end tests (Playwright)  |
+| Command          | Purpose                       |
+| ---------------- | ----------------------------- |
+| `pnpm dev`       | Start the development server  |
+| `pnpm build`     | Production build              |
+| `pnpm start`     | Serve the production build    |
+| `pnpm lint`      | ESLint checks                 |
+| `pnpm typecheck` | TypeScript, no emit           |
+| `pnpm format`    | Format with Prettier          |
+| `pnpm test`      | Unit tests (Vitest)           |
+| `pnpm test:e2e`  | End-to-end tests (Playwright) |
 
 ## Environment variables
 
 Copy `.env.example` to `.env.local`. Never commit `.env.local`.
 
-| Variable               | Purpose                          |
-| ---------------------- | -------------------------------- |
-| `NEXT_PUBLIC_API_URL`  | Base URL of the backend API      |
-| `AUTH_SECRET`          | Auth.js session secret           |
-| `AUTH_GOOGLE_ID`       | Google OAuth client id           |
-| `AUTH_GOOGLE_SECRET`   | Google OAuth client secret       |
+| Variable              | Purpose                     |
+| --------------------- | --------------------------- |
+| `NEXT_PUBLIC_API_URL` | Base URL of the backend API |
+| `AUTH_SECRET`         | Auth.js session secret      |
+| `AUTH_GOOGLE_ID`      | Google OAuth client id      |
+| `AUTH_GOOGLE_SECRET`  | Google OAuth client secret  |
 
 ## Project structure
 
@@ -73,15 +73,15 @@ another feature. `components/ui` holds no business logic and makes no API calls.
 
 ## Conventions
 
-| Item          | Convention              | Example                    |
-| ------------- | ----------------------- | -------------------------- |
-| Components    | PascalCase `.tsx`       | `PostCard.tsx`             |
-| Hooks         | camelCase, `use` prefix | `useResendTimer.ts`        |
-| Services      | kebab-case `.service`   | `posts.service.ts`         |
-| Route folders | kebab-case              | `family-tree/`             |
-| Types         | PascalCase interfaces   | `interface FamilyMember`   |
-| Constants     | UPPER_SNAKE_CASE        | `ROUTES.FAMILY_TREE`       |
-| Imports       | Absolute alias `@/`     | `@/components/ui/Button`   |
+| Item          | Convention              | Example                  |
+| ------------- | ----------------------- | ------------------------ |
+| Components    | PascalCase `.tsx`       | `PostCard.tsx`           |
+| Hooks         | camelCase, `use` prefix | `useResendTimer.ts`      |
+| Services      | kebab-case `.service`   | `posts.service.ts`       |
+| Route folders | kebab-case              | `family-tree/`           |
+| Types         | PascalCase interfaces   | `interface FamilyMember` |
+| Constants     | UPPER_SNAKE_CASE        | `ROUTES.FAMILY_TREE`     |
+| Imports       | Absolute alias `@/`     | `@/components/ui/Button` |
 
 - One component per file; co-locate tests as `Component.test.tsx`.
 - Use `cn()` (clsx + tailwind-merge) to combine class names.
