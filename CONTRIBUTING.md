@@ -2,12 +2,12 @@
 
 ## Branches
 
-| Branch        | Purpose                                   |
-| ------------- | ----------------------------------------- |
-| `main`        | Protected. Always deployable.             |
-| `feature/*`   | New work — one phase task per branch.     |
-| `fix/*`       | Bug fixes.                                |
-| `chore/*`     | Tooling, dependencies, configuration.     |
+| Branch      | Purpose                               |
+| ----------- | ------------------------------------- |
+| `main`      | Protected. Always deployable.         |
+| `feature/*` | New work — one phase task per branch. |
+| `fix/*`     | Bug fixes.                            |
+| `chore/*`   | Tooling, dependencies, configuration. |
 
 Direct pushes and force pushes to `main` are disabled. Every change reaches
 `main` through a reviewed pull request.

@@ -1,23 +1,12 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+// eslint.config.mjs
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
 
-const compat = new FlatCompat({ baseDirectory: __dirname });
-
-const eslintConfig = [
-  {
-    ignores: [
-      ".next/**",
-      "node_modules/**",
-      "next-env.d.ts",
-      "playwright-report/**",
-      "test-results/**",
-    ],
-  },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [
@@ -33,7 +22,7 @@ const eslintConfig = [
         {
           patterns: [
             {
-              group: ["../../*"],
+              group: ["../../**", "../../../**"],
               message: "Use the @/ alias instead of deep relative imports.",
             },
           ],
@@ -41,6 +30,15 @@ const eslintConfig = [
       ],
     },
   },
-];
+  // Override default ignores of eslint-config-next
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "playwright-report/**",
+    "test-results/**",
+  ]),
+]);
 
 export default eslintConfig;
