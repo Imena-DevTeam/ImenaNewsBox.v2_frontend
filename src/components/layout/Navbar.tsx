@@ -14,7 +14,7 @@ export function Navbar() {
 
   return (
     <Container as="header" className="pt-6">
-      <div className="rounded-pill bg-text px-6 py-3 md:px-8">
+      <div className="rounded-pill bg-text mx-auto max-w-4xl px-6 py-3 md:px-8">
         <div className="flex items-center justify-between gap-6">
           <Link
             href={ROUTES.HOME}

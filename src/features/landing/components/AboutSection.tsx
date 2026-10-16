@@ -3,17 +3,17 @@ import Image from "next/image";
 export function AboutSection() {
   return (
     <section className="bg-primary/4">
-      <div className="max-w-page mx-auto grid items-center gap-10 py-12 md:grid-cols-2 md:gap-16 md:py-16">
-        {/* Full-bleed on the left, with the large rounded right edge. */}
+      {/* The photo runs to the left edge of the viewport, as in the design. */}
+      <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
         <Image
           src="/images/about-family.png"
           alt="The IMENA family gathered for a celebration"
           width={522}
           height={367}
-          className="border-primary/20 w-full rounded-r-[14rem] border-r object-cover md:max-h-[22rem]"
+          className="border-primary/20 h-full w-full rounded-r-[14rem] border-r object-cover md:max-h-[23rem]"
         />
 
-        <div className="px-4 text-center md:px-8">
+        <div className="mx-auto max-w-xl px-4 py-12 text-center md:px-8 md:py-16">
           <h2 className="text-h3-m text-primary md:text-h3">
             About Imena Family
           </h2>

@@ -5,14 +5,14 @@ import { ROUTES } from "@/constants/routes";
 
 export function StoryCta() {
   return (
-    <section className="from-primary to-primary/55 relative overflow-hidden bg-linear-to-r">
-      <div className="max-w-page mx-auto grid items-center gap-10 md:grid-cols-[1fr_auto]">
-        <div className="text-surface px-4 py-14 md:px-8 md:py-20">
+    <section className="from-primary to-primary/55 text-surface overflow-hidden bg-linear-to-r">
+      <div className="grid items-center md:grid-cols-[1fr_minmax(0,34rem)]">
+        <div className="mx-auto w-full max-w-xl px-4 py-14 md:px-8 md:py-20">
           <h2 className="text-h2-m md:text-h2">
             Your Story Is Part of Our History
           </h2>
 
-          <p className="text-body text-surface/90 mt-5 max-w-xl">
+          <p className="text-body text-surface/90 mt-5">
             We remember where we came from, celebrate where we are, and build
             toward where we are going. Together, we preserve our memories and
             carry our family story forward.
@@ -34,12 +34,13 @@ export function StoryCta() {
           </div>
         </div>
 
+        {/* Runs to the right edge of the viewport. */}
         <Image
           src="/images/story-cta.png"
           alt="Students of the IMENA family outside their school"
           width={509}
           height={360}
-          className="hidden h-full w-full rounded-l-[16rem] object-cover md:block md:max-w-md"
+          className="hidden h-full w-full rounded-l-[18rem] object-cover md:block"
         />
       </div>
     </section>

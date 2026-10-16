@@ -27,6 +27,13 @@
   --color-muted: #55596c;
   --color-border: #e5e7f0;
 
+  /* --- Decorative --------------------------------------------------------- */
+  /* Only for the illustrated window chrome in the hero tree preview. Never use
+     these for interface state, text or surfaces. */
+  --color-window-red: #ed6a5e;
+  --color-window-amber: #f4bf4f;
+  --color-window-green: #61c454;
+
   /* --- Radius ------------------------------------------------------------ */
   --radius-sm: 6px; /* inputs */
   --radius-md: 12px; /* cards */
@@ -128,6 +135,8 @@
   }
 
   /* Roboto on every heading level, without repeating font-heading everywhere. */
+  /* Headings take Roboto but inherit their colour, so a heading inside a dark
+     or tinted section stays readable without restating the colour. */
   h1,
   h2,
   h3,
@@ -135,7 +144,6 @@
   h5,
   h6 {
     font-family: var(--font-heading);
-    color: var(--color-text);
   }
 
   /* One visible focus treatment everywhere, so keyboard users are never lost. */
