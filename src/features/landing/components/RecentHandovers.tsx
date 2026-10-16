@@ -28,7 +28,7 @@ const BODY =
 
 export function RecentHandovers() {
   return (
-    <section className="bg-primary/4 section-y">
+    <section className="bg-band section-y">
       <Container>
         <div className="relative">
           <SectionTitle title="Recent Handovers" />
@@ -50,20 +50,21 @@ export function RecentHandovers() {
           {HANDOVERS.map((item) => (
             <li
               key={item.title}
-              className="bg-surface shadow-main overflow-hidden rounded-md"
+              /* The photo fills the card and the copy panel overlaps it. */
+              className="shadow-main relative overflow-hidden rounded-md"
             >
               <Image
                 src={item.image}
                 alt={item.alt}
                 width={426}
                 height={367}
-                className="h-56 w-full object-cover"
+                className="h-110 w-full object-cover"
               />
 
-              <div className="p-5">
+              <div className="bg-surface absolute inset-x-0 bottom-0 mr-8 rounded-tr-md p-5">
                 <p className="text-body">
                   <span className="text-h4 text-text">{item.title}</span>{" "}
-                  <span className="text-muted">{BODY}</span>
+                  <span className="text-primary">{BODY}</span>
                 </p>
 
                 <ButtonLink href={ROUTES.GALLERY} size="sm" className="mt-5">

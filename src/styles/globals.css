@@ -18,13 +18,22 @@
   /* --- Brand and surfaces ------------------------------------------------ */
   --color-primary: #0d1aba;
   --color-primary-hover: #0a1598;
-  --color-background: #f7f8fc;
+  --color-background: #fcffff;
   --color-surface: #ffffff;
+  /* The tinted bands behind About, Recent Handovers and the elders cards. */
+  --color-band: #f8f8fe;
+  /* Section headings. Sampled from the Figma export, which uses a violet
+     accent the typography document does not list. */
+  --color-heading: #5a36da;
+  /* The faded second line of the hero title. */
+  --color-display-soft: #c8c7f0;
+  /* The deep corner of the footer wash. */
+  --color-footer: #090940;
 
   /* --- Functional neutrals ----------------------------------------------- */
   /* Not brand accents. Do not add saturated colours without a real need. */
-  --color-text: #202338;
-  --color-muted: #55596c;
+  --color-text: #000000;
+  --color-muted: #808080;
   --color-border: #e5e7f0;
 
   /* --- Decorative --------------------------------------------------------- */
@@ -180,5 +189,5 @@
   width: 3rem;
   height: 0.25rem;
   border-radius: var(--radius-pill);
-  background-color: var(--color-primary);
+  background-color: var(--color-heading);
 }

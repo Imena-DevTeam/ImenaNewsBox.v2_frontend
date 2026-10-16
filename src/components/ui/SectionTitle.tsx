@@ -17,7 +17,7 @@ export function SectionTitle({
         className,
       )}
     >
-      <h2 className="text-h2-m text-primary md:text-h2">{title}</h2>
+      <h2 className="text-h3-m text-heading md:text-h2">{title}</h2>
       <span className="accent-bar" />
     </div>
   );

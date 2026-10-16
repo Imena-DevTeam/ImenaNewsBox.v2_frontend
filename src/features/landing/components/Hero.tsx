@@ -22,10 +22,10 @@ export function Hero() {
           <h1 className="text-display-m md:text-display">
             Rediscover
             <br />
-            <span className="text-primary/30">Your Legacy.</span>
+            <span className="text-display-soft">Your Legacy.</span>
           </h1>
 
-          <p className="text-body-lg text-muted mt-5 max-w-md">
+          <p className="text-body-lg text-primary mt-5 max-w-md">
             A modern space for family history, connections, and stories.
           </p>
 

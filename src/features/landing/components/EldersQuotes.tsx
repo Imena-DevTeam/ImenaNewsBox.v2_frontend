@@ -38,7 +38,7 @@ export function EldersQuotes() {
               />
 
               {/* The card slides under the photo, so its content is padded clear of it. */}
-              <figure className="bg-primary/5 shadow-main mt-10 -ml-8 rounded-md py-5 pr-5 pl-14 sm:py-6 sm:pr-6 sm:pl-16">
+              <figure className="bg-band shadow-main mt-10 -ml-8 rounded-md py-5 pr-5 pl-14 sm:py-6 sm:pr-6 sm:pl-16">
                 <figcaption className="text-h4-m text-text md:text-h4">
                   {elder.name}
                 </figcaption>
