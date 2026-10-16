@@ -1,3 +1,176 @@
 @import "tailwindcss";
 
-/* Design tokens (@theme) are added in the Design System phase. */
+/* ---------------------------------------------------------------------------
+   IMENA Family Times — typography & colour system v1.0
+   Single source of truth. Components use the generated utility classes only
+   (bg-primary, text-h2, rounded-md). Never hard-code a hex value or an
+   arbitrary value such as text-[17px] — add a token here instead.
+
+   Fonts: Roboto for headings, Nunito Sans for body and interface text.
+   Both are loaded through next/font/google in src/app/layout.tsx.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* --- Font families ----------------------------------------------------- */
+  --font-sans: var(--font-nunito-sans), system-ui, sans-serif;
+  --font-heading: var(--font-roboto), system-ui, sans-serif;
+
+  /* --- Brand and surfaces ------------------------------------------------ */
+  --color-primary: #0d1aba;
+  --color-primary-hover: #0a1598;
+  --color-background: #f7f8fc;
+  --color-surface: #ffffff;
+
+  /* --- Functional neutrals ----------------------------------------------- */
+  /* Not brand accents. Do not add saturated colours without a real need. */
+  --color-text: #202338;
+  --color-muted: #55596c;
+  --color-border: #e5e7f0;
+
+  /* --- Radius ------------------------------------------------------------ */
+  --radius-sm: 6px; /* inputs */
+  --radius-md: 12px; /* cards */
+  --radius-lg: 20px; /* hero images */
+  --radius-pill: 9999px; /* pill buttons, badges */
+
+  /* --- Shadow ------------------------------------------------------------ */
+  --shadow-main:
+    0 5px 1px rgb(0 0 0 / 0.004), 0 9px 2px rgb(0 0 0 / 0.004),
+    0 15px 4px rgb(0 0 0 / 0.004), 0 22px 7px rgb(0 0 0 / 0.008),
+    0 33px 14px rgb(0 0 0 / 0.008), 0 65px 53px rgb(0 0 0 / 0.012);
+
+  /* --- Headings (Roboto) ------------------------------------------------- */
+  /* Desktop sizes. Pair with the -m tokens below the md breakpoint, e.g.
+     class="text-h2-m md:text-h2". */
+  --text-display: 3.5rem; /* 56px — hero title */
+  --text-display--line-height: 1.1;
+  --text-display--font-weight: 700;
+
+  --text-h1: 2.5rem; /* 40px — page title */
+  --text-h1--line-height: 1.15;
+  --text-h1--font-weight: 700;
+
+  --text-h2: 2rem; /* 32px — section heading */
+  --text-h2--line-height: 1.2;
+  --text-h2--font-weight: 700;
+
+  --text-h3: 1.5rem; /* 24px — subsection heading */
+  --text-h3--line-height: 1.25;
+  --text-h3--font-weight: 600;
+
+  --text-h4: 1.25rem; /* 20px — card title */
+  --text-h4--line-height: 1.3;
+  --text-h4--font-weight: 600;
+
+  /* --- Headings, mobile --------------------------------------------------- */
+  --text-display-m: 2.25rem; /* 36px */
+  --text-display-m--line-height: 1.15;
+  --text-display-m--font-weight: 700;
+
+  --text-h1-m: 1.875rem; /* 30px */
+  --text-h1-m--line-height: 1.2;
+  --text-h1-m--font-weight: 700;
+
+  --text-h2-m: 1.625rem; /* 26px */
+  --text-h2-m--line-height: 1.25;
+  --text-h2-m--font-weight: 700;
+
+  --text-h3-m: 1.25rem; /* 20px */
+  --text-h3-m--line-height: 1.3;
+  --text-h3-m--font-weight: 600;
+
+  --text-h4-m: 1.125rem; /* 18px */
+  --text-h4-m--line-height: 1.35;
+  --text-h4-m--font-weight: 600;
+
+  /* --- Body and interface text (Nunito Sans) ------------------------------ */
+  --text-body-lg: 1.125rem; /* 18px — intro paragraphs */
+  --text-body-lg--line-height: 1.6;
+
+  --text-body: 1rem; /* 16px — default text */
+  --text-body--line-height: 1.6;
+
+  --text-body-sm: 0.875rem; /* 14px — supporting text */
+  --text-body-sm--line-height: 1.5;
+
+  --text-ui: 1rem; /* 16px — navigation and buttons */
+  --text-ui--line-height: 1.2;
+  --text-ui--font-weight: 600;
+
+  --text-caption: 0.75rem; /* 12px — small labels, meta, timestamps */
+  --text-caption--line-height: 1.3;
+  --text-caption--font-weight: 600;
+
+  /* --- Layout ------------------------------------------------------------ */
+  --container-page: 1280px; /* max page width */
+  --spacing-section: 6rem; /* 96px — desktop section padding */
+  --spacing-section-m: 3.5rem; /* 56px — mobile section padding */
+
+  /* --- Control heights ---------------------------------------------------- */
+  /* Buttons, inputs and selects all sit on these three heights. */
+  --spacing-control-sm: 2.25rem; /* 36px */
+  --spacing-control-md: 2.75rem; /* 44px */
+  --spacing-control-lg: 3.25rem; /* 52px */
+}
+
+@layer base {
+  html {
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+
+  /* Roboto on every heading level, without repeating font-heading everywhere. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    color: var(--color-text);
+  }
+
+  /* One visible focus treatment everywhere, so keyboard users are never lost. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(
+      in oklab,
+      var(--color-primary) 18%,
+      transparent
+    );
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities
+--------------------------------------------------------------------------- */
+
+/* Standard page section rhythm: 56px mobile, 96px desktop. */
+@utility section-y {
+  padding-block: var(--spacing-section-m);
+
+  @media (width >= 48rem) {
+    padding-block: var(--spacing-section);
+  }
+}
+
+/* The short accent bar under a section title. */
+@utility accent-bar {
+  display: block;
+  width: 3rem;
+  height: 0.25rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary);
+}
