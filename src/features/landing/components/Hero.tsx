@@ -41,9 +41,9 @@ export function Hero() {
             width={701}
             height={627}
             priority
-            className="ml-auto w-full max-w-xl"
+            className="motion-safe:animate-float ml-auto w-full max-w-xl"
           />
-          <TreePreviewCard className="absolute -bottom-6 -left-2 w-64 md:w-80 lg:-left-10" />
+          <TreePreviewCard className="motion-safe:animate-float-slow absolute -bottom-6 -left-2 w-64 md:w-80 lg:-left-10" />
         </div>
       </Container>
     </section>

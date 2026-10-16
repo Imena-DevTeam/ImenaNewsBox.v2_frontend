@@ -134,6 +134,34 @@
   --spacing-control-sm: 2.25rem; /* 36px */
   --spacing-control-md: 2.75rem; /* 44px */
   --spacing-control-lg: 3.25rem; /* 52px */
+
+  /* --- Motion -------------------------------------------------------------- */
+  /* A slow drift, as if the card were resting on air. Pair with motion-safe:
+     so it never plays for someone who asked for reduced motion. */
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float-slow 9s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-1.125rem);
+    }
+  }
+
+  /* Drifts a little less and on a longer beat, so layered elements do not
+     move as one block. */
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-0.625rem);
+    }
+  }
 }
 
 @layer base {
