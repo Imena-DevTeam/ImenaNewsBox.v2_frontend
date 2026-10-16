@@ -1,36 +1,43 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { ButtonLink } from "@/components/ui/Button";
 import { FOOTER_NAV } from "@/constants/nav";
 import { ROUTES } from "@/constants/routes";
 
 export function Footer() {
   return (
-    <footer className="bg-primary text-surface relative isolate mt-auto overflow-hidden">
-      {/* The soft mesh wash from the design. */}
-      <div
+    <footer className="text-surface relative isolate mt-auto overflow-hidden">
+      {/* The wash from the Figma footer export. */}
+      <Image
+        src="/images/footer-bg.png"
+        alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_18%_10%,color-mix(in_oklab,var(--color-surface)_55%,transparent),transparent_60%),radial-gradient(55%_60%_at_75%_85%,color-mix(in_oklab,var(--color-text)_70%,transparent),transparent_65%)]"
+        fill
+        sizes="100vw"
+        className="-z-10 object-cover"
       />
 
-      <div className="max-w-page mx-auto w-full px-4 py-16 md:px-8 md:py-20">
-        <h2 className="text-h2-m md:text-h2 max-w-md">
-          Ready to start preserving your family story?
+      <div className="max-w-footer mx-auto w-full px-4 pt-7 pb-8 md:px-0">
+        <h2 className="text-display-light max-w-xl">
+          Ready to start syncing your data?
         </h2>
 
-        <ButtonLink href={ROUTES.SIGNUP} variant="light" className="mt-8">
+        <Link
+          href={ROUTES.OUR_STORY}
+          className="bg-surface text-text h-control-lg text-body mt-10 inline-flex items-center justify-center rounded-sm px-8"
+        >
           Contact us
-        </ButtonLink>
+        </Link>
 
-        <div className="mt-16 grid gap-12 md:grid-cols-[minmax(0,22rem)_1fr]">
+        <div className="mt-14 grid gap-10 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <p className="text-ui">Newsletter</p>
-            <p className="text-body-sm text-surface/80 mt-3">
-              We would love to share family news with you in our monthly
-              newsletter.
+            <p className="text-surface/80 text-body-sm mt-4 max-w-72">
+              We&rsquo;d love to share our love for product with you in our
+              monthly newsletter.
             </p>
 
-            <form className="mt-5 flex flex-wrap gap-3">
+            <form className="mt-6 flex flex-wrap gap-3">
               <label htmlFor="newsletter-email" className="sr-only">
                 Email address
               </label>
@@ -39,27 +46,28 @@ export function Footer() {
                 type="email"
                 name="email"
                 placeholder="Enter your email"
-                className="h-control-md border-surface/30 bg-surface/10 text-body text-surface placeholder:text-surface/70 focus:border-surface min-w-0 flex-1 rounded-sm border px-4 outline-none"
+                className="border-surface/25 bg-surface/10 text-surface placeholder:text-surface/70 focus:border-surface h-control-lg text-body-sm w-56 rounded-sm border px-4 outline-none"
               />
               <button
                 type="submit"
-                className="h-control-md bg-surface/20 text-ui text-surface hover:bg-surface/30 rounded-sm px-6 transition-colors"
+                className="bg-surface/20 hover:bg-surface/30 h-control-lg text-body-sm rounded-sm px-6 transition-colors"
               >
                 Subscribe
               </button>
             </form>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-3">
+          {/* The three columns sit together on the right, as in the design. */}
+          <div className="flex flex-wrap gap-10 sm:justify-end sm:gap-0 md:[&>*:not(:last-child)]:w-44">
             {FOOTER_NAV.map((group) => (
               <nav key={group.heading} aria-label={group.heading}>
                 <p className="text-ui">{group.heading}</p>
-                <ul className="mt-4 space-y-3">
+                <ul className="mt-5 space-y-4">
                   {group.items.map((item) => (
                     <li key={item.label}>
                       <Link
                         href={item.href}
-                        className="text-body-sm text-surface/80 hover:text-surface"
+                        className="text-surface/85 hover:text-surface text-body-sm"
                       >
                         {item.label}
                       </Link>
@@ -71,27 +79,21 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex items-center justify-between gap-4">
-          <p className="text-caption text-surface/70">
-            © {new Date().getFullYear()} IMENA Family
-          </p>
-
-          <div className="flex gap-3">
-            <a
-              href="mailto:hello@imenafamily.rw"
-              aria-label="Email the IMENA family"
-              className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
-            >
-              <Mail className="size-4" />
-            </a>
-            <a
-              href="https://www.linkedin.com"
-              aria-label="IMENA family on LinkedIn"
-              className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
-            >
-              <LinkedInIcon className="size-4" />
-            </a>
-          </div>
+        <div className="mt-8 flex justify-end gap-3">
+          <a
+            href="mailto:hello@imenafamily.rw"
+            aria-label="Email the IMENA family"
+            className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
+          >
+            <Mail className="size-4" />
+          </a>
+          <a
+            href="https://www.linkedin.com"
+            aria-label="IMENA family on LinkedIn"
+            className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
+          >
+            <LinkedInIcon className="size-4" />
+          </a>
         </div>
       </div>
     </footer>

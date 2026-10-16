@@ -11,29 +11,29 @@ export const PUBLIC_NAV: NavItem[] = [
   { label: "Family Tree", href: ROUTES.FAMILY_TREE },
 ];
 
+/** Columns and labels as they appear in the Figma footer. */
 export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [
   {
-    heading: "Family",
+    heading: "Home",
     items: [
-      { label: "Home", href: ROUTES.HOME },
-      { label: "Our Story", href: ROUTES.OUR_STORY },
-      { label: "Family Tree", href: ROUTES.FAMILY_TREE },
+      { label: "Benefits", href: ROUTES.OUR_STORY },
+      { label: "Features", href: ROUTES.FAMILY_TREE },
     ],
   },
   {
     heading: "Platform",
     items: [
-      { label: "Gallery", href: ROUTES.GALLERY },
-      { label: "Blogs and Posts", href: ROUTES.BLOGS },
-      { label: "Join as a Member", href: ROUTES.SIGNUP },
+      { label: "Solution", href: ROUTES.FAMILY_TREE },
+      { label: "Overview", href: ROUTES.OUR_STORY },
+      { label: "Portfolio", href: ROUTES.GALLERY },
     ],
   },
   {
     heading: "About us",
     items: [
-      { label: "Our Values", href: `${ROUTES.OUR_STORY}#values` },
-      { label: "Subfamilies", href: `${ROUTES.OUR_STORY}#subfamilies` },
-      { label: "Contact Us", href: `${ROUTES.OUR_STORY}#contact` },
+      { label: "Connectors", href: ROUTES.OUR_STORY },
+      { label: "Security", href: ROUTES.OUR_STORY },
+      { label: "Contact Us", href: ROUTES.OUR_STORY },
     ],
   },
 ];
