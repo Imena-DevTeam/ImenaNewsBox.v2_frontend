@@ -1,0 +1,21 @@
+Creating a branch 
+  - # git switch -c ${branch_name}
+
+Switch branch
+  - # git switch ${branch_name}  
+
+Pushing to github
+  
+  - # git add .  // if you you want to add the entire project to the commit
+  - # git add ${file_name}
+  - # git commit -m '[new]: create auth page'
+  - # git push --set-upstream origin ${branch_name}
+  - # git push 
+
+ Pulling from remote repo to local repo
+   - # git switch main
+   - # git pull --rebase origin main
+
+ Deleting a branch 
+   - # git branch -D ${branch_name}  //local branch
+   - # git push --delete origin ${branch_name} // remote branch 
