@@ -30,7 +30,7 @@ export function Hero() {
           </p>
 
           <ButtonLink href={ROUTES.FAMILY_TREE} size="lg" className="mt-9">
-            Explore the Tree
+            Explore the Treee
           </ButtonLink>
         </div>
 
