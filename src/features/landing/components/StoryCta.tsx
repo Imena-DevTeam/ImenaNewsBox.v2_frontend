@@ -40,7 +40,8 @@ export function StoryCta() {
           alt="Students of the IMENA family outside their school"
           width={509}
           height={360}
-          className="hidden h-full w-full rounded-l-[18rem] object-cover md:block"
+          /* The export is already cut to the arc, so no clipping is applied here. */
+          className="hidden h-full w-full object-cover md:block"
         />
       </div>
     </section>
