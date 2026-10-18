@@ -16,14 +16,20 @@ export function StatsStrip() {
           OUR STORY
         </h2>
 
-        <div className="mt-16 grid items-center gap-10 md:grid-cols-3 md:gap-8">
-          <p className="text-body-lg text-center md:text-left">
-            IMENA is not just a family but a spirit and&mdash;culture that{" "}
-            <span className="text-display-soft">
-              embodies what we do plus the way we live
-            </span>
-            .
-          </p>
+        <p className="text-body-lg mx-auto mt-12 max-w-2xl text-center">
+          IMENA is not just a family but a spirit and&mdash;culture that{" "}
+          <span className="text-display-soft">
+            embodies what we do plus the way we live
+          </span>
+          .
+        </p>
+
+        {/* The portrait and both figures share one line. */}
+        <div className="mt-12 grid items-center gap-10 md:grid-cols-3 md:gap-8">
+          <div className="text-center">
+            <p className="text-primary text-h1-m md:text-h1">3</p>
+            <p className="text-body-lg">Subfamilies</p>
+          </div>
 
           <Image
             src="/images/story-circle.jpg"
@@ -39,27 +45,13 @@ export function StatsStrip() {
           </div>
         </div>
 
-        {/* The rule breaks either side of the portrait, as in the design. */}
-        <div className="mt-10 grid gap-8 md:grid-cols-3">
-          <hr className="border-border border-t" />
-          <span aria-hidden />
-          <hr className="border-border border-t" />
-        </div>
+        <hr className="border-border mt-14 border-t" />
 
-        <div className="mt-10 grid items-start gap-10 md:grid-cols-3 md:gap-8">
-          <div className="text-center">
-            <p className="text-primary text-h1-m md:text-h1">3</p>
-            <p className="text-body-lg">Subfamilies</p>
-          </div>
-
-          <span aria-hidden />
-
-          <p className="text-body text-muted text-center md:text-left">
-            IMENA is not just a family but a{" "}
-            <span className="text-text">spirit</span>, the solidarity endures
-            across all chapters.
-          </p>
-        </div>
+        <p className="text-body text-muted mx-auto mt-10 max-w-2xl text-center">
+          IMENA is not just a family but a{" "}
+          <span className="text-text">spirit</span>, the solidarity endures
+          across all chapters.
+        </p>
       </Container>
     </section>
   );
