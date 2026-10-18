@@ -150,6 +150,12 @@
   --animate-float: float 7s ease-in-out infinite;
   --animate-float-slow: float-slow 9s ease-in-out infinite;
 
+  /* The slogan cross. The wrapper turns, carrying the cards around the empty
+     centre; each card turns the other way at the same rate so its text stays
+     upright while it travels. */
+  --animate-orbit: orbit 45s linear infinite;
+  --animate-orbit-reverse: orbit-reverse 45s linear infinite;
+
   @keyframes float {
     0%,
     100% {
@@ -169,6 +175,18 @@
     }
     50% {
       transform: translateY(-0.625rem);
+    }
+  }
+
+  @keyframes orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes orbit-reverse {
+    to {
+      transform: rotate(-360deg);
     }
   }
 }

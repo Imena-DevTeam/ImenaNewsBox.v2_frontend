@@ -2,50 +2,57 @@ import { Container } from "@/components/layout/Container";
 import { HeartsOrnament } from "@/features/story/components/Ornaments";
 import { cn } from "@/lib/cn";
 
-const SLOGANS = [
-  {
-    kinyarwanda: "Ku bw’umurava n’ikizere imbere yacu heza ntituzazima.",
-    english:
-      "A living, vibrant network of thousands of leaders across the globe.",
-  },
-  {
-    kinyarwanda: "Ku bw’umurava n’ikizere imbere yacu heza ntituzazima.",
-    english:
-      "A living, vibrant network of thousands of leaders across the globe.",
-  },
-  {
-    kinyarwanda: "Ku bw’umurava n’ikizere imbere yacu heza ntituzazima.",
-    english:
-      "A living, vibrant network of thousands of leaders across the globe.",
-  },
+const QUOTE = {
+  kinyarwanda: "Ku bw’umurava n’ikizere imbere yacu heza ntituzazima.",
+  english:
+    "A living, vibrant network of thousands of leaders across the globe.",
+};
+
+/* Top, left, right and bottom of the cross; the middle cell stays empty. */
+const PLACEMENTS = [
+  "md:col-start-2 md:row-start-1",
+  "md:col-start-1 md:row-start-2",
+  "md:col-start-3 md:row-start-2",
+  "md:col-start-2 md:row-start-3",
 ];
 
 export function Slogans() {
   return (
-    <section className="relative overflow-hidden pb-20 md:pb-28">
-      <HeartsOrnament className="absolute bottom-6 left-6 w-16 md:w-20" />
-      <HeartsOrnament className="absolute top-1/3 left-1/2 hidden w-12 -translate-x-1/2 md:block" />
-
+    /* overflow-x-clip: the turning cards sweep past the grid box, and without
+   this they would add a horizontal scrollbar at tablet widths. */
+    <section className="overflow-x-clip pt-16 pb-28 md:pt-24 md:pb-40">
       <Container>
-        <ul className="grid gap-8 md:grid-cols-3 md:gap-6">
-          {SLOGANS.map((slogan, index) => (
-            <li
+        {/* The whole cross turns slowly, so the cards travel in a circle. */}
+        <div
+          className={cn(
+            "mx-auto grid max-w-sm grid-cols-1 gap-6 md:max-w-2xl md:grid-cols-3 md:grid-rows-3 lg:max-w-3xl",
+            "motion-safe:md:animate-orbit",
+          )}
+        >
+          {PLACEMENTS.map((placement, index) => (
+            <article
               key={index}
-              /* The design drops the middle card below its neighbours. */
+              /* Turns against the wrapper at the same rate, so the text
+                 stays upright all the way round. */
               className={cn(
-                "bg-placeholder flex aspect-[4/5] flex-col justify-center p-8",
-                index === 1 && "md:mt-28",
+                "bg-placeholder flex aspect-square flex-col justify-center p-7",
+                "motion-safe:md:animate-orbit-reverse",
+                placement,
               )}
             >
               <blockquote className="text-body-sm text-muted">
                 <span className="text-text italic">
-                  &ldquo;{slogan.kinyarwanda}&rdquo;
+                  &ldquo;{QUOTE.kinyarwanda}&rdquo;
                 </span>{" "}
-                {slogan.english}
+                {QUOTE.english}
               </blockquote>
-            </li>
+            </article>
           ))}
-        </ul>
+
+          <div className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
+            <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+          </div>
+        </div>
       </Container>
     </section>
   );
