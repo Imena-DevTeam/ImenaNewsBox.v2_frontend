@@ -43,6 +43,15 @@
   --color-window-amber: #f4bf4f;
   --color-window-green: #61c454;
 
+  /* Our Story. Sampled from the design; none of these are in the typography
+     and colour document, so they are scoped to that page's ornament and
+     frame work and never used for text or interface state. */
+  --color-ornament: #c3d2e8; /* the line-drawn suns, trees and houses */
+  --color-frame: #999d8f; /* the thick photo frame */
+  --color-frame-accent: #87b2b5; /* the card outlined behind it */
+  --color-stat: #7b4a94; /* the 140+ figure */
+  --color-placeholder: #d9d9d9; /* the quote cards */
+
   /* --- Radius ------------------------------------------------------------ */
   --radius-sm: 6px; /* inputs */
   --radius-md: 12px; /* cards */
