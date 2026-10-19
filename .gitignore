@@ -48,3 +48,9 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Agent skills installed locally (Higgsfield via vercel-labs/skills).
+# Local tooling, not part of the app — keep them out of the PR.
+.agents/
+.claude/
+skills-lock.json
