@@ -155,6 +155,17 @@
   --spacing-control-lg: 3.25rem; /* 52px */
 
   /* --- Motion -------------------------------------------------------------- */
+  /* Durations and easings are tokens like everything else. Use these three
+     steps rather than Tailwind's defaults or an arbitrary duration-[250ms],
+     so motion stays as consistent as the colour and type do.
+       fast  — colour and opacity on hover
+       base  — hover lifts, cards, anything that moves
+       slow  — scroll reveals, which travel further */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
+
   /* A slow drift, as if the card were resting on air. Pair with motion-safe:
      so it never plays for someone who asked for reduced motion. */
   --animate-float: float 7s ease-in-out infinite;
@@ -245,6 +256,124 @@
 /* ---------------------------------------------------------------------------
    Utilities
 --------------------------------------------------------------------------- */
+
+/* Defined outside @theme because it is driven by the reveal utilities below
+   rather than by an --animate-* token. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Scroll reveal, with no JavaScript: the element's own progress through the
+   viewport drives the animation. Set longhand, because the `animation`
+   shorthand resets animation-timeline back to auto.
+
+   Guarded twice on purpose. Without `view()` (Firefox, for now) or with
+   reduced motion requested, no animation is declared at all, so the content
+   is simply there — never a section that stays invisible because the
+   animation that would have revealed it did not run. */
+@utility reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation-name: rise;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: view();
+      animation-range: entry 5% cover 30%;
+    }
+  }
+}
+
+/* The same, for a row or grid of cards. Each child runs on its own view
+   timeline, so the stagger comes from starting them at different points of
+   that progress — a progress timeline ignores animation-delay. */
+@utility reveal-stagger {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      & > * {
+        animation-name: rise;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: view();
+      }
+      & > *:nth-child(1) {
+        animation-range: entry 5% cover 28%;
+      }
+      & > *:nth-child(2) {
+        animation-range: entry 12% cover 35%;
+      }
+      & > *:nth-child(3) {
+        animation-range: entry 19% cover 42%;
+      }
+      & > *:nth-child(n + 4) {
+        animation-range: entry 26% cover 49%;
+      }
+    }
+  }
+}
+
+/* Plays once when a page mounts, so moving between Home and Our Story reads
+   as an arrival rather than a cut. A true cross-fade of the outgoing page
+   needs React's ViewTransition, which is not in React 19.1. */
+@utility page-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: rise var(--duration-slow) var(--ease-out-soft) both;
+  }
+}
+
+/* Stops every animation inside while the pointer is over it or something
+   within it has focus. WCAG 2.2.2 asks that motion running longer than five
+   seconds can be paused, and moving text cannot be read otherwise. */
+@utility pause-on-hover {
+  &:hover,
+  &:focus-within {
+    &,
+    * {
+      animation-play-state: paused;
+    }
+  }
+}
+
+/* Tailwind has an --ease-* namespace but no --duration-* one, so these wrap
+   the duration tokens into classes. Use them instead of duration-150 or an
+   arbitrary duration-[250ms]. */
+@utility transition-fast {
+  transition-property:
+    color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out-soft);
+}
+
+@utility transition-base {
+  transition-property:
+    color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-out-soft);
+}
+
+/* Card hover. The shadow still responds under reduced motion; only the
+   movement is withheld. */
+@utility lift {
+  transition-property: transform, box-shadow, border-color;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-out-soft);
+
+  &:hover {
+    box-shadow: var(--shadow-main);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+}
 
 /* Standard page section rhythm: 56px mobile, 96px desktop. */
 @utility section-y {

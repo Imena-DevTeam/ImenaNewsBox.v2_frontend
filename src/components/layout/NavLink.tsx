@@ -13,17 +13,18 @@ export function NavLink({ href, label }: { href: string; label: string }) {
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "text-ui relative flex flex-col items-center gap-1 transition-colors",
+        "text-ui transition-fast relative flex flex-col items-center gap-1",
         active ? "text-surface" : "text-surface/70 hover:text-surface",
       )}
     >
       {label}
-      {/* The active-page dot from the design. */}
+      {/* The active-page dot from the design. It scales in rather than
+          appearing, so moving between pages reads as one movement. */}
       <span
         aria-hidden
         className={cn(
-          "rounded-pill size-1",
-          active ? "bg-surface" : "bg-transparent",
+          "bg-surface rounded-pill transition-base size-1",
+          active ? "scale-100 opacity-100" : "scale-0 opacity-0",
         )}
       />
     </Link>

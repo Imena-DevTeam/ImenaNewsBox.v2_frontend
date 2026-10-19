@@ -18,8 +18,10 @@ const SIZES: Record<Size, string> = {
   lg: "h-control-lg px-8",
 };
 
+/* `transition` rather than transition-colors, so a transform added at the
+   call site animates instead of snapping. */
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-pill text-ui transition-colors disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-pill text-ui transition-fast disabled:pointer-events-none disabled:opacity-50";
 
 type ButtonProps = { variant?: Variant; size?: Size; children: ReactNode };
 
