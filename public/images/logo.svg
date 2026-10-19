@@ -1,0 +1,8 @@
+<!-- PLACEHOLDER: replace with the Figma export of node 166:217 (IMENA mark, 83x83). -->
+<svg width="83" height="83" viewBox="0 0 83 83" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="83" height="83" rx="20" fill="#5935DA"/>
+  <circle cx="41.5" cy="24" r="8" fill="#fff"/>
+  <circle cx="25" cy="55" r="8" fill="#fff" fill-opacity="0.85"/>
+  <circle cx="58" cy="55" r="8" fill="#fff" fill-opacity="0.85"/>
+  <path d="M41.5 32v8m0 0H25v7m16.5-7H58v7" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+</svg>

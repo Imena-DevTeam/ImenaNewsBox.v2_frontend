@@ -1,3 +1,26 @@
 @import "tailwindcss";
 
-/* Design tokens (@theme) are added in the Design System phase. */
+@theme {
+  /* Brand */
+  --color-brand: #5935da;
+  --color-brand-hover: #4a2bc4;
+
+  /* Neutrals pulled from the auth designs */
+  --color-muted: #a8a8a8;
+  --color-field-border: #cccccc;
+
+  /* Typography */
+  --font-display:
+    var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii used by the auth controls */
+  --radius-field: 15px;
+  --radius-otp: 10px;
+  --radius-pill: 32px;
+}
+
+html,
+body {
+  font-family: var(--font-body);
+}
