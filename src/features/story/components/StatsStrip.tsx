@@ -10,16 +10,25 @@ import { cn } from "@/lib/cn";
 function Stat({
   value,
   label,
+  size,
+  colour,
   className,
 }: {
   value: string;
   label: string;
+  size: string;
+  colour: string;
   className?: string;
 }) {
   return (
-    <dl className="flex flex-col-reverse items-center text-center">
+    <dl
+      className={cn(
+        "flex flex-col-reverse items-center text-center",
+        className,
+      )}
+    >
       <dt className="text-body-lg">{label}</dt>
-      <dd className={cn("text-primary", className)}>{value}</dd>
+      <dd className={cn(colour, size)}>{value}</dd>
     </dl>
   );
 }
@@ -32,22 +41,17 @@ export function StatsStrip() {
       <Container className="relative">
         <SectionTitle title="OUR STORY" />
 
-        <p className="text-body-lg text-muted mx-auto mt-12 max-w-2xl text-center">
-          IMENA is not just a family but a spirit and&mdash;culture that{" "}
-          <span className="text-text font-semibold">
-            embodies what we do plus the way we live
-          </span>
-          .
-        </p>
-
-        {/* The portrait and both figures share one line. Both figures take the
-            brand colour and sit one size step apart, so they read as a pair. */}
-        <div className="mt-12 grid items-center gap-10 md:grid-cols-3 md:gap-8">
-          <Stat
-            value="3"
-            label="Subfamilies"
-            className="text-h1-m md:text-h1"
-          />
+        {/* Two rows either side of the portrait, which spans both. The rule
+            under each upper cell gives the single line that runs out to both
+            edges and stops at the circle. */}
+        <div className="mt-12 grid items-center gap-8 md:mt-16 md:grid-cols-[1fr_auto_1fr] md:grid-rows-2 md:gap-x-5 md:gap-y-0">
+          <p className="text-body md:border-border md:col-start-1 md:row-start-1 md:self-stretch md:border-b md:pb-10 md:text-left">
+            IMENA is not just a family but a spirit and&mdash;culture that{" "}
+            <span className="text-text font-semibold">
+              embodies what we do plus the way we live
+            </span>
+            .
+          </p>
 
           <Image
             src="/images/story-circle.jpg"
@@ -55,23 +59,31 @@ export function StatsStrip() {
             width={810}
             height={810}
             sizes="(min-width: 768px) 18rem, 14rem"
-            className="rounded-pill mx-auto aspect-square w-56 object-cover md:w-72"
+            className="rounded-pill mx-auto aspect-square w-56 object-cover md:col-start-2 md:row-span-2 md:row-start-1 md:w-72"
           />
 
           <Stat
             value="140+"
             label="Members"
-            className="text-display-m md:text-display"
+            size="text-display-m md:text-display"
+            colour="text-stat"
+            className="md:border-border md:col-start-3 md:row-start-1 md:justify-center md:self-stretch md:border-b md:pb-10"
           />
+
+          <Stat
+            value="3"
+            label="Subfamilies"
+            size="text-h1-m md:text-h1"
+            colour="text-primary"
+            className="md:col-start-1 md:row-start-2 md:justify-center md:pt-10"
+          />
+
+          <p className="text-body text-muted md:col-start-3 md:row-start-2 md:pt-10 md:text-left">
+            IMENA is not just a family but a{" "}
+            <span className="text-text font-semibold">spirit</span>, the
+            solidarity endures across all chapters.
+          </p>
         </div>
-
-        <hr className="border-border mt-14 border-t" />
-
-        <p className="text-body text-muted mx-auto mt-10 max-w-2xl text-center">
-          IMENA is not just a family but a{" "}
-          <span className="text-text font-semibold">spirit</span>, the
-          solidarity endures across all chapters.
-        </p>
       </Container>
     </section>
   );
