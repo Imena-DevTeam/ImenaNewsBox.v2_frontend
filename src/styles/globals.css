@@ -55,6 +55,7 @@
   --color-frame: #999d8f; /* the thick photo frame */
   --color-frame-accent: #87b2b5; /* the card outlined behind it */
   --color-placeholder: #d9d9d9; /* the quote cards */
+  --color-stat: #7b4a94; /* the third milestone badge on the timeline */
 
   /* --- Radius ------------------------------------------------------------ */
   --radius-sm: 6px; /* inputs */
@@ -130,11 +131,16 @@
   --text-caption--line-height: 1.3;
   --text-caption--font-weight: 600;
 
-  /* The footer headline, which sits between h1 and display and is set in a
-     lighter weight than the other headings. */
-  --text-display-light: 3.5rem; /* 56px */
-  --text-display-light--line-height: 1.23;
+  /* The footer headline, set in a lighter weight than the other headings.
+     Sized so the footer reads as a contained card rather than a full page of
+     its own; it is the only thing using this token. */
+  --text-display-light: 2.25rem; /* 36px */
+  --text-display-light--line-height: 1.25;
   --text-display-light--font-weight: 400;
+
+  --text-display-light-m: 1.625rem; /* 26px */
+  --text-display-light-m--line-height: 1.3;
+  --text-display-light-m--font-weight: 400;
 
   /* --- Layout ------------------------------------------------------------ */
   --container-page: 1280px; /* max page width */

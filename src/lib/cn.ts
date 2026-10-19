@@ -9,6 +9,7 @@ import { extendTailwindMerge } from "tailwind-merge";
 const FONT_SIZES = [
   "display",
   "display-light",
+  "display-light-m",
   "display-m",
   "h1",
   "h2",

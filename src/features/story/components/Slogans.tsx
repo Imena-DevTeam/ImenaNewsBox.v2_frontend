@@ -43,7 +43,11 @@ export function Slogans() {
    this they would add a horizontal scrollbar at tablet widths. */
     <section className="section-y overflow-x-clip">
       <Container>
-        <SectionTitle title="What we stand for" />
+        <SectionTitle title="OUR SLOGANS" />
+
+        <p className="text-h3-m md:text-h3 mt-6 text-center">
+          Passionately Spoken
+        </p>
 
         {/* The whole cross turns slowly, so the cards travel in a circle. */}
         <ul
