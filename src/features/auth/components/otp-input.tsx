@@ -57,7 +57,7 @@ export function OtpInput({ value, onChange, invalid }: OtpInputProps) {
     <div
       role="group"
       aria-label={`${OTP_LENGTH}-digit verification code`}
-      className="flex items-center justify-center gap-[30px]"
+      className="flex items-center justify-center gap-3 sm:gap-[30px]"
     >
       {digits.map((digit, index) => (
         <input
@@ -75,7 +75,7 @@ export function OtpInput({ value, onChange, invalid }: OtpInputProps) {
           onKeyDown={(event) => handleKeyDown(index, event)}
           onPaste={handlePaste}
           className={cn(
-            "h-[65px] w-[55px] rounded-[10px] border border-black bg-white text-center text-2xl text-black",
+            "hover:border-brand h-[65px] w-[55px] rounded-[10px] border border-black bg-white text-center text-2xl text-black transition-colors duration-300 ease-out",
             "focus:border-brand focus:ring-brand/30 focus:ring-2 focus:outline-none",
             invalid && "border-red-500",
           )}

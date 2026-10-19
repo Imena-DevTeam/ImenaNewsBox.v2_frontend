@@ -23,7 +23,10 @@ export function TextField({
 
   return (
     <div className="w-full">
-      <label htmlFor={id} className="text-muted block text-xl">
+      <label
+        htmlFor={id}
+        className="text-muted block pl-1.5 text-xl leading-[normal]"
+      >
         {label}
       </label>
       <input
@@ -32,8 +35,9 @@ export function TextField({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
         className={cn(
-          "border-field-border mt-1.5 h-12 w-full rounded-[15px] border bg-white px-4 text-base text-black",
-          "placeholder:text-muted focus:border-brand focus:ring-brand/30 focus:ring-2 focus:outline-none",
+          "border-field-border h-12 w-full rounded-[15px] border bg-white px-4 text-[15px] text-black",
+          "transition-colors duration-300 ease-out hover:border-neutral-400",
+          "placeholder:text-placeholder focus:border-brand focus:ring-brand/30 focus:ring-2 focus:outline-none",
           error && "border-red-500",
           className,
         )}

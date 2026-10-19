@@ -8,6 +8,8 @@
   /* Neutrals pulled from the auth designs */
   --color-muted: #a8a8a8;
   --color-field-border: #cccccc;
+  --color-placeholder: #c3c2c2;
+  --color-divider-text: #b6b6b6;
 
   /* Typography */
   --font-display:

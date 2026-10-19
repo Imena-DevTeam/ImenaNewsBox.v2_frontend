@@ -29,8 +29,10 @@ export function AdminLoginForm() {
 
   return (
     <div className="w-full">
-      <h1 className="font-display text-[36px] leading-tight font-bold text-black lg:whitespace-nowrap">
-        Dear Admin, Welcome back
+      <h1 className="font-display text-[clamp(28px,4.6dvh,36px)] leading-[normal] font-bold text-black lg:whitespace-nowrap">
+        Dear Admin,
+        <br />
+        Welcome back,
         <br />
         Login to catch up
       </h1>
@@ -38,7 +40,7 @@ export function AdminLoginForm() {
       <form
         onSubmit={onSubmit}
         noValidate
-        className="mt-[72px] max-w-[343px] space-y-[22px]"
+        className="mt-[clamp(12px,3dvh,28px)] max-w-[343px] space-y-[clamp(10px,2.2dvh,22px)]"
       >
         <TextField
           label="Name"
@@ -57,7 +59,11 @@ export function AdminLoginForm() {
           {...register("password")}
         />
 
-        <Button type="submit" disabled={isSubmitting} className="!mt-[22px]">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="!mt-[clamp(10px,2.2dvh,22px)]"
+        >
           Log In
         </Button>
       </form>
