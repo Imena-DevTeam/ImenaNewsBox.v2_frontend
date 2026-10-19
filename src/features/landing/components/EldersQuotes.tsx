@@ -19,7 +19,7 @@ export function EldersQuotes() {
       <Container>
         <SectionTitle title="Hear from our elders" />
 
-        <ul className="mt-14 grid gap-14 md:grid-cols-2 md:gap-x-10 md:gap-y-20">
+        <ul className="reveal-stagger mt-14 grid gap-14 md:grid-cols-2 md:gap-x-10 md:gap-y-20">
           {ELDERS.map((elder, index) => (
             <li
               key={index}
@@ -38,7 +38,7 @@ export function EldersQuotes() {
               />
 
               {/* The card slides under the photo, so its content is padded clear of it. */}
-              <figure className="bg-band shadow-main mt-10 -ml-8 rounded-md py-5 pr-5 pl-14 sm:py-6 sm:pr-6 sm:pl-16">
+              <figure className="bg-band shadow-main lift mt-10 -ml-8 rounded-md py-5 pr-5 pl-14 sm:py-6 sm:pr-6 sm:pl-16">
                 <figcaption className="text-h4-m text-text md:text-h4">
                   {elder.name}
                 </figcaption>

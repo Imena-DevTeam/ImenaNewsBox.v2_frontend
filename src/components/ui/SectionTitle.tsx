@@ -12,7 +12,7 @@ export function SectionTitle({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3",
+        "reveal flex flex-col gap-3",
         align === "center" ? "items-center text-center" : "items-start",
         className,
       )}

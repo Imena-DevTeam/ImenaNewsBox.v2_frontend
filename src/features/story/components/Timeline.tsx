@@ -61,10 +61,13 @@ export function Timeline() {
             </p>
           </div>
 
-          <ol className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="reveal-stagger mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {MILESTONES.map(
               ({ year, label, body, quote, Icon, badge, accent }) => (
-                <li key={year} className="bg-surface rounded-md p-5 md:p-6">
+                <li
+                  key={year}
+                  className="bg-surface lift rounded-md p-5 md:p-6"
+                >
                   <span
                     className={`${badge} text-surface rounded-pill mb-5 flex size-9 items-center justify-center`}
                   >

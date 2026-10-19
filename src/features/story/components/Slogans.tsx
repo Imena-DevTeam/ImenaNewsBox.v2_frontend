@@ -53,7 +53,10 @@ export function Slogans() {
         <ul
           className={cn(
             "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-20 md:max-w-2xl md:grid-cols-3 md:grid-rows-3 lg:max-w-3xl",
-            "motion-safe:md:animate-orbit",
+            /* pause-on-hover: the cards carry body text, and text cannot be
+               read while it is travelling. Hovering or tabbing into the cross
+               stops it, which is also what WCAG 2.2.2 asks for. */
+            "pause-on-hover motion-safe:md:animate-orbit",
           )}
         >
           {SLOGANS.map((item) => (

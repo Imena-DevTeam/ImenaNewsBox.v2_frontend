@@ -1,20 +1,24 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
+import { CountUp } from "@/components/ui/CountUp";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { HouseHeartOrnament } from "@/features/story/components/Ornaments";
 import { cn } from "@/lib/cn";
+import { storyCircle } from "@/lib/images";
 
 /* A description list, so each figure is announced together with its label
    instead of as a loose number. The label comes first in the markup, as
    HTML requires, and flex-col-reverse puts the figure above it on screen. */
 function Stat({
   value,
+  suffix,
   label,
   size,
   colour,
   className,
 }: {
-  value: string;
+  value: number;
+  suffix?: string;
   label: string;
   size: string;
   colour: string;
@@ -28,7 +32,9 @@ function Stat({
       )}
     >
       <dt className="text-body-lg">{label}</dt>
-      <dd className={cn(colour, size)}>{value}</dd>
+      <dd className={cn(colour, size)}>
+        <CountUp value={value} suffix={suffix} />
+      </dd>
     </dl>
   );
 }
@@ -54,16 +60,16 @@ export function StatsStrip() {
           </p>
 
           <Image
-            src="/images/story-circle.jpg"
+            src={storyCircle}
             alt="Members of the IMENA family gathered outside their home"
-            width={810}
-            height={810}
+            placeholder="blur"
             sizes="(min-width: 768px) 18rem, 14rem"
             className="rounded-pill mx-auto aspect-square w-56 object-cover md:col-start-2 md:row-span-2 md:row-start-1 md:w-72"
           />
 
           <Stat
-            value="140+"
+            value={140}
+            suffix="+"
             label="Members"
             size="text-display-m md:text-display"
             colour="text-stat"
@@ -71,7 +77,7 @@ export function StatsStrip() {
           />
 
           <Stat
-            value="3"
+            value={3}
             label="Subfamilies"
             size="text-h1-m md:text-h1"
             colour="text-primary"

@@ -39,7 +39,7 @@ export function BlogHighlights() {
       <Container>
         <SectionTitle title="Blogs and Posts" />
 
-        <ul className="mt-12 space-y-16 md:space-y-10">
+        <ul className="reveal-stagger mt-12 space-y-16 md:space-y-10">
           {POSTS.map((post, index) => {
             /* The design alternates which side the photo sits on. */
             const reversed = index % 2 === 1;
@@ -68,7 +68,7 @@ export function BlogHighlights() {
 
                   <Link
                     href={`${ROUTES.BLOGS}/${post.slug}`}
-                    className="text-ui text-primary mt-7 inline-flex items-center gap-3 hover:gap-4"
+                    className="text-ui text-primary transition-base mt-7 inline-flex items-center gap-3 hover:gap-4"
                   >
                     Read More
                     <ArrowRight className="size-5" />

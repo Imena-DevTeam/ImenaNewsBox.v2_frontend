@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
+import { coreValues } from "@/lib/images";
 
 const VALUES = [
   {
@@ -29,14 +30,14 @@ export function CoreValues() {
 
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16">
           <Image
-            src="/images/core-values.png"
+            src={coreValues}
             alt="Young members of the IMENA family standing together"
-            width={391}
-            height={654}
+            placeholder="blur"
+            sizes="(min-width: 1024px) 22rem, 24rem"
             className="border-primary/15 mx-auto w-full max-w-sm rounded-md border object-cover"
           />
 
-          <dl className="grid gap-10 sm:grid-cols-2 sm:gap-x-12 sm:gap-y-16">
+          <dl className="reveal-stagger grid gap-10 sm:grid-cols-2 sm:gap-x-12 sm:gap-y-16">
             {VALUES.map((value) => (
               <div key={value.title} className="text-center">
                 <dt className="text-ui text-text tracking-wider uppercase">

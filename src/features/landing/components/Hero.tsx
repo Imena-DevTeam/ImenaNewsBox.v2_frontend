@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/constants/routes";
+import { heroFamily } from "@/lib/images";
 import { TreePreviewCard } from "@/features/landing/components/TreePreviewCard";
 
 export function Hero() {
@@ -36,11 +37,10 @@ export function Hero() {
 
         <div className="relative">
           <Image
-            src="/images/hero-family.png"
+            src={heroFamily}
             alt="Members of the IMENA family posing together outside a family home"
-            width={701}
-            height={627}
             priority
+            placeholder="blur"
             className="motion-safe:animate-float ml-auto w-full max-w-xl"
           />
           <TreePreviewCard className="motion-safe:animate-float-slow absolute -bottom-6 -left-2 w-64 md:w-80 lg:-left-10" />

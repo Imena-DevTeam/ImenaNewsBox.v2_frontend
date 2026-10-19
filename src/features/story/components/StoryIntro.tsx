@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
+import { storyIntro } from "@/lib/images";
 
 export function StoryIntro() {
   return (
@@ -7,7 +8,7 @@ export function StoryIntro() {
        push the page sideways at a width we have not measured. */
     <section className="overflow-x-clip">
       <Container className="relative grid items-center gap-12 pb-14 md:grid-cols-2 md:gap-16 md:pb-24">
-        <div className="relative">
+        <div className="reveal relative">
           {/* The outlined card peeking out behind the photo. The offset is
               smaller on a phone, where the photo already reaches the page
               margin and a 24px offset would hang off the screen. */}
@@ -16,16 +17,15 @@ export function StoryIntro() {
             className="border-frame-accent bg-surface absolute inset-0 translate-x-3 translate-y-3 rounded-lg border md:translate-x-6 md:translate-y-6"
           />
           <Image
-            src="/images/story-intro.jpg"
+            src={storyIntro}
             alt="Four members of the IMENA family together outside a family home"
-            width={1080}
-            height={600}
+            placeholder="blur"
             sizes="(min-width: 768px) 50vw, 100vw"
             className="border-frame relative w-full rounded-lg border-[14px] object-cover"
           />
         </div>
 
-        <div>
+        <div className="reveal">
           {/* Set to the same edge as the paragraph below it. */}
           <h2 className="text-h3-m md:text-h2">
             Transforming each other&rsquo;s lives with love and care

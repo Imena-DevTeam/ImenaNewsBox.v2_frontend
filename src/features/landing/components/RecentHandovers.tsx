@@ -46,12 +46,12 @@ export function RecentHandovers() {
           </div>
         </div>
 
-        <ul className="mt-12 grid gap-8 md:grid-cols-3">
+        <ul className="reveal-stagger mt-12 grid gap-8 md:grid-cols-3">
           {HANDOVERS.map((item) => (
             <li
               key={item.title}
               /* The photo fills the card and the copy panel overlaps it. */
-              className="shadow-main relative overflow-hidden rounded-md"
+              className="shadow-main lift relative overflow-hidden rounded-md"
             >
               <Image
                 src={item.image}

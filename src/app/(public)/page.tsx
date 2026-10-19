@@ -10,7 +10,7 @@ import {
 
 export default function HomePage() {
   return (
-    <>
+    <div className="page-enter">
       <Hero />
       <AboutSection />
       <CoreValues />
@@ -18,6 +18,6 @@ export default function HomePage() {
       <BlogHighlights />
       <StoryCta />
       <EldersQuotes />
-    </>
+    </div>
   );
 }

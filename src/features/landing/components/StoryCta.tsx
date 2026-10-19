@@ -2,6 +2,7 @@ import Image from "next/image";
 import { BookOpen, UserRoundPlus } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/constants/routes";
+import { storyCta } from "@/lib/images";
 
 export function StoryCta() {
   return (
@@ -36,10 +37,10 @@ export function StoryCta() {
 
         {/* Runs to the right edge of the viewport. */}
         <Image
-          src="/images/story-cta.png"
+          src={storyCta}
           alt="Students of the IMENA family outside their school"
-          width={509}
-          height={360}
+          placeholder="blur"
+          sizes="(min-width: 768px) 34rem, 100vw"
           /* The export is already cut to the arc, so no clipping is applied here. */
           className="hidden h-full w-full object-cover md:block"
         />

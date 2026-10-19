@@ -15,12 +15,12 @@ export const metadata: Metadata = {
 
 export default function OurStoryPage() {
   return (
-    <>
+    <div className="page-enter">
       <StoryHero />
       <StoryIntro />
       <StatsStrip />
       <Timeline />
       <Slogans />
-    </>
+    </div>
   );
 }

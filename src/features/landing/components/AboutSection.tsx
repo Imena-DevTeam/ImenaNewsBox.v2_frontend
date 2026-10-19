@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { aboutFamily } from "@/lib/images";
 
 export function AboutSection() {
   return (
@@ -6,10 +7,10 @@ export function AboutSection() {
       <div className="grid items-center md:grid-cols-[minmax(0,40%)_1fr]">
         {/* The export is already cut to the arc, so no clipping is applied here. */}
         <Image
-          src="/images/about-family.png"
+          src={aboutFamily}
           alt="The IMENA family gathered for a celebration"
-          width={522}
-          height={367}
+          placeholder="blur"
+          sizes="(min-width: 768px) 40vw, 100vw"
           className="w-full"
         />
 
