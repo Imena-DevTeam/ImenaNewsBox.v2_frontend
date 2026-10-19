@@ -25,7 +25,9 @@
   /* Section headings. Sampled from the Figma export, which uses a violet
      accent the typography document does not list. */
   --color-heading: #5a36da;
-  /* The faded second line of the hero title. */
+  /* The faded second line of the hero title. Display sizes only — at 1.6:1
+     against the background it is a decorative tint, not a readable colour, so
+     it must never carry body copy. */
   --color-display-soft: #c8c7f0;
   /* The deep corner of the footer wash. */
   --color-footer: #090940;
@@ -33,7 +35,10 @@
   /* --- Functional neutrals ----------------------------------------------- */
   /* Not brand accents. Do not add saturated colours without a real need. */
   --color-text: #000000;
-  --color-muted: #808080;
+  /* Secondary text. The design's #808080 only reached 3.9:1 on the page
+     background, under the 4.5:1 WCAG AA needs for normal text; this clears it
+     at 5.6:1 and still reads as a step down from --color-text. */
+  --color-muted: #6b6b6b;
   --color-border: #e5e7f0;
 
   /* --- Decorative --------------------------------------------------------- */
@@ -49,7 +54,6 @@
   --color-ornament: #c3d2e8; /* the line-drawn suns, trees and houses */
   --color-frame: #999d8f; /* the thick photo frame */
   --color-frame-accent: #87b2b5; /* the card outlined behind it */
-  --color-stat: #7b4a94; /* the 140+ figure */
   --color-placeholder: #d9d9d9; /* the quote cards */
 
   /* --- Radius ------------------------------------------------------------ */

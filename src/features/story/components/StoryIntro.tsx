@@ -4,27 +4,33 @@ import { SunOrnament } from "@/features/story/components/Ornaments";
 
 export function StoryIntro() {
   return (
-    <section className="relative">
+    /* overflow-x-clip: a guard, so the offset card behind the photo can never
+       push the page sideways at a width we have not measured. */
+    <section className="relative overflow-x-clip">
       <SunOrnament className="absolute right-6 bottom-8 size-12 md:size-14" />
 
-      <Container className="relative grid items-center gap-12 pb-20 md:grid-cols-2 md:gap-16 md:pb-28">
+      <Container className="relative grid items-center gap-12 pb-14 md:grid-cols-2 md:gap-16 md:pb-24">
         <div className="relative">
-          {/* The outlined card peeking out behind the photo. */}
+          {/* The outlined card peeking out behind the photo. The offset is
+              smaller on a phone, where the photo already reaches the page
+              margin and a 24px offset would hang off the screen. */}
           <span
             aria-hidden
-            className="border-frame-accent bg-surface absolute inset-0 translate-x-6 translate-y-6 rounded-lg border"
+            className="border-frame-accent bg-surface absolute inset-0 translate-x-3 translate-y-3 rounded-lg border md:translate-x-6 md:translate-y-6"
           />
           <Image
             src="/images/story-intro.jpg"
             alt="Four members of the IMENA family together outside a family home"
             width={1080}
             height={600}
+            sizes="(min-width: 768px) 50vw, 100vw"
             className="border-frame relative w-full rounded-lg border-[14px] object-cover"
           />
         </div>
 
         <div>
-          <h2 className="text-h3-m md:text-h2 text-center">
+          {/* Set to the same edge as the paragraph below it. */}
+          <h2 className="text-h3-m md:text-h2">
             Transforming each other&rsquo;s lives with love and care
           </h2>
 
