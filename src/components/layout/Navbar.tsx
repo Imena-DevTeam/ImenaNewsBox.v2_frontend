@@ -1,20 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { NavLink } from "@/components/layout/NavLink";
 import { ButtonLink } from "@/components/ui/Button";
 import { PUBLIC_NAV } from "@/constants/nav";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/cn";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
 
+  /* The bar stays with you down the page — Our Story is long enough that a
+     header in the flow leaves you with no navigation for most of the scroll.
+     It tightens and takes a shadow once you are past the top. */
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <Container as="header" className="pt-6">
-      <div className="rounded-pill bg-text mx-auto max-w-4xl px-6 py-3 md:px-8">
+    <Container
+      as="header"
+      className={cn(
+        "transition-base sticky top-0 z-50 pb-2",
+        scrolled ? "pt-3" : "pt-6",
+      )}
+    >
+      <div
+        className={cn(
+          "rounded-pill bg-text transition-base mx-auto max-w-4xl px-6 py-3 md:px-8",
+          scrolled && "shadow-main",
+        )}
+      >
         <div className="flex items-center justify-between gap-6">
           <Link
             href={ROUTES.HOME}
