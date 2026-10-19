@@ -14,49 +14,6 @@ const stroke = {
   strokeLinejoin: "round",
 } as const;
 
-export function SunOrnament({ className }: OrnamentProps) {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      aria-hidden
-      className={cn("text-ornament", className)}
-      {...stroke}
-      strokeWidth={1.6}
-    >
-      <circle cx="24" cy="24" r="8" {...stroke} strokeWidth={1.6} />
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-        <line
-          key={deg}
-          x1="24"
-          y1="6"
-          x2="24"
-          y2="13"
-          transform={`rotate(${deg} 24 24)`}
-          {...stroke}
-          strokeWidth={1.6}
-        />
-      ))}
-    </svg>
-  );
-}
-
-export function TreeOrnament({ className }: OrnamentProps) {
-  return (
-    <svg
-      viewBox="0 0 48 56"
-      aria-hidden
-      className={cn("text-ornament", className)}
-      {...stroke}
-      strokeWidth={1.6}
-    >
-      <path d="M24 4 10 24h28L24 4Z" />
-      <path d="M24 16 6 38h36L24 16Z" />
-      <path d="M14 30h8M26 30h8M12 38h24" />
-      <path d="M24 38v12M18 50h12" />
-    </svg>
-  );
-}
-
 export function HouseHeartOrnament({ className }: OrnamentProps) {
   return (
     <svg

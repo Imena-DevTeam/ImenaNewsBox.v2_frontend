@@ -1,10 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import {
-  HouseHeartOrnament,
-  SunOrnament,
-} from "@/features/story/components/Ornaments";
+import { HouseHeartOrnament } from "@/features/story/components/Ornaments";
 import { cn } from "@/lib/cn";
 
 /* A description list, so each figure is announced together with its label
@@ -31,7 +28,6 @@ export function StatsStrip() {
   return (
     <section className="section-y relative overflow-hidden">
       <HouseHeartOrnament className="absolute top-6 left-4 size-14 md:size-16" />
-      <SunOrnament className="absolute top-10 right-[22%] hidden size-12 md:block md:size-14" />
 
       <Container className="relative">
         <SectionTitle title="OUR STORY" />

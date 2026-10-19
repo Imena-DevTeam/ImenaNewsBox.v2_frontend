@@ -1,22 +1,11 @@
 import { Container } from "@/components/layout/Container";
-import {
-  HouseHeartOrnament,
-  SunOrnament,
-  TreeOrnament,
-} from "@/features/story/components/Ornaments";
+import { HouseHeartOrnament } from "@/features/story/components/Ornaments";
 
 export function StoryHero() {
   return (
     <section className="section-y relative isolate overflow-hidden">
-      {/* Ornaments, clockwise from the top left. They stay in the margins
-          beside the title: the inner ones only appear at lg, where there is
-          room for them outside the title's measure. */}
-      <SunOrnament className="absolute top-2 left-2 size-10 md:size-12" />
-      <TreeOrnament className="absolute top-24 left-[4%] hidden size-12 lg:block" />
+      {/* One ornament each side, in the margins beside the title. */}
       <HouseHeartOrnament className="absolute top-40 left-3 hidden size-12 md:block md:size-14" />
-      <SunOrnament className="absolute top-4 right-[5%] hidden size-12 lg:block" />
-      <TreeOrnament className="absolute top-12 right-[2%] hidden size-14 md:block" />
-      <TreeOrnament className="absolute top-32 right-[9%] hidden size-12 lg:block" />
       <HouseHeartOrnament className="absolute right-3 bottom-4 size-14 md:size-16" />
 
       <Container className="relative">

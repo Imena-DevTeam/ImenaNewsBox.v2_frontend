@@ -1,14 +1,11 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
-import { SunOrnament } from "@/features/story/components/Ornaments";
 
 export function StoryIntro() {
   return (
     /* overflow-x-clip: a guard, so the offset card behind the photo can never
        push the page sideways at a width we have not measured. */
-    <section className="relative overflow-x-clip">
-      <SunOrnament className="absolute right-6 bottom-8 size-12 md:size-14" />
-
+    <section className="overflow-x-clip">
       <Container className="relative grid items-center gap-12 pb-14 md:grid-cols-2 md:gap-16 md:pb-24">
         <div className="relative">
           {/* The outlined card peeking out behind the photo. The offset is
