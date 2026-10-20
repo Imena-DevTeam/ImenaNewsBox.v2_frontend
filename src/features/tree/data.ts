@@ -1,78 +1,250 @@
+import type { StaticImageData } from "next/image";
 import { elder1, elder2, elder3, elder4 } from "@/lib/images";
 
 /* ---------------------------------------------------------------------------
-   The diagram.
+   The family tree.
 
    Coordinates are in the SVG's own 1248 x 1484 space, lifted from the design
    by finding the connected regions of its placeholder grey and taking their
    bounding boxes, rather than by eye.
 
-   A circle is a family member and a card is the name beside them, so when
-   real people arrive each circle becomes a portrait and each card a label.
-   Nothing here is decoration for its own sake.
+   A household is a card and one or two people; a person is a circle. Each
+   household names its parent, which is what lets the diagram light the path
+   from anyone back to the first generation.
 --------------------------------------------------------------------------- */
 
 export const DIAGRAM = { width: 1248, height: 1484 } as const;
 
-export interface TreeNode {
-  /** Members standing together — a couple, or siblings. */
-  members: { cx: number; cy: number; r: number }[];
-  /** The name card beside them. */
+export const PROMOTIONS = [
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2020-2021",
+] as const;
+
+export type Promotion = (typeof PROMOTIONS)[number];
+export const DEFAULT_PROMOTION: Promotion = "2019-2020";
+
+export const SUBFAMILIES = ["Mutako", "Inyenyeri", "Urumuri"] as const;
+export type Subfamily = (typeof SUBFAMILIES)[number];
+
+export interface Person {
+  id: string;
+  name: string;
+  role: string;
+  subfamily: Subfamily;
+  saying: string;
+  photo: StaticImageData;
+  /** Where the portrait sits in the diagram. */
+  node: { cx: number; cy: number; r: number };
+}
+
+export interface Household {
+  id: string;
+  /** The household one generation up, which is what an ancestor path walks. */
+  parent?: string;
+  generation: number;
+  people: Person[];
   card: { x: number; y: number; width: number; height: number };
 }
 
-export const TREE_NODES: TreeNode[] = [
+/* TODO: the real family record. These thirteen are stand-ins placed at the
+   design's own coordinates, distinct enough to exercise search, selection
+   and the detail panel, and marked as samples on the page so nobody takes
+   them for the register. */
+export const HOUSEHOLDS: Household[] = [
   {
-    members: [{ cx: 238, cy: 446, r: 88 }],
+    id: "h1",
+    generation: 1,
     card: { x: 348, y: 482, width: 267, height: 116 },
+    people: [
+      {
+        id: "p1",
+        name: "Mukamana Esperance",
+        role: "Grandmere",
+        subfamily: "Mutako",
+        saying: "Imbere heza haharanirwa.",
+        photo: elder1,
+        node: { cx: 238, cy: 446, r: 88 },
+      },
+    ],
   },
   {
-    members: [
-      { cx: 528, cy: 310, r: 47 },
-      { cx: 622, cy: 332, r: 47 },
-    ],
+    id: "h2",
+    parent: "h1",
+    generation: 2,
     card: { x: 643, y: 482, width: 218, height: 116 },
+    people: [
+      {
+        id: "p2",
+        name: "Habimana Jean",
+        role: "Grandpere",
+        subfamily: "Mutako",
+        saying: "We keep the door open.",
+        photo: elder2,
+        node: { cx: 528, cy: 310, r: 47 },
+      },
+      {
+        id: "p3",
+        name: "Uwase Clarisse",
+        role: "Grandmere",
+        subfamily: "Mutako",
+        saying: "Every name is remembered.",
+        photo: elder3,
+        node: { cx: 622, cy: 332, r: 47 },
+      },
+    ],
   },
   {
-    members: [
-      { cx: 837, cy: 229, r: 47 },
-      { cx: 931, cy: 264, r: 47 },
-    ],
+    id: "h3",
+    parent: "h1",
+    generation: 2,
     card: { x: 884, y: 373, width: 271, height: 116 },
+    people: [
+      {
+        id: "p4",
+        name: "Niyonzima Eric",
+        role: "Coordinator",
+        subfamily: "Inyenyeri",
+        saying: "We carry each other.",
+        photo: elder4,
+        node: { cx: 837, cy: 229, r: 47 },
+      },
+      {
+        id: "p5",
+        name: "Mukasine Diane",
+        role: "Maman",
+        subfamily: "Inyenyeri",
+        saying: "A full table is the point.",
+        photo: elder1,
+        node: { cx: 931, cy: 264, r: 47 },
+      },
+    ],
   },
   {
-    members: [
-      { cx: 290, cy: 686, r: 47 },
-      { cx: 384, cy: 686, r: 47 },
-    ],
+    id: "h4",
+    parent: "h1",
+    generation: 3,
     card: { x: 201, y: 740, width: 271, height: 116 },
+    people: [
+      {
+        id: "p6",
+        name: "Bizimana Olivier",
+        role: "Papa",
+        subfamily: "Urumuri",
+        saying: "Work, then rest together.",
+        photo: elder2,
+        node: { cx: 290, cy: 686, r: 47 },
+      },
+      {
+        id: "p7",
+        name: "Ingabire Aline",
+        role: "Maman",
+        subfamily: "Urumuri",
+        saying: "Nobody is counted out.",
+        photo: elder3,
+        node: { cx: 384, cy: 686, r: 47 },
+      },
+    ],
   },
   {
-    members: [
-      { cx: 884, cy: 845, r: 47 },
-      { cx: 972, cy: 845, r: 47 },
-    ],
+    id: "h5",
+    parent: "h3",
+    generation: 3,
     card: { x: 878, y: 969, width: 288, height: 123 },
+    people: [
+      {
+        id: "p8",
+        name: "Nshimiyimana Patrick",
+        role: "Vice Coordinator",
+        subfamily: "Inyenyeri",
+        saying: "Ask, and we will come.",
+        photo: elder4,
+        node: { cx: 884, cy: 845, r: 47 },
+      },
+      {
+        id: "p9",
+        name: "Umutoni Sandrine",
+        role: "Recruitment",
+        subfamily: "Inyenyeri",
+        saying: "New names, same family.",
+        photo: elder1,
+        node: { cx: 972, cy: 845, r: 47 },
+      },
+    ],
   },
   {
-    members: [
-      { cx: 516, cy: 884, r: 47 },
-      { cx: 616, cy: 867, r: 47 },
-    ],
+    id: "h6",
+    parent: "h2",
+    generation: 3,
     card: { x: 299, y: 1056, width: 288, height: 123 },
+    people: [
+      {
+        id: "p10",
+        name: "Rwamamara Pacifique",
+        role: "Papa",
+        subfamily: "Mutako",
+        saying: "Our history is our foundation.",
+        photo: elder2,
+        node: { cx: 516, cy: 884, r: 47 },
+      },
+      {
+        id: "p11",
+        name: "Keza Chantal",
+        role: "Maman",
+        subfamily: "Mutako",
+        saying: "Celebrate the small days.",
+        photo: elder3,
+        node: { cx: 616, cy: 867, r: 47 },
+      },
+    ],
   },
   {
-    members: [
-      { cx: 452, cy: 1281, r: 50 },
-      { cx: 569, cy: 1302, r: 50 },
-    ],
+    id: "h7",
+    parent: "h6",
+    generation: 4,
     card: { x: 621, y: 1323, width: 288, height: 124 },
+    people: [
+      {
+        id: "p12",
+        name: "Gatete Emmanuel",
+        role: "Member",
+        subfamily: "Mutako",
+        saying: "Still learning from the elders.",
+        photo: elder4,
+        node: { cx: 452, cy: 1281, r: 50 },
+      },
+      {
+        id: "p13",
+        name: "Ineza Teta Landra",
+        role: "Member",
+        subfamily: "Mutako",
+        saying: "Imbere heza haharanirwa.",
+        photo: elder1,
+        node: { cx: 569, cy: 1302, r: 50 },
+      },
+    ],
   },
 ];
 
+export const PEOPLE: Person[] = HOUSEHOLDS.flatMap((h) => h.people);
+
+export const HOUSEHOLD_BY_ID = new Map(HOUSEHOLDS.map((h) => [h.id, h]));
+
+/** Every household from this one up to the first generation. */
+export function ancestorsOf(householdId: string): string[] {
+  const chain: string[] = [];
+  let current = HOUSEHOLD_BY_ID.get(householdId);
+  while (current) {
+    chain.push(current.id);
+    current = current.parent ? HOUSEHOLD_BY_ID.get(current.parent) : undefined;
+  }
+  return chain;
+}
+
 /** The branches, traced from the design: every stroke of its dark line work
     read off row by row and refitted as a smooth path, so the sweeps are the
-    designers own rather than an approximation of them. */
+    designer's own rather than an approximation of them. */
 export const TREE_BRANCHES = [
   "M 836 275 Q 833 301 832 314 Q 830 327 829 340 Q 827 353 826 366 Q 824 379 823 392 Q 821 405 819 418 Q 817 431 815 444 Q 813 457 812 470 Q 810 483 808 496 Q 806 509 804 522 Q 802 535 800 548 Q 797 561 795 574 Q 793 587 791 600 Q 788 613 786 626 Q 783 639 781 652 Q 778 665 776 678 Q 773 691 770 704 Q 767 717 764 730 Q 761 743 758 756 Q 755 769 752 782 Q 748 795 745 808 Q 741 821 738 834 Q 734 847 730 860 Q 725 873 721 886 Q 716 899 711 912 Q 706 925 700 938 Q 694 951 688 964 Q 681 977 671 990 Q 661 1003 647 1014 T 632 1024",
   "M 979 252 Q 990 278 995 291 Q 999 304 1002 317 Q 1005 330 1007 343 Q 1008 356 1010 369 Q 1011 382 1012 395 Q 1012 408 1012 421 Q 1012 434 1012 447 Q 1011 460 1010 473 Q 1009 486 1008 499 Q 1007 512 1005 525 Q 1003 538 1002 551 Q 1000 564 998 577 Q 996 590 994 603 Q 991 616 989 629 Q 986 642 983 655 Q 980 668 977 681 Q 974 694 971 707 Q 968 720 965 733 Q 961 746 957 759 Q 953 772 950 785 Q 946 798 942 811 Q 937 824 934 832 T 931 840",
@@ -91,37 +263,43 @@ export const TREE_BRANCHES = [
   "M 562 977 Q 566 989 571 995 Q 575 1001 581 1007 Q 587 1013 597 1019 T 607 1024",
 ];
 
-/* ---------------------------------------------------------------------------
-   The listed members.
---------------------------------------------------------------------------- */
-
-export const PROMOTION = "2019-2020";
-
-export interface Member {
-  name: string;
-  role: string;
-  subfamily: string;
-  saying: string;
-  photo: typeof elder1;
+/* Which households a branch runs between, worked out from where its two ends
+   land rather than stated by hand, so the highlighting follows the drawing
+   even if the drawing is retraced. A stroke that ends near nobody stays
+   unattached and simply never lights up. */
+function nearestHousehold(x: number, y: number): string | undefined {
+  let best: string | undefined;
+  let bestDistance = 150;
+  for (const household of HOUSEHOLDS) {
+    for (const person of household.people) {
+      const d = Math.hypot(person.node.cx - x, person.node.cy - y);
+      if (d < bestDistance) {
+        bestDistance = d;
+        best = household.id;
+      }
+    }
+  }
+  return best;
 }
 
-/* TODO: real people. The design repeats one placeholder person across every
-   card, and these keep that shape until the family record is wired up. */
-const placeholder = (photo: typeof elder1): Member => ({
-  name: "Ineza Teta Landra",
-  role: "Grandmere",
-  subfamily: "Mutako",
-  saying: "Imbere heza haharanirwa.",
-  photo,
+export const BRANCH_EDGES: (readonly [
+  string | undefined,
+  string | undefined,
+])[] = TREE_BRANCHES.map((d) => {
+  const n = (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+  return [
+    nearestHousehold(n[0] ?? 0, n[1] ?? 0),
+    nearestHousehold(n[n.length - 2] ?? 0, n[n.length - 1] ?? 0),
+  ] as const;
 });
 
-export const MEMBER_GROUPS: { heading: string; members: Member[] }[] = [
-  {
-    heading: "Grandpere & Grandmere",
-    members: [placeholder(elder1), placeholder(elder2)],
-  },
-  {
-    heading: "Vice Coordinator / Recruitment",
-    members: [placeholder(elder3), placeholder(elder4)],
-  },
-];
+/* The two groups the design lists under the tree. They read from the same
+   record as the diagram rather than keeping a second copy of the people, so
+   a change to a name or a role shows up in both places. */
+export const MEMBER_GROUPS: { heading: string; members: Person[] }[] = [
+  { heading: "Grandpere & Grandmere", householdId: "h2" },
+  { heading: "Vice Coordinator / Recruitment", householdId: "h5" },
+].map(({ heading, householdId }) => ({
+  heading,
+  members: HOUSEHOLD_BY_ID.get(householdId)?.people ?? [],
+}));

@@ -23,7 +23,7 @@ export function TreeHero() {
         {/* Centred as a block, but set left, so the three lines break where
             the design breaks them. */}
         <h1 className="text-display-m md:text-display mx-auto max-w-2xl">
-          Family is a huge part of who we are, so does its{" "}
+          Family is a huge part of who we are &mdash; and so is its{" "}
           <span className="text-heading">history.</span>
         </h1>
       </Container>

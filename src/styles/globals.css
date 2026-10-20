@@ -378,6 +378,54 @@
   transition-timing-function: var(--ease-out-soft);
 }
 
+/* The branch strokes draw themselves in as the tree scrolls past. Each path
+   carries pathLength="1", so one dash covers the whole stroke whatever its
+   real length, and the offset animates to zero.
+
+   The timeline is named on the wrapper rather than taken per path: an SVG
+   path is not a scroll box of its own, so `view()` on it would do nothing. */
+@utility tree-timeline {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      view-timeline-name: --tree;
+    }
+  }
+}
+
+/* The dash lives in the keyframes, not on the element. If the animation
+   never runs — forced off, an unresolved timeline — the stroke simply draws
+   solid instead of staying invisible forever. */
+@keyframes draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@utility draw-in {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation-name: draw;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: --tree;
+      animation-range: entry 5% cover 60%;
+
+      /* Staggered so the branches arrive in sequence rather than at once. */
+      &:nth-child(3n + 2) {
+        animation-range: entry 12% cover 68%;
+      }
+      &:nth-child(3n + 3) {
+        animation-range: entry 19% cover 76%;
+      }
+    }
+  }
+}
+
 /* Card hover. The shadow still responds under reduced motion; only the
    movement is withheld. */
 @utility lift {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import {
   MemberGroups,
-  TreeDiagram,
+  TreeExplorer,
   TreeHero,
   TreeIntro,
 } from "@/features/tree/components";
@@ -16,8 +16,10 @@ export default function FamilyTreePage() {
   return (
     <div className="page-enter">
       <TreeHero />
-      <TreeDiagram />
       <TreeIntro />
+      <div className="mt-10 md:mt-14">
+        <TreeExplorer />
+      </div>
       <MemberGroups />
     </div>
   );
