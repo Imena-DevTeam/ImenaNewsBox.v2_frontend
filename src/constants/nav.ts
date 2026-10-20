@@ -1,4 +1,5 @@
 import { ROUTES } from "@/constants/routes";
+import { CONTACT_EMAIL_HREF } from "@/constants/site";
 
 export interface NavItem {
   label: string;
@@ -11,29 +12,29 @@ export const PUBLIC_NAV: NavItem[] = [
   { label: "Family Tree", href: ROUTES.FAMILY_TREE },
 ];
 
-/** Columns and labels as they appear in the Figma footer. */
+/** The footer columns. Every destination here is a page that exists. */
 export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [
   {
-    heading: "Home",
+    heading: "Explore",
     items: [
-      { label: "Benefits", href: ROUTES.OUR_STORY },
-      { label: "Features", href: ROUTES.FAMILY_TREE },
+      { label: "Family Tree", href: ROUTES.FAMILY_TREE },
+      { label: "Gallery", href: ROUTES.GALLERY },
+      { label: "Blogs", href: ROUTES.BLOGS },
     ],
   },
   {
-    heading: "Platform",
+    heading: "The family",
     items: [
-      { label: "Solution", href: ROUTES.FAMILY_TREE },
-      { label: "Overview", href: ROUTES.OUR_STORY },
-      { label: "Portfolio", href: ROUTES.GALLERY },
+      { label: "Our Story", href: ROUTES.OUR_STORY },
+      { label: "Core values", href: `${ROUTES.HOME}#values` },
     ],
   },
   {
-    heading: "About us",
+    heading: "Members",
     items: [
-      { label: "Connectors", href: ROUTES.OUR_STORY },
-      { label: "Security", href: ROUTES.OUR_STORY },
-      { label: "Contact Us", href: ROUTES.OUR_STORY },
+      { label: "Join as a member", href: ROUTES.SIGNUP },
+      { label: "Log in", href: ROUTES.LOGIN },
+      { label: "Contact us", href: CONTACT_EMAIL_HREF },
     ],
   },
 ];

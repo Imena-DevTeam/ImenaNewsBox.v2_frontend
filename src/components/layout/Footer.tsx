@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { FOOTER_NAV } from "@/constants/nav";
-import { ROUTES } from "@/constants/routes";
+import { CONTACT_EMAIL_HREF } from "@/constants/site";
 
 export function Footer() {
   return (
@@ -22,42 +23,25 @@ export function Footer() {
 
         <div className="px-6 py-9 md:px-12 md:py-11">
           <h2 className="text-display-light-m md:text-display-light max-w-sm">
-            Ready to start syncing your data?
+            Ready to add your chapter?
           </h2>
 
-          <Link
-            href={ROUTES.OUR_STORY}
-            className="bg-surface text-text h-control-md text-body-sm mt-7 inline-flex items-center justify-center rounded-sm px-7"
+          <a
+            href={CONTACT_EMAIL_HREF}
+            className="bg-surface text-text h-control-md text-body-sm transition-fast hover:bg-surface/90 mt-7 inline-flex items-center justify-center rounded-sm px-7"
           >
             Contact us
-          </Link>
+          </a>
 
           <div className="mt-10 grid gap-8 md:grid-cols-[minmax(0,1fr)_auto]">
             <div>
               <p className="text-ui">Newsletter</p>
               <p className="text-surface/80 text-body-sm mt-4 max-w-72">
-                We&rsquo;d love to share our love for product with you in our
-                monthly newsletter.
+                A short letter each month: birthdays, handovers and new
+                photographs in the family archive.
               </p>
 
-              <form className="mt-5 flex flex-wrap gap-3">
-                <label htmlFor="newsletter-email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="newsletter-email"
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  className="border-surface/25 bg-surface/10 text-surface placeholder:text-surface/70 focus:border-surface h-control-md text-body-sm w-56 rounded-sm border px-4 outline-none"
-                />
-                <button
-                  type="submit"
-                  className="bg-surface/20 hover:bg-surface/30 h-control-md text-body-sm rounded-sm px-6 transition-colors"
-                >
-                  Subscribe
-                </button>
-              </form>
+              <NewsletterForm />
             </div>
 
             {/* The three columns sit together on the right, as in the design. */}
@@ -84,7 +68,7 @@ export function Footer() {
 
           <div className="mt-6 flex justify-end gap-3">
             <a
-              href="mailto:hello@imenafamily.rw"
+              href={CONTACT_EMAIL_HREF}
               aria-label="Email the IMENA family"
               className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
             >
