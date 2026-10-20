@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Admin Log In" };
 
 export default function AdminLoginPage() {
   return (
-    <AuthShell>
+    <AuthShell title={["Dear Admin,", "Welcome back!"]}>
       <AdminLoginForm />
     </AuthShell>
   );

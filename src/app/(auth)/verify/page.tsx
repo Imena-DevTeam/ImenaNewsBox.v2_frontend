@@ -13,14 +13,14 @@ export default async function VerifyPage({
   const { email } = await searchParams;
 
   return (
-    <main className="h-dvh overflow-hidden bg-white px-6 pt-[clamp(24px,7dvh,61px)]">
-      <div className="mx-auto w-full max-w-[490px]">
+    <main className="flex min-h-dvh flex-col bg-white px-6 py-[clamp(24px,7dvh,61px)]">
+      <div className="mx-auto flex w-full max-w-[490px] flex-1 flex-col">
         {/* 36px hit target around the 14px arrow, offset so the arrow keeps
             its design position. */}
         <Link
           href="/login"
           aria-label="Back to log in"
-          className="group focus-visible:ring-brand -my-[11px] -ml-[5px] inline-flex size-9 items-center justify-center rounded-full border border-transparent transition-colors duration-300 ease-out hover:border-black hover:bg-black focus-visible:ring-2 focus-visible:outline-none"
+          className="group focus-visible:ring-brand -my-[11px] -ml-[5px] inline-flex size-9 items-center justify-center self-start rounded-full border border-transparent transition-colors duration-300 ease-out hover:border-black hover:bg-black focus-visible:ring-2 focus-visible:outline-none"
         >
           <Image
             src="/icons/arrow-left.svg"
@@ -31,7 +31,7 @@ export default async function VerifyPage({
           />
         </Link>
 
-        <div className="mt-[clamp(32px,10dvh,92px)]">
+        <div className="flex flex-1 items-center pb-[clamp(24px,8dvh,80px)]">
           <VerifyForm email={email} />
         </div>
       </div>

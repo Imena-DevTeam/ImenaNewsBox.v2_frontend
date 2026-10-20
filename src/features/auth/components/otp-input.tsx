@@ -8,10 +8,16 @@ type OtpInputProps = {
   value: string;
   onChange: (value: string) => void;
   invalid?: boolean;
+  disabled?: boolean;
 };
 
 /** Five single-digit boxes that behave as one field (auto-advance + paste). */
-export function OtpInput({ value, onChange, invalid }: OtpInputProps) {
+export function OtpInput({
+  value,
+  onChange,
+  invalid,
+  disabled,
+}: OtpInputProps) {
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = value.padEnd(OTP_LENGTH, " ").slice(0, OTP_LENGTH).split("");
 
@@ -57,7 +63,7 @@ export function OtpInput({ value, onChange, invalid }: OtpInputProps) {
     <div
       role="group"
       aria-label={`${OTP_LENGTH}-digit verification code`}
-      className="flex items-center justify-center gap-3 sm:gap-[30px]"
+      className="flex items-center justify-center gap-3 sm:gap-5"
     >
       {digits.map((digit, index) => (
         <input
@@ -68,6 +74,8 @@ export function OtpInput({ value, onChange, invalid }: OtpInputProps) {
           inputMode="numeric"
           autoComplete={index === 0 ? "one-time-code" : "off"}
           maxLength={1}
+          autoFocus={index === 0}
+          disabled={disabled}
           aria-label={`Digit ${index + 1}`}
           aria-invalid={invalid || undefined}
           value={digit.trim()}
@@ -75,9 +83,11 @@ export function OtpInput({ value, onChange, invalid }: OtpInputProps) {
           onKeyDown={(event) => handleKeyDown(index, event)}
           onPaste={handlePaste}
           className={cn(
-            "hover:border-brand h-[65px] w-[55px] rounded-[10px] border border-black bg-white text-center text-2xl text-black transition-colors duration-300 ease-out",
-            "focus:border-brand focus:ring-brand/30 focus:ring-2 focus:outline-none",
-            invalid && "border-red-500",
+            "font-display h-16 w-14 rounded-2xl border bg-white text-center text-3xl font-bold text-black",
+            "focus:outline-none disabled:opacity-80",
+            invalid
+              ? "border-red-500"
+              : "border-field-border focus:border-neutral-500",
           )}
         />
       ))}

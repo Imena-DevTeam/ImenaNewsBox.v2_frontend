@@ -4,22 +4,39 @@
   /* Brand */
   --color-brand: #5935da;
   --color-brand-hover: #4a2bc4;
+  --color-brand-panel: #b77be6;
 
   /* Neutrals pulled from the auth designs */
   --color-muted: #a8a8a8;
   --color-field-border: #cccccc;
   --color-placeholder: #c3c2c2;
   --color-divider-text: #b6b6b6;
+  --color-divider-line: #d0d0d0;
+  --color-decor: #e0e0f0;
 
   /* Typography */
-  --font-display:
-    var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
 
   /* Radii used by the auth controls */
   --radius-field: 15px;
   --radius-otp: 10px;
   --radius-pill: 32px;
+
+  /* Motion */
+  --animate-rise: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 html,

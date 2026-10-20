@@ -28,18 +28,8 @@ export function LoginForm() {
   });
 
   return (
-    <div className="w-full">
-      <h1 className="font-display text-[clamp(28px,4.6dvh,36px)] leading-[normal] font-bold text-black lg:whitespace-nowrap">
-        Welcome back,
-        <br />
-        Login to catch up
-      </h1>
-
-      <form
-        onSubmit={onSubmit}
-        noValidate
-        className="mt-[clamp(12px,3dvh,28px)] max-w-[343px]"
-      >
+    <>
+      <form onSubmit={onSubmit} noValidate>
         <TextField
           label="Name"
           placeholder="Enter family name"
@@ -48,19 +38,13 @@ export function LoginForm() {
           {...register("name")}
         />
 
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-[clamp(10px,2dvh,19px)]"
-        >
+        <Button type="submit" disabled={isSubmitting} className="mt-6">
           Log In
         </Button>
       </form>
 
-      <div className="max-w-[343px]">
-        <OrDivider />
-        <GoogleButton />
-      </div>
-    </div>
+      <OrDivider />
+      <GoogleButton />
+    </>
   );
 }

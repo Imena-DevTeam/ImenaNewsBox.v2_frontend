@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Log In" };
 
 export default function LoginPage() {
   return (
-    <AuthShell>
+    <AuthShell title={["Welcome back,", "Login to catch up"]}>
       <LoginForm />
     </AuthShell>
   );

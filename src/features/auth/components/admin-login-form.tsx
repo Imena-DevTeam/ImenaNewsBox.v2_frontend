@@ -28,20 +28,8 @@ export function AdminLoginForm() {
   });
 
   return (
-    <div className="w-full">
-      <h1 className="font-display text-[clamp(28px,4.6dvh,36px)] leading-[normal] font-bold text-black lg:whitespace-nowrap">
-        Dear Admin,
-        <br />
-        Welcome back,
-        <br />
-        Login to catch up
-      </h1>
-
-      <form
-        onSubmit={onSubmit}
-        noValidate
-        className="mt-[clamp(12px,3dvh,28px)] max-w-[343px] space-y-[clamp(10px,2.2dvh,22px)]"
-      >
+    <>
+      <form onSubmit={onSubmit} noValidate className="space-y-5">
         <TextField
           label="Name"
           placeholder="Enter family name"
@@ -59,19 +47,13 @@ export function AdminLoginForm() {
           {...register("password")}
         />
 
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="!mt-[clamp(10px,2.2dvh,22px)]"
-        >
+        <Button type="submit" disabled={isSubmitting} className="!mt-6">
           Log In
         </Button>
       </form>
 
-      <div className="max-w-[343px]">
-        <OrDivider />
-        <GoogleButton />
-      </div>
-    </div>
+      <OrDivider />
+      <GoogleButton />
+    </>
   );
 }

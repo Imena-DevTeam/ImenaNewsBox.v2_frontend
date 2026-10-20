@@ -1,56 +1,80 @@
 import Image from "next/image";
-import { BackToHome } from "./back-to-home";
+import Link from "next/link";
+
+type AuthShellProps = {
+  /** Heading lines, each on its own line. */
+  title: string[];
+  children: React.ReactNode;
+};
 
 /**
- * Two-column auth layout from the Figma auth screens: the form column on the
- * left under the logo and "Back To Home" pill, the family photo top-right and
- * a faint house mark below it.
- *
- * The page is locked to the viewport (no scrolling), so vertical gaps use the
- * Figma values as a ceiling and shrink with the viewport height.
+ * Auth page layout: a white page with the form column on the left and a
+ * blob-cut family photo near the top right. The photo and the lavender
+ * hearts / house outlines only show on desktop.
  */
-export function AuthShell({ children }: { children: React.ReactNode }) {
+export function AuthShell({ title, children }: AuthShellProps) {
   return (
-    <main className="relative flex h-dvh overflow-hidden bg-white">
-      <div className="relative z-10 flex w-full flex-col px-6 pt-[clamp(16px,5dvh,49px)] pb-[clamp(16px,4dvh,48px)] sm:px-8 lg:w-[540px] lg:shrink-0 lg:pr-8 lg:pl-7 [@media(max-height:720px)]:pt-6">
-        {/* The hearts artwork overflows its 83x81 slot by ~3.5px per side. */}
+    <main className="relative flex min-h-dvh flex-col overflow-hidden bg-white px-6 py-6 sm:px-10 lg:px-[45px] lg:py-[45px]">
+      <div aria-hidden="true" className="pointer-events-none hidden lg:block">
+        {/* Centred in the space right of the form column (45px gutter + 11%
+            inset + 343px column), so it drifts toward the middle on wide
+            screens instead of hugging the right edge. */}
         <Image
-          src="/images/logo.svg"
-          alt="IMENA Family Times"
-          width={90.27}
-          height={88.47}
-          className="ml-[12.5px] aspect-[90.27/88.47] h-[clamp(48px,9dvh,88.47px)] w-auto self-start [@media(max-height:720px)]:h-12"
+          src="/images/auth-blob.png"
+          alt=""
+          width={1036}
+          height={1008}
+          sizes="523px"
           priority
+          draggable={false}
+          className="absolute top-2 left-[calc(55.5%-72px)] h-auto w-[523px] select-none"
         />
-
-        <div className="mt-[clamp(12px,3dvh,30px)] -ml-[7px]">
-          <BackToHome />
-        </div>
-
-        <div className="mt-[clamp(16px,4.5dvh,46px)] w-full max-w-[403px]">
-          {children}
+        <Image
+          src="/images/hearts.svg"
+          alt=""
+          width={90.29}
+          height={81.4}
+          className="absolute top-[18%] left-[2.7%]"
+        />
+        <div className="absolute right-0 bottom-0.5 flex size-[171px] items-center justify-center">
+          <Image
+            src="/images/house.svg"
+            alt=""
+            width={149.19}
+            height={155.46}
+            className="-rotate-[21.56deg]"
+          />
         </div>
       </div>
 
-      {/* 700px wide at the 1024px design width; grows on larger screens but
-          never taller than ~78% of the viewport. */}
-      <div className="pointer-events-none absolute top-0 right-0 hidden w-[min(calc(100vw_-_324px),calc(78dvh*700/572))] lg:block">
+      <Link
+        href="/"
+        className="group focus-visible:ring-brand rounded-pill relative z-10 inline-flex h-12 items-center gap-3 self-start border border-black bg-white px-[22px] text-xl text-black transition-colors duration-300 ease-out hover:bg-black hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      >
         <Image
-          src="/images/auth-photo.png"
+          src="/icons/arrow-back.svg"
           alt=""
-          width={700}
-          height={572}
-          sizes="(min-width: 1024px) 60vw, 0px"
-          className="h-auto w-full"
-          priority
+          width={14}
+          height={13.59}
+          className="transition-[filter] duration-300 ease-out group-hover:invert"
         />
-        <Image
-          src="/images/house.svg"
-          alt=""
-          width={151.04}
-          height={153.65}
-          className="absolute top-[97.7%] right-[5%] h-auto w-[21.6%] -rotate-[21deg]"
-        />
+        Back To Home
+      </Link>
+
+      <div className="relative flex flex-1 items-center py-10 lg:py-6 lg:pl-[11%]">
+        <div className="mx-auto w-full max-w-[343px] lg:mx-0">
+          <h1 className="font-heading motion-safe:animate-rise text-[36px] leading-[1.22] font-bold text-black">
+            {title.map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
+          </h1>
+
+          <div className="motion-safe:animate-rise mt-8 [animation-delay:90ms]">
+            {children}
+          </div>
+        </div>
       </div>
     </main>
   );
