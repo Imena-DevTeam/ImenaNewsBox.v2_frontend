@@ -149,6 +149,15 @@
   --spacing-section: 6rem; /* 96px — desktop section padding */
   --spacing-section-m: 3.5rem; /* 56px — mobile section padding */
 
+  /* Family Tree. Sampled from the design; the member cards use a lighter
+     ink and a violet edge that nothing else on the site uses. */
+  --color-tree-card: #f7f5fc; /* the member card fill */
+  --color-tree-edge: #733fdc; /* its violet border */
+  --color-tree-ink: #1a1a29; /* the member name */
+  --color-tree-role: #000569; /* the role and subfamily lines */
+  --color-tree-quote: #454655; /* the quoted saying */
+  --color-tree-mark: #006f9e; /* the small square beside the hero title */
+
   /* --- Slogan cards ------------------------------------------------------- */
   /* The four cards of the turning cross. The design calls for 346x419; these
      are 5% off that, so 329x398. The ratio is what holds their shape, and a

@@ -1,17 +1,24 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/layout/ComingSoon";
+import {
+  MemberGroups,
+  TreeDiagram,
+  TreeHero,
+  TreeIntro,
+} from "@/features/tree/components";
 
 export const metadata: Metadata = {
   title: "Family Tree",
   description:
-    "Explore how every branch of the IMENA family connects — generation by generation.",
+    "Discover the connections and relationships within the extended IMENA family, generation by generation.",
 };
 
 export default function FamilyTreePage() {
   return (
-    <ComingSoon
-      title="Family Tree"
-      description="Explore how every branch of the IMENA family connects — generation by generation."
-    />
+    <div className="page-enter">
+      <TreeHero />
+      <TreeDiagram />
+      <TreeIntro />
+      <MemberGroups />
+    </div>
   );
 }

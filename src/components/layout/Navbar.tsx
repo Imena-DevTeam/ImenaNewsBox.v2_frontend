@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { NavLink } from "@/components/layout/NavLink";
-import { ButtonLink } from "@/components/ui/Button";
+import { LoginMenu } from "@/components/layout/LoginMenu";
 import { PUBLIC_NAV } from "@/constants/nav";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/cn";
@@ -53,14 +53,7 @@ export function Navbar() {
             ))}
           </nav>
 
-          <ButtonLink
-            href={ROUTES.LOGIN}
-            variant="light"
-            size="sm"
-            className="hidden md:inline-flex"
-          >
-            Login
-          </ButtonLink>
+          <LoginMenu className="hidden md:block" />
 
           <button
             type="button"
@@ -81,9 +74,7 @@ export function Navbar() {
             {PUBLIC_NAV.map((item) => (
               <NavLink key={item.href} {...item} />
             ))}
-            <ButtonLink href={ROUTES.LOGIN} variant="light" size="sm">
-              Login
-            </ButtonLink>
+            <LoginMenu />
           </nav>
         ) : null}
       </div>
