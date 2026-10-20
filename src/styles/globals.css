@@ -150,13 +150,15 @@
   --spacing-section-m: 3.5rem; /* 56px — mobile section padding */
 
   /* --- Slogan cards ------------------------------------------------------- */
-  /* The four cards of the turning cross, at the size the design specifies.
-     They hold that exact size where there is room for three of them across;
-     below that the aspect ratio keeps their shape while they shrink. */
-  --spacing-slogan-card: 346px;
+  /* The four cards of the turning cross. The design calls for 346x419; these
+     are 5% off that, so 329x398. The ratio is what holds their shape, and a
+     uniform scale leaves it unchanged, so only the width moves.
+     They hold that size where there is room for three of them across; below
+     that the aspect ratio keeps their shape while they shrink. */
+  --spacing-slogan-card: 329px;
   --aspect-slogan-card: 346 / 419;
   /* Three cards plus the two 24px gaps between them. */
-  --container-slogan-cross: 1086px;
+  --container-slogan-cross: 1035px;
 
   /* --- Control heights ---------------------------------------------------- */
   /* Buttons, inputs and selects all sit on these three heights. */
