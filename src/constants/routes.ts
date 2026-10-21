@@ -5,5 +5,7 @@ export const ROUTES = {
   FAMILY_TREE: "/family-tree",
   BLOGS: "/blogs",
   LOGIN: "/login",
+  ADMIN_LOGIN: "/admin/login",
+  VERIFY: "/verify",
   SIGNUP: "/signup",
 } as const;

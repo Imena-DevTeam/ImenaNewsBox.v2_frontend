@@ -24,6 +24,8 @@ const FONT_SIZES = [
   "body-sm",
   "ui",
   "caption",
+  "auth-title",
+  "auth-display",
 ];
 
 const twMerge = extendTailwindMerge({
