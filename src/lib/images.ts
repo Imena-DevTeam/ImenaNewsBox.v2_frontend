@@ -11,6 +11,7 @@
  */
 
 import aboutFamily from "@public/images/about-family.png";
+import blogReunion from "@public/images/blog-reunion.png";
 import coreValues from "@public/images/core-values.png";
 import elder1 from "@public/images/elder-1.png";
 import elder2 from "@public/images/elder-2.png";
@@ -23,6 +24,7 @@ import storyIntro from "@public/images/story-intro.jpg";
 
 export {
   aboutFamily,
+  blogReunion,
   coreValues,
   elder1,
   elder2,

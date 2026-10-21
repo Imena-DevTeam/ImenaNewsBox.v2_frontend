@@ -6,4 +6,5 @@ export const ROUTES = {
   BLOGS: "/blogs",
   LOGIN: "/login",
   SIGNUP: "/signup",
+  VERIFY: "/verify",
 } as const;

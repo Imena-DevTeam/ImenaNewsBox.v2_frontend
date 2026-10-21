@@ -426,6 +426,39 @@
   }
 }
 
+/* The login photograph cycles between a few pictures. Each layer is visible
+   for roughly a third of the cycle with a slow dissolve either side; the
+   stagger comes from a negative delay per layer, so they are already spread
+   across the cycle on the first frame rather than all fading in at once. */
+@keyframes photo-cycle {
+  0%,
+  28% {
+    opacity: 1;
+  }
+  36%,
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility photo-cycle {
+  opacity: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: photo-cycle 18s ease-in-out infinite;
+  }
+
+  /* Without motion the first picture simply stays. */
+  @media (prefers-reduced-motion: reduce) {
+    &:first-of-type {
+      opacity: 1;
+    }
+  }
+}
+
 /* Card hover. The shadow still responds under reduced motion; only the
    movement is withheld. */
 @utility lift {
