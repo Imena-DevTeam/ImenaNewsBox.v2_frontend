@@ -27,7 +27,11 @@ export default async function LoginPage({
 
         <LoginForm audience={audience} />
 
-        <LoginPhoto className="order-first lg:order-none" />
+        {/* No order override: the form comes first in the markup, so on a
+            phone it is the first thing under your thumb instead of a full
+            screen of photograph to scroll past. The two-column grid puts
+            the picture on the right from lg, as the design draws it. */}
+        <LoginPhoto />
       </div>
     </div>
   );

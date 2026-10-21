@@ -1,38 +1,19 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { signIn } from "@/app/actions/login";
+import { LoginButtons } from "@/features/auth/components/LoginButtons";
 import { HeartsOrnament } from "@/features/story/components/Ornaments";
 import { ROUTES } from "@/constants/routes";
-
-/** Google's mark. lucide-react no longer ships brand icons. */
-function GoogleIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" aria-hidden className={className}>
-      <path
-        fill="#EA4335"
-        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"
-      />
-      <path
-        fill="#4285F4"
-        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M10.53 28.59A14.4 14.4 0 0 1 9.77 24c0-1.6.27-3.15.76-4.59l-7.98-6.19A23.94 23.94 0 0 0 0 24c0 3.88.93 7.54 2.56 10.78l7.97-6.19Z"
-      />
-      <path
-        fill="#34A853"
-        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"
-      />
-    </svg>
-  );
-}
 
 /* The design sets the placeholder at #c3c2c2 and the labels at #a8a8a8,
    which land near 1.9:1 and 2.3:1 on white. Both take --color-muted here so
    they clear AA; the labels sit above the fields either way, so nothing is
-   carried by the placeholder alone. */
+   carried by the placeholder alone.
+
+   The focus ring matches the verification boxes: a border colour change on
+   its own is easy to miss when tabbing through. */
 const field =
-  "border-border bg-surface text-body h-control-lg placeholder:text-muted focus:border-heading transition-fast mt-2 w-full rounded-md border px-4 outline-none";
+  "border-border bg-surface text-body h-control-lg placeholder:text-muted focus:border-heading focus:ring-heading/25 transition-fast mt-2 w-full rounded-md border px-4 outline-none focus:ring-4";
 
 export function LoginForm({ audience }: { audience: string }) {
   return (
@@ -46,7 +27,11 @@ export function LoginForm({ audience }: { audience: string }) {
           Welcome back!
         </h1>
 
-        <form className="mt-10">
+        {/* A real form on a server action: Enter in any field signs in, and it
+            still submits with JavaScript turned off. The divider and the
+            Google button live inside it too, so that button can submit rather
+            than sit there inert. */}
+        <form action={signIn} className="mt-10">
           <div>
             <label htmlFor="login-name" className="text-body text-muted">
               Name
@@ -55,6 +40,7 @@ export function LoginForm({ audience }: { audience: string }) {
               id="login-name"
               name="name"
               autoComplete="username"
+              autoFocus
               placeholder="Enter family name"
               className={field}
             />
@@ -74,29 +60,8 @@ export function LoginForm({ audience }: { audience: string }) {
             />
           </div>
 
-          {/* Sign-in has no backend yet, so this goes to the step that does:
-              the one-time code. */}
-          <Link
-            href={ROUTES.VERIFY}
-            className="bg-heading text-surface hover:bg-heading/90 h-control-lg text-ui transition-fast mt-8 flex w-full items-center justify-center rounded-md"
-          >
-            Log In
-          </Link>
+          <LoginButtons />
         </form>
-
-        <div className="text-body text-muted mt-6 flex items-center gap-4">
-          <span className="border-border h-px flex-1 border-t" aria-hidden />
-          OR
-          <span className="border-border h-px flex-1 border-t" aria-hidden />
-        </div>
-
-        <button
-          type="button"
-          className="border-border bg-surface text-ui hover:border-heading h-control-lg transition-fast mt-6 flex w-full items-center justify-center gap-3 rounded-md border"
-        >
-          <GoogleIcon className="size-5" />
-          Continue with Google
-        </button>
       </div>
     </div>
   );
