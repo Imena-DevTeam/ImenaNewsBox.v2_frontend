@@ -57,17 +57,32 @@
   --color-placeholder: #d9d9d9; /* the quote cards */
   --color-stat: #7b4a94; /* the third milestone badge on the timeline */
 
+  /* Auth screens (login, admin login, verify). Sampled from the Figma auth
+     frames, which use a violet brand fill rather than --color-primary. Text
+     on these screens still uses --color-muted, not the design's #a8a8a8,
+     which only reached 2.3:1 on white. */
+  --color-brand: #5935da;
+  --color-brand-hover: #4a2bc4;
+  --color-field-border: #cccccc;
+  --color-field-placeholder: #c3c2c2;
+  /* Form errors only. */
+  --color-danger: #dc2626;
+
   /* --- Radius ------------------------------------------------------------ */
   --radius-sm: 6px; /* inputs */
   --radius-md: 12px; /* cards */
   --radius-lg: 20px; /* hero images */
   --radius-pill: 9999px; /* pill buttons, badges */
+  --radius-field: 15px; /* auth inputs and buttons */
 
   /* --- Shadow ------------------------------------------------------------ */
   --shadow-main:
     0 5px 1px rgb(0 0 0 / 0.004), 0 9px 2px rgb(0 0 0 / 0.004),
     0 15px 4px rgb(0 0 0 / 0.004), 0 22px 7px rgb(0 0 0 / 0.008),
     0 33px 14px rgb(0 0 0 / 0.008), 0 65px 53px rgb(0 0 0 / 0.012);
+  /* Dropdown menus, such as the navbar Login choice. Deeper than shadow-main
+     so a small card reads as floating above the page. */
+  --shadow-menu: 0 2px 6px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.12);
 
   /* --- Headings (Roboto) ------------------------------------------------- */
   /* Desktop sizes. Pair with the -m tokens below the md breakpoint, e.g.
@@ -142,6 +157,31 @@
   --text-display-light-m--line-height: 1.3;
   --text-display-light-m--font-weight: 400;
 
+  /* --- Auth screens ------------------------------------------------------- */
+  /* Fonts are in the `@theme inline` block below. */
+
+  /* "Welcome back, / Login to catch up". */
+  --text-auth-title: 2.25rem; /* 36px */
+  --text-auth-title--line-height: 1.22;
+  --text-auth-title--font-weight: 700;
+
+  /* "Verify your account". Follows the viewport height as well as its width,
+     so the whole verify step fits on a short laptop screen. */
+  --text-auth-display: clamp(2rem, min(5.8dvh, 9vw), 3.125rem);
+  --text-auth-display--line-height: 1.02;
+  --text-auth-display--font-weight: 800;
+  --text-auth-display--letter-spacing: -0.035em;
+
+  /* Vertical gaps on the verify step, shrinking on short screens. */
+  --spacing-auth-sm: clamp(0.75rem, 2.5dvh, 1.25rem);
+  --spacing-auth-md: clamp(1rem, 3dvh, 1.75rem);
+  --spacing-auth-lg: clamp(1.5rem, 5dvh, 3rem);
+  /* Left inset of the login form column on desktop, from the frame. */
+  --spacing-auth-inset: 11%;
+
+  --container-auth-form: 343px; /* the login form column */
+  --container-auth-verify: 490px; /* the verify step */
+
   /* --- Layout ------------------------------------------------------------ */
   --container-page: 1280px; /* max page width */
   --container-footer: 1157px; /* the footer content is narrower than the page */
@@ -210,6 +250,17 @@
       transform: rotate(-360deg);
     }
   }
+}
+
+/* The auth frames are set in their own faces, loaded in
+   src/app/(auth)/layout.tsx so the rest of the site never downloads them.
+   That layout, not <html>, carries the next/font variables, so these are
+   `inline`: the utilities read --font-jost and friends on the element itself,
+   instead of through a :root variable where they do not exist. */
+@theme inline {
+  --font-auth-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-auth-heading: var(--font-instrument), system-ui, sans-serif;
+  --font-auth-body: var(--font-jost), system-ui, sans-serif;
 }
 
 @layer base {
@@ -381,6 +432,39 @@
 
   @media (width >= 48rem) {
     padding-block: var(--spacing-section);
+  }
+}
+
+/* The decorative art on the desktop auth screens. Positions come from the
+   Figma frame; the blob is centred in the space right of the form column
+   (45px gutter + 11% inset + 343px column), so it drifts toward the middle on
+   wide screens instead of hugging the right edge. */
+@utility auth-blob {
+  position: absolute;
+  top: 0.5rem;
+  left: calc(55.5% - 72px);
+  width: 523px;
+  height: auto;
+}
+
+@utility auth-hearts {
+  position: absolute;
+  top: 18%;
+  left: 2.7%;
+}
+
+@utility auth-house {
+  position: absolute;
+  right: 0;
+  bottom: 0.125rem;
+  display: flex;
+  width: 171px;
+  height: 171px;
+  align-items: center;
+  justify-content: center;
+
+  & > * {
+    rotate: -21.56deg;
   }
 }
 
