@@ -2,15 +2,18 @@ import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { cn } from "@/lib/cn";
+import { elder1, elder2, elder3, elder4 } from "@/lib/images";
 
 const QUOTE =
   "Our history is our foundation. Let us remember where we came from while building a better future together.";
 
+/* TODO: four different elders, each with their own words. All four names and
+   the quote are placeholders repeated from the design. */
 const ELDERS = [
-  { name: "Rwamamara Mugisha Pacifique", image: "/images/elder-2.png" },
-  { name: "Rwamamara Mugisha Pacifique", image: "/images/elder-1.png" },
-  { name: "Rwamamara Mugisha Pacifique", image: "/images/elder-4.png" },
-  { name: "Rwamamara Mugisha Pacifique", image: "/images/elder-3.png" },
+  { name: "Rwamamara Mugisha Pacifique", image: elder2 },
+  { name: "Rwamamara Mugisha Pacifique", image: elder1 },
+  { name: "Rwamamara Mugisha Pacifique", image: elder4 },
+  { name: "Rwamamara Mugisha Pacifique", image: elder3 },
 ];
 
 export function EldersQuotes() {
@@ -32,8 +35,8 @@ export function EldersQuotes() {
               <Image
                 src={elder.image}
                 alt={elder.name}
-                width={313}
-                height={471}
+                placeholder="blur"
+                sizes="10rem"
                 className="border-border w-32 shrink-0 rounded-md border object-cover sm:w-40"
               />
 
