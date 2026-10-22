@@ -11,7 +11,9 @@
  */
 
 import aboutFamily from "@public/images/about-family.png";
+import blogReunion from "@public/images/blog-reunion.png";
 import coreValues from "@public/images/core-values.png";
+import handover1 from "@public/images/handover-1.png";
 import heroFamily from "@public/images/hero-family.png";
 import storyCircle from "@public/images/story-circle.jpg";
 import storyCta from "@public/images/story-cta.png";
@@ -19,7 +21,9 @@ import storyIntro from "@public/images/story-intro.jpg";
 
 export {
   aboutFamily,
+  blogReunion,
   coreValues,
+  handover1,
   heroFamily,
   storyCircle,
   storyCta,

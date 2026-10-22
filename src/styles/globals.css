@@ -439,6 +439,52 @@
    Figma frame; the blob is centred in the space right of the form column
    (45px gutter + 11% inset + 343px column), so it drifts toward the middle on
    wide screens instead of hugging the right edge. */
+/* The login photograph is a slideshow behind one fixed silhouette.
+
+   The mask is the alpha channel of the designer's blob export, lifted into a
+   greyscale+alpha file of its own: the shape is all a mask needs, and on its
+   own it is 13KB rather than the 1.2MB of the photograph it came from. */
+@utility auth-photo-mask {
+  -webkit-mask-image: url("/images/auth-blob-mask.png");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("/images/auth-blob-mask.png");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* Each picture holds for about a quarter of the cycle and dissolves into the
+   next. The layers are offset by negative delays, so they are already spread
+   across the cycle on the first frame instead of all arriving together. */
+@keyframes auth-photo-cycle {
+  0%,
+  22% {
+    opacity: 1;
+  }
+  28%,
+  94% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility auth-photo-cycle {
+  opacity: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: auth-photo-cycle 24s ease-in-out infinite;
+  }
+
+  /* With motion turned down the first picture simply stays put. */
+  @media (prefers-reduced-motion: reduce) {
+    &:first-of-type {
+      opacity: 1;
+    }
+  }
+}
+
 @utility auth-blob {
   position: absolute;
   top: 0.5rem;

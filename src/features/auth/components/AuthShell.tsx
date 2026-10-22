@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { AuthPhoto } from "@/features/auth/components/AuthPhoto";
 import { ROUTES } from "@/constants/routes";
 
 type AuthShellProps = {
@@ -18,16 +19,9 @@ export function AuthShell({ title, children }: AuthShellProps) {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden px-6 py-6 sm:px-10 lg:p-11.25">
       <div aria-hidden="true" className="pointer-events-none hidden lg:block">
-        <Image
-          src="/images/auth-blob.png"
-          alt=""
-          width={1036}
-          height={1008}
-          sizes="700px"
-          priority
-          draggable={false}
-          className="auth-blob select-none"
-        />
+        {/* Was one fixed cut-out of a single photograph; now the same
+            silhouette with the pictures changing behind it. */}
+        <AuthPhoto className="auth-blob" />
         <Image
           src="/images/hearts.svg"
           alt=""
