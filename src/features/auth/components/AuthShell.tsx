@@ -23,7 +23,6 @@ export function AuthShell({ title, children }: AuthShellProps) {
           alt=""
           width={1036}
           height={1008}
-          sizes="523px"
           priority
           draggable={false}
           className="auth-blob select-none"
