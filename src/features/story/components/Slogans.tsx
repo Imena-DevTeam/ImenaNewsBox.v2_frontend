@@ -1,47 +1,41 @@
+import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { HeartsOrnament } from "@/features/story/components/Ornaments";
 import { cn } from "@/lib/cn";
 
-/* The four values the family was founded on, in the order the story tells
-   them: remembering, protecting one another, mentoring each other and
-   striving to live well.
-
-   Only the fourth has its Kinyarwanda line; it is the one the design supplied.
-   The other three carry the English alone until the family gives us theirs,
-   rather than inventing Kinyarwanda for them.
-
-   placement: top, left, right and bottom of the cross. The middle cell stays
-   empty. */
+/* The four slogans, placed at the top, left, right and bottom of the cross.
+   The middle cell stays empty. */
 const SLOGANS = [
   {
-    value: "Kwibuka",
-    slogan: "We remember where we came from, and we carry it with us.",
+    title: "IMENA FAMILY",
+    slogan: "Kubw’umurava n’ikizere imbere hacu heza ntituzazima",
     placement: "md:col-start-2 md:row-start-1",
   },
   {
-    value: "Protection",
-    slogan: "We stand for one another, in every season.",
+    title: "WIHOGORA",
+    slogan: "Rooted in love, rising in life, resilience is our might",
     placement: "md:col-start-1 md:row-start-2",
   },
   {
-    value: "Mentorship",
-    slogan: "We teach each other, so that no one climbs alone.",
+    title: "LIGHT FAMILY",
+    slogan: "Fly over dangers and go high because you are light",
     placement: "md:col-start-3 md:row-start-2",
   },
   {
-    value: "Living well",
-    kinyarwanda: "Ku bw’umurava n’ikizere imbere yacu heza ntituzazima.",
-    slogan: "Through perseverance and hope, what is ahead of us will not dim.",
+    title: "FAMILLE IMENA",
+    slogan: "Ensemble lumineux et courageux",
     placement: "md:col-start-2 md:row-start-3",
   },
 ];
 
 export function Slogans() {
   return (
-    /* overflow-x-clip: the turning cards sweep past the grid box, and without
-   this they would add a horizontal scrollbar at tablet widths. */
-    <section className="section-y overflow-x-clip">
+    /* overflow-x-clip: the turning cards sweep well past the grid box at this
+       size, and without this they would add a horizontal scrollbar. The tall
+       vertical padding is the other half of the same problem — the rotation
+       carries the corners far above and below the grid. */
+    <section className="overflow-x-clip py-16 md:py-32 lg:py-52">
       <Container>
         <SectionTitle title="OUR SLOGANS" />
 
@@ -49,10 +43,14 @@ export function Slogans() {
           Passionately Spoken
         </p>
 
-        {/* The whole cross turns slowly, so the cards travel in a circle. */}
+        {/* The whole cross turns slowly, so the cards travel in a circle.
+            Each column is capped at the card width, so the cards reach their
+            exact 346x419 where there is room and shrink in proportion where
+            there is not. */}
         <ul
           className={cn(
-            "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-20 md:max-w-2xl md:grid-cols-3 md:grid-rows-3 lg:max-w-3xl",
+            "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-24",
+            "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3",
             /* pause-on-hover: the cards carry body text, and text cannot be
                read while it is travelling. Hovering or tabbing into the cross
                stops it, which is also what WCAG 2.2.2 asks for. */
@@ -61,7 +59,7 @@ export function Slogans() {
         >
           {SLOGANS.map((item) => (
             <li
-              key={item.value}
+              key={item.title}
               /* Turns against the wrapper at the same rate, so the text
                  stays upright all the way round. */
               className={cn(
@@ -69,20 +67,22 @@ export function Slogans() {
                 item.placement,
               )}
             >
-              {/* The square is what makes the cross read as a cross, so it
-                  only applies from md. On a phone the cards are full width,
-                  and a square would leave most of each one empty. */}
-              <figure className="bg-placeholder flex h-full flex-col justify-center gap-3 p-5 md:aspect-square md:p-6">
-                <figcaption className="text-caption text-primary tracking-wide uppercase">
-                  {item.value}
+              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-md p-6 md:p-8">
+                <span
+                  aria-hidden
+                  className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-9 items-center justify-center md:top-8 md:left-8"
+                >
+                  <Users className="size-4" />
+                </span>
+
+                <figcaption className="text-h4-m md:text-h4 font-heading text-text mt-10 tracking-wide md:mt-6">
+                  {item.title}
                 </figcaption>
 
-                <blockquote className="text-body-sm text-text">
-                  {item.kinyarwanda && (
-                    <span className="block italic">
-                      &ldquo;{item.kinyarwanda}&rdquo;
-                    </span>
-                  )}
+                {/* text-text, not the usual muted grey: on the lavender card
+                    #6b6b6b reaches only 2.9:1. The title still leads on weight
+                    and size. */}
+                <blockquote className="text-body-sm text-text mt-3">
                   {item.slogan}
                 </blockquote>
               </figure>
