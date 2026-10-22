@@ -56,6 +56,7 @@
   --color-frame-accent: #87b2b5; /* the card outlined behind it */
   --color-placeholder: #d9d9d9; /* the quote cards */
   --color-stat: #7b4a94; /* the third milestone badge on the timeline */
+  --color-slogan-card: #c9b8e6; /* the lavender slogan cards */
 
   /* Auth screens (login, admin login, verify). Sampled from the Figma auth
      frames, which use a violet brand fill rather than --color-primary. Text
@@ -187,6 +188,26 @@
   --container-footer: 1157px; /* the footer content is narrower than the page */
   --spacing-section: 6rem; /* 96px — desktop section padding */
   --spacing-section-m: 3.5rem; /* 56px — mobile section padding */
+
+  /* Family Tree. Sampled from the design; the member cards use a lighter
+     ink and a violet edge that nothing else on the site uses. */
+  --color-tree-card: #f7f5fc; /* the member card fill */
+  --color-tree-edge: #733fdc; /* its violet border */
+  --color-tree-ink: #1a1a29; /* the member name */
+  --color-tree-role: #000569; /* the role and subfamily lines */
+  --color-tree-quote: #454655; /* the quoted saying */
+  --color-tree-mark: #006f9e; /* the small square beside the hero title */
+
+  /* --- Slogan cards ------------------------------------------------------- */
+  /* The four cards of the turning cross. The design calls for 346x419; these
+     are 5% off that, so 329x398. The ratio is what holds their shape, and a
+     uniform scale leaves it unchanged, so only the width moves.
+     They hold that size where there is room for three of them across; below
+     that the aspect ratio keeps their shape while they shrink. */
+  --spacing-slogan-card: 329px;
+  --aspect-slogan-card: 346 / 419;
+  /* Three cards plus the two 24px gaps between them. */
+  --container-slogan-cross: 1035px;
 
   /* --- Control heights ---------------------------------------------------- */
   /* Buttons, inputs and selects all sit on these three heights. */
@@ -408,6 +429,87 @@
   transition-timing-function: var(--ease-out-soft);
 }
 
+/* The branch strokes draw themselves in as the tree scrolls past. Each path
+   carries pathLength="1", so one dash covers the whole stroke whatever its
+   real length, and the offset animates to zero.
+
+   The timeline is named on the wrapper rather than taken per path: an SVG
+   path is not a scroll box of its own, so `view()` on it would do nothing. */
+@utility tree-timeline {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      view-timeline-name: --tree;
+    }
+  }
+}
+
+/* The dash lives in the keyframes, not on the element. If the animation
+   never runs — forced off, an unresolved timeline — the stroke simply draws
+   solid instead of staying invisible forever. */
+@keyframes draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@utility draw-in {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation-name: draw;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: --tree;
+      animation-range: entry 5% cover 60%;
+
+      /* Staggered so the branches arrive in sequence rather than at once. */
+      &:nth-child(3n + 2) {
+        animation-range: entry 12% cover 68%;
+      }
+      &:nth-child(3n + 3) {
+        animation-range: entry 19% cover 76%;
+      }
+    }
+  }
+}
+
+/* The login photograph cycles between a few pictures. Each layer is visible
+   for roughly a third of the cycle with a slow dissolve either side; the
+   stagger comes from a negative delay per layer, so they are already spread
+   across the cycle on the first frame rather than all fading in at once. */
+@keyframes photo-cycle {
+  0%,
+  28% {
+    opacity: 1;
+  }
+  36%,
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility photo-cycle {
+  opacity: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: photo-cycle 18s ease-in-out infinite;
+  }
+
+  /* Without motion the first picture simply stays. */
+  @media (prefers-reduced-motion: reduce) {
+    &:first-of-type {
+      opacity: 1;
+    }
+  }
+}
+
 /* Card hover. The shadow still responds under reduced motion; only the
    movement is withheld. */
 @utility lift {
@@ -439,6 +541,52 @@
    Figma frame; the blob is centred in the space right of the form column
    (45px gutter + 11% inset + 343px column), so it drifts toward the middle on
    wide screens instead of hugging the right edge. */
+/* The login photograph is a slideshow behind one fixed silhouette.
+
+   The mask is the alpha channel of the designer's blob export, lifted into a
+   greyscale+alpha file of its own: the shape is all a mask needs, and on its
+   own it is 13KB rather than the 1.2MB of the photograph it came from. */
+@utility auth-photo-mask {
+  -webkit-mask-image: url("/images/auth-blob-mask.png");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("/images/auth-blob-mask.png");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* Each picture holds for about a quarter of the cycle and dissolves into the
+   next. The layers are offset by negative delays, so they are already spread
+   across the cycle on the first frame instead of all arriving together. */
+@keyframes auth-photo-cycle {
+  0%,
+  22% {
+    opacity: 1;
+  }
+  28%,
+  94% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility auth-photo-cycle {
+  opacity: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: auth-photo-cycle 24s ease-in-out infinite;
+  }
+
+  /* With motion turned down the first picture simply stays put. */
+  @media (prefers-reduced-motion: reduce) {
+    &:first-of-type {
+      opacity: 1;
+    }
+  }
+}
+
 @utility auth-blob {
   position: absolute;
   top: 0.5rem;
