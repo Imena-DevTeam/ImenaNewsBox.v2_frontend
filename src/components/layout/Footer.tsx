@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { FOOTER_NAV } from "@/constants/nav";
-import { ROUTES } from "@/constants/routes";
+import { CONTACT_EMAIL_HREF } from "@/constants/site";
 
 export function Footer() {
   return (
@@ -42,8 +42,8 @@ export function Footer() {
             <Reveal from="left" delay={0.2}>
               <p className="text-ui">Newsletter</p>
               <p className="text-surface/80 text-body-sm mt-4 max-w-72">
-                We&rsquo;d love to share our love for product with you in our
-                monthly newsletter.
+                A short letter each month: birthdays, handovers and new
+                photographs in the family archive.
               </p>
 
               <form className="mt-5 flex flex-wrap gap-3">
@@ -97,7 +97,7 @@ export function Footer() {
 
           <div className="mt-6 flex justify-end gap-3">
             <a
-              href="mailto:hello@imenafamily.rw"
+              href={CONTACT_EMAIL_HREF}
               aria-label="Email the IMENA family"
               className="bg-surface/15 hover:bg-surface/25 transition-base [&_svg]:transition-base flex size-9 items-center justify-center rounded-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:[&_svg]:scale-110 motion-safe:hover:[&_svg]:-rotate-8"
             >

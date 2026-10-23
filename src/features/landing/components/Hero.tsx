@@ -52,7 +52,7 @@ export function Hero() {
         </Reveal>
       </Parallax>
 
-      <Container className="relative grid gap-12 pt-16 pb-24 md:pt-24 lg:grid-cols-2 lg:items-center lg:gap-8">
+      <Container className="relative grid w-full gap-12 pt-28 pb-16 lg:grid-cols-2 lg:items-center lg:gap-8">
         <div className="max-w-xl">
           <SplitText
             as="h1"

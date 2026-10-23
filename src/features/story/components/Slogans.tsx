@@ -1,3 +1,4 @@
+import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
@@ -5,45 +6,38 @@ import { SectionTitle } from "@/components/ui/SectionTitle";
 import { HeartsOrnament } from "@/features/story/components/Ornaments";
 import { cn } from "@/lib/cn";
 
-/* The four values the family was founded on, in the order the story tells
-   them: remembering, protecting one another, mentoring each other and
-   striving to live well.
-
-   Only the fourth has its Kinyarwanda line; it is the one the design supplied.
-   The other three carry the English alone until the family gives us theirs,
-   rather than inventing Kinyarwanda for them.
-
-   placement: top, left, right and bottom of the cross. The middle cell stays
-   empty. */
+/* The four slogans, placed at the top, left, right and bottom of the cross.
+   The middle cell stays empty. */
 const SLOGANS = [
   {
-    value: "Kwibuka",
-    slogan: "We remember where we came from, and we carry it with us.",
+    title: "IMENA FAMILY",
+    slogan: "Kubw’umurava n’ikizere imbere hacu heza ntituzazima",
     placement: "md:col-start-2 md:row-start-1",
   },
   {
-    value: "Protection",
-    slogan: "We stand for one another, in every season.",
+    title: "WIHOGORA",
+    slogan: "Rooted in love, rising in life, resilience is our might",
     placement: "md:col-start-1 md:row-start-2",
   },
   {
-    value: "Mentorship",
-    slogan: "We teach each other, so that no one climbs alone.",
+    title: "LIGHT FAMILY",
+    slogan: "Fly over dangers and go high because you are light",
     placement: "md:col-start-3 md:row-start-2",
   },
   {
-    value: "Living well",
-    kinyarwanda: "Ku bw’umurava n’ikizere imbere yacu heza ntituzazima.",
-    slogan: "Through perseverance and hope, what is ahead of us will not dim.",
+    title: "FAMILLE IMENA",
+    slogan: "Ensemble lumineux et courageux",
     placement: "md:col-start-2 md:row-start-3",
   },
 ];
 
 export function Slogans() {
   return (
-    /* overflow-x-clip: the turning cards sweep past the grid box, and without
-   this they would add a horizontal scrollbar at tablet widths. */
-    <section className="section-y overflow-x-clip">
+    /* overflow-x-clip: the turning cards sweep well past the grid box at this
+       size, and without this they would add a horizontal scrollbar. The tall
+       vertical padding is the other half of the same problem — the rotation
+       carries the corners far above and below the grid. */
+    <section className="overflow-x-clip py-16 md:py-32 lg:py-52">
       <Container>
         <SectionTitle title="OUR SLOGANS" />
 
@@ -63,7 +57,8 @@ export function Slogans() {
           stagger={0.12}
           delay={0.2}
           className={cn(
-            "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-20 md:max-w-2xl md:grid-cols-3 md:grid-rows-3 lg:max-w-3xl",
+            "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-24",
+            "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3",
             /* pause-on-hover: the cards carry body text, and text cannot be
                read while it is travelling. Hovering or tabbing into the cross
                stops it, which is also what WCAG 2.2.2 asks for. */
@@ -72,7 +67,7 @@ export function Slogans() {
         >
           {SLOGANS.map((item) => (
             <li
-              key={item.value}
+              key={item.title}
               /* Turns against the wrapper at the same rate, so the text
                  stays upright all the way round. */
               className={cn(
