@@ -1,4 +1,3 @@
-import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
