@@ -3,13 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/cn";
 import { useCountdown } from "../hooks/useCountdown";
 import { OTP_LENGTH, verifySchema } from "../schemas";
 import { AuthHeading } from "./AuthHeading";
 import { OtpInput } from "./OtpInput";
+import { SUCCESS_BADGE_DURATION_MS, SuccessBadge } from "./SuccessBadge";
 
 const RESEND_SECONDS = 34;
 
@@ -50,7 +49,11 @@ export function VerifyForm({ email }: { email?: string }) {
     setStatus("verified");
     // TODO: once the session exists, send each role to its own home (the
     // member dashboard, the admin panel). Home is the only signed-in page
-    // there is so far. `replace` keeps the code step out of history.
+    // there is so far. `replace` keeps the code step out of history. It waits
+    // for the confirmation tick to finish drawing, so it is seen.
+    await new Promise((resolve) =>
+      setTimeout(resolve, SUCCESS_BADGE_DURATION_MS),
+    );
     router.replace(ROUTES.HOME);
   };
 
@@ -62,12 +65,9 @@ export function VerifyForm({ email }: { email?: string }) {
 
   return (
     <div className="flex w-full flex-col items-center">
-      <VerifiedBadge
-        className={cn(
-          "transition-base size-16",
-          status === "verified" && "scale-110",
-        )}
-      />
+      {/* Empty until the code is accepted; the slot keeps its size, so the
+          heading never moves. */}
+      <SuccessBadge show={status === "verified"} />
 
       <AuthHeading
         lines={["Verify your", "account"]}

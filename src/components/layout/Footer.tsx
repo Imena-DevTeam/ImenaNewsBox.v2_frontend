@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import { Reveal } from "@/components/motion/Reveal";
+import { SplitText } from "@/components/motion/SplitText";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { FOOTER_NAV } from "@/constants/nav";
 import { ROUTES } from "@/constants/routes";
 
@@ -21,19 +24,22 @@ export function Footer() {
         />
 
         <div className="px-6 py-9 md:px-12 md:py-11">
-          <h2 className="text-display-light-m md:text-display-light max-w-sm">
-            Ready to start syncing your data?
-          </h2>
+          <SplitText
+            lines={[["Ready to start syncing your data?"]]}
+            className="text-display-light-m md:text-display-light max-w-sm"
+          />
 
-          <Link
-            href={ROUTES.OUR_STORY}
-            className="bg-surface text-text h-control-md text-body-sm mt-7 inline-flex items-center justify-center rounded-sm px-7"
-          >
-            Contact us
-          </Link>
+          <Reveal delay={0.4} distance={16}>
+            <Link
+              href={ROUTES.OUR_STORY}
+              className="shine bg-surface text-text h-control-md text-body-sm transition-base mt-7 inline-flex items-center justify-center rounded-sm px-7 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-97"
+            >
+              Contact us
+            </Link>
+          </Reveal>
 
           <div className="mt-10 grid gap-8 md:grid-cols-[minmax(0,1fr)_auto]">
-            <div>
+            <Reveal from="left" delay={0.2}>
               <p className="text-ui">Newsletter</p>
               <p className="text-surface/80 text-body-sm mt-4 max-w-72">
                 We&rsquo;d love to share our love for product with you in our
@@ -53,47 +59,54 @@ export function Footer() {
                 />
                 <button
                   type="submit"
-                  className="bg-surface/20 hover:bg-surface/30 h-control-md text-body-sm rounded-sm px-6 transition-colors"
+                  className="bg-surface/20 hover:bg-surface/30 h-control-md text-body-sm transition-base rounded-sm px-6 motion-safe:active:scale-97"
                 >
                   Subscribe
                 </button>
               </form>
-            </div>
+            </Reveal>
 
-            {/* The three columns sit together on the right, as in the design. */}
-            <div className="flex flex-wrap gap-10 sm:justify-end sm:gap-0 md:[&>*:not(:last-child)]:w-44">
+            {/* The three columns sit together on the right, as in the design,
+                and come in one after another from the right. */}
+            <Stagger
+              stagger={0.1}
+              delay={0.3}
+              className="flex flex-wrap gap-10 sm:justify-end sm:gap-0 md:[&>*:not(:last-child)]:w-44"
+            >
               {FOOTER_NAV.map((group) => (
-                <nav key={group.heading} aria-label={group.heading}>
-                  <p className="text-ui">{group.heading}</p>
-                  <ul className="mt-4 space-y-3">
-                    {group.items.map((item) => (
-                      <li key={item.label}>
-                        <Link
-                          href={item.href}
-                          className="text-surface/85 hover:text-surface text-body-sm"
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
+                <StaggerItem key={group.heading} from="right" distance={24}>
+                  <nav aria-label={group.heading}>
+                    <p className="text-ui">{group.heading}</p>
+                    <ul className="mt-4 space-y-3">
+                      {group.items.map((item) => (
+                        <li key={item.label}>
+                          <Link
+                            href={item.href}
+                            className="link-underline text-surface/85 hover:text-surface text-body-sm transition-fast"
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                </StaggerItem>
               ))}
-            </div>
+            </Stagger>
           </div>
 
           <div className="mt-6 flex justify-end gap-3">
             <a
               href="mailto:hello@imenafamily.rw"
               aria-label="Email the IMENA family"
-              className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
+              className="bg-surface/15 hover:bg-surface/25 transition-base [&_svg]:transition-base flex size-9 items-center justify-center rounded-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:[&_svg]:scale-110 motion-safe:hover:[&_svg]:-rotate-8"
             >
               <Mail className="size-4" />
             </a>
             <a
               href="https://www.linkedin.com"
               aria-label="IMENA family on LinkedIn"
-              className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
+              className="bg-surface/15 hover:bg-surface/25 transition-base [&_svg]:transition-base flex size-9 items-center justify-center rounded-sm motion-safe:hover:-translate-y-0.5 motion-safe:hover:[&_svg]:scale-110 motion-safe:hover:[&_svg]:-rotate-8"
             >
               <LinkedInIcon className="size-4" />
             </a>

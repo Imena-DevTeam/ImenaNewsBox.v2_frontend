@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { VerifyForm } from "./VerifyForm";
 
 const replace = vi.fn();
@@ -16,6 +16,12 @@ function typeCode(code: string) {
 }
 
 describe("VerifyForm", () => {
+  it("shows no verified badge until the code is accepted", () => {
+    const { container } = render(<VerifyForm />);
+
+    expect(container.querySelector("svg path")).toBeNull();
+  });
+
   it("has no verify button", () => {
     render(<VerifyForm />);
 
@@ -35,6 +41,10 @@ describe("VerifyForm", () => {
     expect(
       await screen.findByText("Verified! Taking you in…"),
     ).toBeInTheDocument();
-    expect(replace).toHaveBeenCalledExactlyOnceWith("/");
+    // Not before the confirmation tick has had time to draw.
+    expect(replace).not.toHaveBeenCalled();
+    await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith("/"), {
+      timeout: 3000,
+    });
   });
 });
