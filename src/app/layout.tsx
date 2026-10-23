@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito_Sans, Roboto } from "next/font/google";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import "@/styles/globals.css";
 
 const roboto = Roboto({
@@ -30,7 +31,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${roboto.variable} ${nunitoSans.variable}`}>
-      <body className="min-h-dvh antialiased">{children}</body>
+      <head>
+        {/* Motion renders entrances in their starting state — transparent,
+            offset, clipped — and its script plays them. Without the script
+            that state would stick, so this puts everything in place. */}
+        <noscript>
+          <style>{`[data-motion]{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
+        </noscript>
+      </head>
+      <body className="min-h-dvh antialiased">
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   );
 }

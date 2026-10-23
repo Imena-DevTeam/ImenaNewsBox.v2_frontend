@@ -1,5 +1,6 @@
-import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { HeartsOrnament } from "@/features/story/components/Ornaments";
 import { cn } from "@/lib/cn";
@@ -39,15 +40,21 @@ export function Slogans() {
       <Container>
         <SectionTitle title="OUR SLOGANS" />
 
-        <p className="text-h3-m md:text-h3 mt-6 text-center">
-          Passionately Spoken
-        </p>
+        <Reveal blur delay={0.3} distance={16}>
+          <p className="text-h3-m md:text-h3 mt-6 text-center">
+            Passionately Spoken
+          </p>
+        </Reveal>
 
         {/* The whole cross turns slowly, so the cards travel in a circle.
-            Each column is capped at the card width, so the cards reach their
-            exact 346x419 where there is room and shrink in proportion where
-            there is not. */}
-        <ul
+            Before it starts, the cards assemble: each grows into its arm of
+            the cross in turn, top first, then the heart lands in the middle.
+            Motion only scales the cards inside each item, so it never touches
+            the transforms the orbit animation runs on. */}
+        <Stagger
+          as="ul"
+          stagger={0.12}
+          delay={0.2}
           className={cn(
             "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-24",
             "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3",
@@ -67,32 +74,34 @@ export function Slogans() {
                 item.placement,
               )}
             >
-              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-md p-6 md:p-8">
-                <span
-                  aria-hidden
-                  className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-9 items-center justify-center md:top-8 md:left-8"
-                >
-                  <Users className="size-4" />
-                </span>
+              {/* The square is what makes the cross read as a cross, so it
+                  only applies from md. On a phone the cards are full width,
+                  and a square would leave most of each one empty. */}
+              <StaggerItem from="none" scale={0.8} className="h-full">
+                <figure className="bg-placeholder transition-base hover:shadow-menu flex h-full flex-col justify-center gap-3 p-5 motion-safe:hover:scale-105 md:aspect-square md:p-6">
+                  <figcaption className="text-caption text-primary tracking-wide uppercase">
+                    {item.value}
+                  </figcaption>
 
-                <figcaption className="text-h4-m md:text-h4 font-heading text-text mt-10 tracking-wide md:mt-6">
-                  {item.title}
-                </figcaption>
-
-                {/* text-text, not the usual muted grey: on the lavender card
-                    #6b6b6b reaches only 2.9:1. The title still leads on weight
-                    and size. */}
-                <blockquote className="text-body-sm text-text mt-3">
-                  {item.slogan}
-                </blockquote>
-              </figure>
+                  <blockquote className="text-body-sm text-text">
+                    {item.kinyarwanda && (
+                      <span className="block italic">
+                        &ldquo;{item.kinyarwanda}&rdquo;
+                      </span>
+                    )}
+                    {item.slogan}
+                  </blockquote>
+                </figure>
+              </StaggerItem>
             </li>
           ))}
 
           <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
-            <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+            <StaggerItem from="none" scale={0.4}>
+              <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+            </StaggerItem>
           </li>
-        </ul>
+        </Stagger>
       </Container>
     </section>
   );

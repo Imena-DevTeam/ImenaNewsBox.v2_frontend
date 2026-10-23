@@ -69,6 +69,17 @@
   /* Form errors only. */
   --color-danger: #dc2626;
 
+  /* Auth screens (login, admin login, verify). Sampled from the Figma auth
+     frames, which use a violet brand fill rather than --color-primary. Text
+     on these screens still uses --color-muted, not the design's #a8a8a8,
+     which only reached 2.3:1 on white. */
+  --color-brand: #5935da;
+  --color-brand-hover: #4a2bc4;
+  --color-field-border: #cccccc;
+  --color-field-placeholder: #c3c2c2;
+  /* Form errors only. */
+  --color-danger: #dc2626;
+
   /* --- Radius ------------------------------------------------------------ */
   --radius-sm: 6px; /* inputs */
   --radius-md: 12px; /* cards */
@@ -329,8 +340,8 @@
    Utilities
 --------------------------------------------------------------------------- */
 
-/* Defined outside @theme because it is driven by the reveal utilities below
-   rather than by an --animate-* token. */
+/* Defined outside @theme because it is driven by the page-enter utility
+   below rather than by an --animate-* token. */
 @keyframes rise {
   from {
     opacity: 0;
@@ -342,57 +353,12 @@
   }
 }
 
-/* Scroll reveal, with no JavaScript: the element's own progress through the
-   viewport drives the animation. Set longhand, because the `animation`
-   shorthand resets animation-timeline back to auto.
+/* Scroll reveals are driven by Motion: see src/components/motion. Unlike a
+   CSS view() timeline they also run in Firefox, and they can be sequenced. */
 
-   Guarded twice on purpose. Without `view()` (Firefox, for now) or with
-   reduced motion requested, no animation is declared at all, so the content
-   is simply there — never a section that stays invisible because the
-   animation that would have revealed it did not run. */
-@utility reveal {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation-name: rise;
-      animation-fill-mode: both;
-      animation-timing-function: linear;
-      animation-timeline: view();
-      animation-range: entry 5% cover 30%;
-    }
-  }
-}
-
-/* The same, for a row or grid of cards. Each child runs on its own view
-   timeline, so the stagger comes from starting them at different points of
-   that progress — a progress timeline ignores animation-delay. */
-@utility reveal-stagger {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      & > * {
-        animation-name: rise;
-        animation-fill-mode: both;
-        animation-timing-function: linear;
-        animation-timeline: view();
-      }
-      & > *:nth-child(1) {
-        animation-range: entry 5% cover 28%;
-      }
-      & > *:nth-child(2) {
-        animation-range: entry 12% cover 35%;
-      }
-      & > *:nth-child(3) {
-        animation-range: entry 19% cover 42%;
-      }
-      & > *:nth-child(n + 4) {
-        animation-range: entry 26% cover 49%;
-      }
-    }
-  }
-}
-
-/* Plays once when a page mounts, so moving between Home and Our Story reads
-   as an arrival rather than a cut. A true cross-fade of the outgoing page
-   needs React's ViewTransition, which is not in React 19.1. */
+/* Plays once when a page mounts, so it reads as an arrival rather than a
+   cut. The public pages get this from (public)/template.tsx; this is for the
+   auth pages, which need no Motion. */
 @utility page-enter {
   @media (prefers-reduced-motion: no-preference) {
     animation: rise var(--duration-slow) var(--ease-out-soft) both;
@@ -413,18 +379,24 @@
 }
 
 /* Tailwind has an --ease-* namespace but no --duration-* one, so these wrap
-   the duration tokens into classes. Use them instead of duration-150 or an
+   the duration tokens into classes.
+   They list translate, scale and rotate rather than transform: Tailwind v4's
+   translate-*, scale-* and rotate-* classes set those individual properties,
+   and Motion drives `transform` itself, so a CSS transition on transform
+   would drag every frame of a Motion animation behind it. Use them instead of duration-150 or an
    arbitrary duration-[250ms]. */
 @utility transition-fast {
   transition-property:
-    color, background-color, border-color, box-shadow, transform, opacity;
+    color, background-color, border-color, box-shadow, translate, scale, rotate,
+    opacity;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--ease-out-soft);
 }
 
 @utility transition-base {
   transition-property:
-    color, background-color, border-color, box-shadow, transform, opacity;
+    color, background-color, border-color, border-radius, box-shadow, translate,
+    scale, rotate, opacity;
   transition-duration: var(--duration-base);
   transition-timing-function: var(--ease-out-soft);
 }
@@ -541,52 +513,6 @@
    Figma frame; the blob is centred in the space right of the form column
    (45px gutter + 11% inset + 343px column), so it drifts toward the middle on
    wide screens instead of hugging the right edge. */
-/* The login photograph is a slideshow behind one fixed silhouette.
-
-   The mask is the alpha channel of the designer's blob export, lifted into a
-   greyscale+alpha file of its own: the shape is all a mask needs, and on its
-   own it is 13KB rather than the 1.2MB of the photograph it came from. */
-@utility auth-photo-mask {
-  -webkit-mask-image: url("/images/auth-blob-mask.png");
-  -webkit-mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-image: url("/images/auth-blob-mask.png");
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
-}
-
-/* Each picture holds for about a quarter of the cycle and dissolves into the
-   next. The layers are offset by negative delays, so they are already spread
-   across the cycle on the first frame instead of all arriving together. */
-@keyframes auth-photo-cycle {
-  0%,
-  22% {
-    opacity: 1;
-  }
-  28%,
-  94% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@utility auth-photo-cycle {
-  opacity: 0;
-
-  @media (prefers-reduced-motion: no-preference) {
-    animation: auth-photo-cycle 24s ease-in-out infinite;
-  }
-
-  /* With motion turned down the first picture simply stays put. */
-  @media (prefers-reduced-motion: reduce) {
-    &:first-of-type {
-      opacity: 1;
-    }
-  }
-}
-
 @utility auth-blob {
   position: absolute;
   top: 0.5rem;
@@ -623,4 +549,106 @@
   height: 0.25rem;
   border-radius: var(--radius-pill);
   background-color: var(--color-heading);
+}
+
+/* ---------------------------------------------------------------------------
+   Hover and micro-interactions
+   Entrances are driven by Motion (src/components/motion). What lives here is
+   what CSS does better: hover states, which need no JavaScript and cost
+   nothing until the pointer arrives.
+--------------------------------------------------------------------------- */
+
+/* Anchor jumps glide rather than cut, unless motion is reduced. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* For an overlay that has to follow its parent's corners. */
+@utility rounded-inherit {
+  border-radius: inherit;
+}
+
+/* An underline that draws in from the left on hover and withdraws to the
+   right when the pointer leaves. Drawn with a background, so it never
+   shifts the text or the line height. */
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+  background-size: 0% 1px;
+  transition: background-size var(--duration-base) var(--ease-out-soft);
+
+  &:hover,
+  &:focus-visible {
+    background-position: 0% 100%;
+    background-size: 100% 1px;
+  }
+}
+
+/* A photo that leans in slowly when its card is hovered. Put `group` on the
+   card and img-zoom on an element with overflow hidden around the image. */
+@utility img-zoom {
+  overflow: hidden;
+
+  & img {
+    transition: transform var(--duration-slow) var(--ease-out-soft);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :where(.group):hover & img {
+      transform: scale(1.06);
+    }
+  }
+}
+
+/* A band of light that sweeps across a button on hover. Mixed from the
+   text colour, so it shows on a white button as well as on a blue one. */
+@utility shine {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      110deg,
+      transparent 30%,
+      color-mix(in oklab, currentColor 22%, transparent) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &:hover::after {
+      transform: translateX(120%);
+      transition: transform 0.8s var(--ease-out-soft);
+    }
+  }
+}
+
+/* The story call-to-action gradient drifts very slowly, so the band feels
+   lit rather than printed. Twenty seconds a cycle: you notice it is alive,
+   not that it is moving. */
+@utility gradient-drift {
+  background-size: 180% 100%;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: gradient-drift 20s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes gradient-drift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
 }
