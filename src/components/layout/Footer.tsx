@@ -6,6 +6,7 @@ import { SplitText } from "@/components/motion/SplitText";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { FOOTER_NAV } from "@/constants/nav";
 import { CONTACT_EMAIL_HREF } from "@/constants/site";
+import { ROUTES } from "@/constants/routes";
 
 export function Footer() {
   return (
