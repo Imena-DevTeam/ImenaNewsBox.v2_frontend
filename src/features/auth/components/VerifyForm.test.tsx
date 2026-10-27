@@ -22,6 +22,12 @@ function typeCode(code: string) {
 }
 
 describe("VerifyForm", () => {
+  it("shows no verified badge until the code is accepted", () => {
+    const { container } = render(<VerifyForm />);
+
+    expect(container.querySelector("svg path")).toBeNull();
+  });
+
   it("has no verify button", () => {
     render(<VerifyForm />);
 

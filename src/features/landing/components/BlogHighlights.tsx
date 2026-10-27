@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { MaskReveal } from "@/components/motion/MaskReveal";
+import { Reveal } from "@/components/motion/Reveal";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { cn } from "@/lib/cn";
 import { ROUTES } from "@/constants/routes";
@@ -39,28 +41,40 @@ export function BlogHighlights() {
       <Container>
         <SectionTitle title="Blogs and Posts" />
 
-        <ul className="reveal-stagger mt-12 space-y-16 md:space-y-10">
+        <ul className="mt-12 space-y-16 md:space-y-10">
           {POSTS.map((post, index) => {
-            /* The design alternates which side the photo sits on. */
+            /* The design alternates which side the photo sits on. The photo
+               opens from its own outer edge and the copy slides in from the
+               opposite side, so each pair meets in the middle. */
             const reversed = index % 2 === 1;
 
             return (
               <li
                 key={post.slug}
-                className="grid items-center gap-8 md:grid-cols-2 md:gap-16"
+                className="group grid items-center gap-8 md:grid-cols-2 md:gap-16"
               >
-                <Image
-                  src={post.image}
-                  alt={post.alt}
-                  width={517}
-                  height={296}
+                <MaskReveal
+                  from={reversed ? "right" : "left"}
                   className={cn(
-                    "w-full rounded-md object-cover",
+                    "img-zoom rounded-md",
                     reversed && "md:order-2",
                   )}
-                />
+                >
+                  <Image
+                    src={post.image}
+                    alt={post.alt}
+                    width={517}
+                    height={296}
+                    className="w-full object-cover"
+                  />
+                </MaskReveal>
 
-                <div className={cn(reversed && "md:order-1")}>
+                <Reveal
+                  from={reversed ? "left" : "right"}
+                  distance={48}
+                  delay={0.25}
+                  className={cn(reversed && "md:order-1")}
+                >
                   <h3 className="text-h4-m text-text md:text-h4 tracking-wide uppercase">
                     {post.title}
                   </h3>
@@ -68,12 +82,12 @@ export function BlogHighlights() {
 
                   <Link
                     href={`${ROUTES.BLOGS}/${post.slug}`}
-                    className="text-ui text-primary transition-base mt-7 inline-flex items-center gap-3 hover:gap-4"
+                    className="group/link text-ui text-primary transition-base mt-7 inline-flex items-center gap-3 hover:gap-4"
                   >
-                    Read More
-                    <ArrowRight className="size-5" />
+                    <span className="link-underline">Read More</span>
+                    <ArrowRight className="transition-base size-5 motion-safe:group-hover/link:translate-x-0.5" />
                   </Link>
-                </div>
+                </Reveal>
               </li>
             );
           })}
