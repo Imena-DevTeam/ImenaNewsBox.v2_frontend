@@ -1,33 +1,51 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Heart, Mail, PartyPopper } from "lucide-react";
-import { ButtonLink } from "@/components/ui/Button";
-import { CONTACT_EMAIL_HREF } from "@/constants/site";
+import { useMemo, useState } from "react";
+import { Gift, Heart, PartyPopper } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { useStoredValue } from "@/hooks/useStoredValue";
 import { TODAY, UPCOMING } from "../data";
+import { WishDialog, type WishTarget } from "./WishDialog";
+
+const SENT_KEY = "imena:wishes-sent";
+
+function parseSent(raw: string): Record<string, number> {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
 
 /**
  * The right-hand column of the dashboard: who celebrates today and who is
- * next. There is no message service yet, so the actions open the member's
- * email application with a prepared wish instead of pretending to deliver or
- * archive a message from this page.
+ * next. Today's card is wrapped in a gold-edged foil with a celebration
+ * badge, and every wish is sent in place through the wish dialog.
+ *
+ * Wishes sent from this device add to the count straight away; they are
+ * kept locally until the family messaging service exists, and the dialog
+ * says so rather than claiming delivery.
  */
 export function BirthdaysPanel({ className }: { className?: string }) {
-  const wishHref = (name: string) => {
-    const subject = encodeURIComponent(`Warm family wish for ${name}`);
-    const body = encodeURIComponent(
-      `Hello IMENA family,\n\nI would like to send a warm family wish to ${name}.\n\n`,
+  const [target, setTarget] = useState<WishTarget | null>(null);
+  const [rawSent, setRawSent] = useStoredValue(SENT_KEY, "{}");
+  const sent = useMemo(() => parseSent(rawSent), [rawSent]);
+
+  const recordWish = (wished: WishTarget) => {
+    setRawSent(
+      JSON.stringify({ ...sent, [wished.name]: (sent[wished.name] ?? 0) + 1 }),
     );
-    return `${CONTACT_EMAIL_HREF}?subject=${subject}&body=${body}`;
   };
+
+  const wishes = TODAY.wishes + (sent[TODAY.name] ?? 0);
 
   return (
     <aside
       aria-labelledby="family-birthdays"
       className={cn(
-        "border-member-border bg-member-tint shadow-member rounded-lg border p-5 sm:p-6",
+        "border-member-border bg-member-tint shadow-member rounded-lg border p-6",
         className,
       )}
     >
@@ -45,9 +63,19 @@ export function BirthdaysPanel({ className }: { className?: string }) {
         all subfamilies.
       </p>
 
-      <article className="bg-member-night text-surface shadow-member mt-6 rounded-lg p-5">
-        <div className="flex items-center justify-between gap-2">
-          <p className="bg-surface/10 rounded-pill text-caption flex items-center gap-2 px-4 py-1.5">
+      <article className="from-member-night to-brand text-surface shadow-member relative mt-6 overflow-hidden rounded-lg bg-gradient-to-br p-5">
+        {/* The foil: a slow sheen across the gradient, and a gold edge. */}
+        <span
+          aria-hidden
+          className="foil-sheen pointer-events-none absolute inset-0"
+        />
+        <span
+          aria-hidden
+          className="ring-celebration-gold/40 pointer-events-none absolute inset-0 rounded-lg ring-1 ring-inset"
+        />
+
+        <div className="relative flex items-center justify-between gap-2">
+          <p className="bg-celebration-gold text-member-night rounded-pill text-caption flex items-center gap-2 px-4 py-1.5 font-semibold shadow-lg">
             <PartyPopper aria-hidden className="size-4" />
             Today&rsquo;s family birthday!
           </p>
@@ -56,7 +84,7 @@ export function BirthdaysPanel({ className }: { className?: string }) {
           </p>
         </div>
 
-        <div className="mt-5 flex items-center gap-4">
+        <div className="relative mt-5 flex items-center gap-4">
           <Image
             src={TODAY.avatar}
             alt={TODAY.avatarAlt}
@@ -75,23 +103,24 @@ export function BirthdaysPanel({ className }: { className?: string }) {
           </div>
         </div>
 
-        <p className="text-body-sm mt-5 flex items-center gap-2 font-semibold">
-          <Heart aria-hidden className="text-member-heart size-4" />
-          {TODAY.wishes} family wishes sent
+        <p className="text-body-sm relative mt-5 flex items-center gap-2 font-semibold">
+          <Heart
+            aria-hidden
+            className="text-member-heart fill-member-heart size-4"
+          />
+          {wishes} family wishes sent
         </p>
 
-        <ButtonLink
-          href={wishHref(TODAY.name)}
+        <Button
           variant="light"
-          className="rounded-field text-body-sm mt-5 w-full"
+          onClick={() =>
+            setTarget({ name: TODAY.name, subfamily: TODAY.subfamily })
+          }
+          className="rounded-field text-body-sm relative mt-5 w-full"
         >
-          <Mail aria-hidden className="text-brand size-4" />
-          Email a Warm Family Wish
-        </ButtonLink>
-
-        <p className="text-caption text-surface/70 mt-4 text-center">
-          Opens your email app; nothing is sent by this page.
-        </p>
+          <Gift aria-hidden className="text-brand size-4" />
+          Send a Warm Family Wish
+        </Button>
       </article>
 
       <h3 className="text-h4-m md:text-h4 mt-8">Upcoming Birthdays</h3>
@@ -127,13 +156,19 @@ export function BirthdaysPanel({ className }: { className?: string }) {
               </p>
             </div>
 
-            <Link
-              href={wishHref(birthday.name)}
-              aria-label={`Email a family wish for ${birthday.name}'s day`}
+            <button
+              type="button"
+              onClick={() =>
+                setTarget({
+                  name: birthday.name,
+                  subfamily: birthday.subfamily,
+                })
+              }
+              aria-label={`Send a family wish for ${birthday.name}'s day`}
               className="transition-fast rounded-pill bg-member-tint text-muted hover:text-member-heart focus-visible:outline-brand inline-flex size-11 shrink-0 items-center justify-center"
             >
-              <Mail aria-hidden className="size-4" />
-            </Link>
+              <Gift aria-hidden className="size-4" />
+            </button>
           </li>
         ))}
       </ul>
@@ -141,6 +176,12 @@ export function BirthdaysPanel({ className }: { className?: string }) {
       <p className="text-caption text-muted mt-6 text-center">
         Sample records, shown until the family register is connected.
       </p>
+
+      <WishDialog
+        target={target}
+        onClose={() => setTarget(null)}
+        onSent={recordWish}
+      />
     </aside>
   );
 }

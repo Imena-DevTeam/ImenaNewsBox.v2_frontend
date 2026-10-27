@@ -1,6 +1,21 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { BirthdaysPanel } from "./BirthdaysPanel";
+
+/* The burst is canvas work jsdom cannot do; the flow only needs it called. */
+vi.mock("canvas-confetti", () => ({ default: vi.fn() }));
+
+beforeAll(() => {
+  /* jsdom has no <dialog> behaviour; give it the two calls the panel uses. */
+  HTMLDialogElement.prototype.showModal = function showModal() {
+    this.setAttribute("open", "");
+  };
+  HTMLDialogElement.prototype.close = function close() {
+    this.removeAttribute("open");
+    this.dispatchEvent(new Event("close"));
+  };
+  window.matchMedia ??= (() => ({ matches: true })) as never;
+});
 
 describe("BirthdaysPanel", () => {
   it("names today's celebrant with their subfamily and wish count", () => {
@@ -10,28 +25,48 @@ describe("BirthdaysPanel", () => {
     expect(screen.getByText("Aganze")).toBeInTheDocument();
     expect(screen.getByText("Wihogora Family")).toBeInTheDocument();
     expect(screen.getByText(/42 family wishes sent/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /email a warm family wish/i }),
-    ).toHaveAttribute("href", expect.stringContaining("mailto:"));
   });
 
-  it("explains that the email action is not sent by the page", () => {
+  /* The whole wish flow in one test — open, choose, send, confirm — so it
+     gets more than the default five seconds on a loaded machine. */
+  it(
+    "sends a wish in place, without an email link, and says it is kept on the device",
+    { timeout: 15_000 },
+    () => {
+      render(<BirthdaysPanel />);
+
+      expect(document.querySelector('a[href^="mailto:"]')).toBeNull();
+
+      fireEvent.click(
+        screen.getByRole("button", { name: /send a warm family wish/i }),
+      );
+      fireEvent.click(screen.getAllByRole("radio")[0]!);
+      fireEvent.click(screen.getByRole("button", { name: /^send wish$/i }));
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        /kept on this device/i,
+      );
+      expect(screen.getByText(/43 family wishes sent/i)).toBeInTheDocument();
+    },
+  );
+
+  it("only sends once a wish is chosen or written", () => {
+    render(<BirthdaysPanel />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /send a warm family wish/i }),
+    );
+    expect(screen.getByRole("button", { name: /^send wish$/i })).toBeDisabled();
+  });
+
+  it("offers a wish for an upcoming birthday", () => {
     render(<BirthdaysPanel />);
 
     expect(
-      screen.getByText(/opens your email app; nothing is sent by this page/i),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
-  });
-
-  it("offers an email link for an upcoming birthday", () => {
-    render(<BirthdaysPanel />);
-
-    expect(
-      screen.getByRole("link", {
-        name: /email a family wish for Bigwi's day/i,
+      screen.getByRole("button", {
+        name: /send a family wish for Bigwi's day/i,
       }),
-    ).toHaveAttribute("href", expect.stringContaining("Warm%20family%20wish"));
+    ).toBeInTheDocument();
   });
 
   it("lists the upcoming birthdays with their subfamily and parent", () => {

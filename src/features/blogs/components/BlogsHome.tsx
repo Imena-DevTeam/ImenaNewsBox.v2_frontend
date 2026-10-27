@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { PartyPopper } from "lucide-react";
+import { NotebookPen, PartyPopper } from "lucide-react";
 import { useMemo, useState } from "react";
 import { BlogCard } from "./BlogCard";
 import { BLOG_CATEGORIES, BLOG_PAGE_POSTS, type BlogCategory } from "../data";
 import { dashboardFamilyGathering } from "@/lib/images";
 import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FamilyTagline } from "@/components/layout/FamilyTagline";
 
@@ -23,17 +24,8 @@ export function BlogsHome() {
   );
 
   return (
-    <div className="page-enter min-w-0 space-y-12 md:space-y-16">
-      <div className="relative min-w-0">
-        <div className="flex items-start justify-between gap-4">
-          <PageHeader title="Blogs" subtitle="Stories From Our Family" />
-          <PartyPopper
-            aria-hidden
-            className="text-gallery-ornament absolute top-0 right-2 hidden size-16 rotate-12 lg:block"
-            strokeWidth={1.8}
-          />
-        </div>
-      </div>
+    <div className="min-w-0 space-y-12 md:space-y-16">
+      <PageHeader title="Blogs" subtitle="Stories From Our Family" />
 
       <section className="shadow-member relative mx-auto w-full max-w-[50rem] overflow-hidden rounded-lg">
         <Image
@@ -47,6 +39,13 @@ export function BlogsHome() {
           aria-hidden
           className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent"
         />
+        {/* A background layer: a large, faint popper behind the banner's
+            words, never near the header's bell and portrait. */}
+        <PartyPopper
+          aria-hidden
+          className="text-surface/15 pointer-events-none absolute -top-6 -right-6 size-48 rotate-12"
+          strokeWidth={1.2}
+        />
         <div className="text-surface absolute inset-x-0 bottom-0 p-4 sm:p-8">
           <h2 className="text-h4-m sm:text-h3 md:text-h2 font-heading max-w-2xl leading-tight font-bold uppercase">
             {HERO_TITLE}
@@ -59,12 +58,23 @@ export function BlogsHome() {
         </div>
       </section>
 
-      <section aria-labelledby="recent-posts" className="relative">
-        <PartyPopper
+      <section aria-labelledby="recent-posts" className="relative isolate">
+        {/* The section's background layer: two faint poppers behind the
+            heading and filters, at an opacity that can sit under any of
+            them without competing. */}
+        <div
           aria-hidden
-          className="text-gallery-ornament absolute top-0 left-[4%] hidden size-20 -rotate-12 lg:block"
-          strokeWidth={1.6}
-        />
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-48 overflow-hidden"
+        >
+          <PartyPopper
+            className="text-gallery-ornament/60 absolute -top-4 left-[6%] size-36 -rotate-12"
+            strokeWidth={1.2}
+          />
+          <PartyPopper
+            className="text-gallery-ornament/60 absolute top-2 right-[6%] size-28 scale-x-[-1] rotate-6"
+            strokeWidth={1.2}
+          />
+        </div>
         <div className="text-center">
           <h2
             id="recent-posts"
@@ -79,10 +89,17 @@ export function BlogsHome() {
         </div>
 
         <div className="mt-6 px-4 lg:px-10">
-          <div className="bg-brand text-surface rounded-pill text-body-sm inline-flex px-4 py-2 font-semibold">
-            Categories →
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div
+            role="group"
+            aria-labelledby="blog-categories"
+            className="flex flex-wrap items-center gap-2"
+          >
+            <span
+              id="blog-categories"
+              className="text-member-ink text-body-sm mr-1 font-semibold"
+            >
+              Categories:
+            </span>
             {BLOG_CATEGORIES.map((item) => (
               <button
                 key={item}
@@ -102,16 +119,43 @@ export function BlogsHome() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">
-          {posts.map((post) => (
-            <BlogCard key={post.slug} post={post} />
-          ))}
-        </div>
         {posts.length === 0 ? (
-          <p className="text-muted mt-10 text-center">
-            No posts in this category yet.
-          </p>
-        ) : null}
+          <div className="border-member-border bg-member-tint mx-4 mt-8 rounded-lg border px-6 py-14 text-center lg:mx-10">
+            <span className="bg-surface text-brand shadow-menu rounded-pill mx-auto grid size-14 place-items-center">
+              <NotebookPen aria-hidden className="size-6" />
+            </span>
+            <p className="text-h4-m md:text-h4 text-member-ink mt-5">
+              No {category.toLowerCase()} stories yet
+            </p>
+            <p className="text-body-sm text-muted mx-auto mt-2 max-w-sm">
+              Nobody has written one up so far. The rest of the family&rsquo;s
+              stories are a click away.
+            </p>
+            <Button
+              variant="brand"
+              size="sm"
+              className="mt-6"
+              onClick={() => setCategory("All")}
+            >
+              View all stories
+            </Button>
+          </div>
+        ) : (
+          /* A short result is centred rather than left hanging in the first
+             columns of a three-column grid. */
+          <div
+            className={cn(
+              "mx-auto mt-8 grid gap-6 px-4 sm:grid-cols-2 lg:px-10",
+              posts.length >= 3 && "lg:grid-cols-3",
+              posts.length === 2 && "max-w-4xl",
+              posts.length === 1 && "max-w-md sm:grid-cols-1",
+            )}
+          >
+            {posts.map((post) => (
+              <BlogCard key={post.slug} post={post} />
+            ))}
+          </div>
+        )}
       </section>
 
       <FamilyTagline className="mt-4" />

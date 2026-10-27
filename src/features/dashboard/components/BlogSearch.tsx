@@ -5,7 +5,7 @@ import { useSearchQuery } from "@/hooks/useSearchQuery";
 
 // TODO: when the blogs API exists, hand this over to TanStack Query.
 /**
- * The grey pill between the welcome line and the carousel. It filters the
+ * The grey pill in the dashboard's top bar. It filters the
  * articles below in real time — there is no submit button to make the
  * intent look like navigation when it is reading.
  *
@@ -22,7 +22,7 @@ export function BlogSearch({ className }: { className?: string }) {
       <label htmlFor="dashboard-search" className="sr-only">
         Search for blogs
       </label>
-      <div className="bg-member-field rounded-pill relative flex h-12 max-w-[410px] items-center">
+      <div className="bg-member-field rounded-pill relative flex h-12 w-full items-center lg:mx-auto lg:max-w-md">
         <Search aria-hidden className="text-muted ml-5 size-5" />
         <input
           id="dashboard-search"

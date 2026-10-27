@@ -10,9 +10,8 @@ import type { FeaturedPost as FeaturedPostData } from "../data";
  * The article card the dashboard opens with. Two presentations of the same
  * record, because they are read differently:
  *
- *   default  the lead card — story on the left, the violet action on the
- *            right, the cover photograph running to the card's foot beneath
- *            both, as the design draws it.
+ *   default  the lead card — the cover across the top, then the story,
+ *            with the counts and the violet action closing it in one row.
  *   compact  one card of several in the search grid. The whole card is the
  *            link — a grid of "View Blog" buttons is a wall of identical
  *            calls to attention, so here the card itself travels and the
@@ -53,7 +52,7 @@ export function FeaturedPost({
   );
 
   const cover = (
-    <div className="relative aspect-16/9 md:aspect-3/2">
+    <div className="relative aspect-16/9">
       <Image
         src={post.cover}
         alt={post.coverAlt}
@@ -70,23 +69,13 @@ export function FeaturedPost({
       <Link
         href={`${ROUTES.BLOGS}/${post.slug}`}
         className={cn(
-          "border-member-border bg-surface shadow-member lift hover:border-brand overflow-hidden rounded-lg border",
+          "border-member-border bg-surface shadow-member lift hover:border-brand flex flex-col overflow-hidden rounded-lg border",
           className,
         )}
       >
-        <div className="p-5 sm:p-6">
-          {meta}
-          <h3 className="font-member-serif text-h4-m text-member-ink md:text-h3 mt-3">
-            {post.title}
-          </h3>
-          <p className="text-body-sm text-muted mt-3 line-clamp-3">
-            {post.excerpt}
-          </p>
-          <div className="mt-5">{counts}</div>
-        </div>
-        {/* The grid's cover is shorter than the lead card's, so a row of
-            three cards lands on one baseline instead of staggered feet. */}
-        <div className="relative aspect-4/3">
+        {/* Cover first, so the photograph belongs to the card it heads
+            rather than hanging off the foot of the text. */}
+        <div className="relative aspect-16/9">
           <Image
             src={post.cover}
             alt=""
@@ -95,6 +84,16 @@ export function FeaturedPost({
             sizes="(min-width: 640px) 45vw, 100vw"
             className="object-cover"
           />
+        </div>
+        <div className="flex flex-1 flex-col p-5 sm:p-6">
+          {meta}
+          <h3 className="font-member-serif text-h4-m text-member-ink md:text-h4 mt-3">
+            {post.title}
+          </h3>
+          <p className="text-body-sm text-muted mt-3 line-clamp-3">
+            {post.excerpt}
+          </p>
+          <div className="mt-auto pt-5">{counts}</div>
         </div>
       </Link>
     );
@@ -108,31 +107,30 @@ export function FeaturedPost({
         className,
       )}
     >
-      <div className="grid items-start gap-6 p-5 sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-10 md:p-8">
-        <div>
-          {meta}
-
-          <h3 className="font-member-serif text-h3-m text-member-ink md:text-h2 mt-4">
-            {post.title}
-          </h3>
-
-          <p className="text-body-sm text-muted mt-4">{post.excerpt}</p>
-
-          <div className="mt-6">{counts}</div>
-        </div>
-
-        {/* The design's action sits alone on the right, full height. */}
-        <ButtonLink
-          href={`${ROUTES.BLOGS}/${post.slug}`}
-          variant="brand"
-          size="lg"
-          className="rounded-field w-full md:w-max md:px-12"
-        >
-          View Blog
-        </ButtonLink>
-      </div>
-
       {cover}
+
+      <div className="p-5 sm:p-6 md:p-8">
+        {meta}
+
+        <h3 className="font-member-serif text-h3-m text-member-ink md:text-h2 mt-4">
+          {post.title}
+        </h3>
+
+        <p className="text-body-sm text-muted mt-4">{post.excerpt}</p>
+
+        {/* The action closes the card with the counts, rather than floating
+            beside the title over an empty column. */}
+        <div className="border-member-border mt-6 flex flex-wrap items-center justify-between gap-4 border-t pt-5">
+          {counts}
+          <ButtonLink
+            href={`${ROUTES.BLOGS}/${post.slug}`}
+            variant="brand"
+            className="rounded-field"
+          >
+            View Blog
+          </ButtonLink>
+        </div>
+      </div>
     </article>
   );
 }

@@ -1,43 +1,47 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { elder3 } from "@/lib/images";
 import { MEMBER } from "@/constants/member";
+import { NotificationBell } from "@/components/layout/NotificationBell";
+import { DashboardGreeting } from "./DashboardGreeting";
 
 const AVATAR = elder3;
 
-/** The dashboard greeting, unavailable notification status and profile link. */
-export function DashboardHeader() {
+/**
+ * The dashboard's top bar: the Kinyarwanda greeting with its Kigali time,
+ * weather and updates pills, the blog search, and the member's bell and
+ * profile chip. One row from `lg` up, aligned to the greeting's first line;
+ * below `lg` the search drops to a full-width row of its own.
+ */
+export function DashboardHeader({ search }: { search?: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-2 sm:gap-4">
-      <h1 className="text-welcome-m lg:text-welcome min-w-0 leading-tight whitespace-nowrap uppercase max-sm:text-xl">
-        Welcome <span className="text-brand">{MEMBER.name.toUpperCase()}.</span>
-      </h1>
+    <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
+      <DashboardGreeting />
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-        <span
-          role="img"
-          aria-label="Notifications unavailable until family updates are connected"
-          title="Notifications unavailable until family updates are connected"
-          className="text-muted flex size-8 items-center justify-center sm:size-10"
-        >
-          <Bell aria-hidden className="size-5" />
-        </span>
+      {search ? (
+        <div className="order-3 w-full lg:order-2 lg:w-auto lg:flex-1">
+          {search}
+        </div>
+      ) : null}
+
+      <div className="order-2 ml-auto flex shrink-0 items-center gap-1.5 sm:gap-3 lg:order-3 lg:ml-0">
+        <NotificationBell />
 
         <Link
           href={ROUTES.PROFILE}
           aria-label={`Open ${MEMBER.name}'s profile`}
-          className="border-member-border bg-surface shadow-menu transition-fast hover:border-brand rounded-pill flex items-center gap-0.5 border py-0 pr-1 pl-0.5 sm:gap-1 sm:pr-2 sm:pl-1"
+          className="border-member-border bg-surface shadow-menu transition-fast hover:border-brand rounded-pill flex items-center gap-2 border py-1 pr-3 pl-1"
         >
           <Image
             src={AVATAR}
             alt={`Portrait of ${MEMBER.name}`}
             width={32}
             height={32}
-            className="rounded-pill size-7 shrink-0 object-cover sm:size-8"
+            className="rounded-pill size-8 shrink-0 object-cover"
           />
-          <div className="text-caption max-sm:leading-tight">
+          <div className="text-caption leading-tight">
             <p className="text-member-ink font-semibold">{MEMBER.name}</p>
             <p className="text-muted text-caption-sm">{MEMBER.role}</p>
           </div>

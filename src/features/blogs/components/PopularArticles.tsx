@@ -33,9 +33,17 @@ export function PopularArticles({ className }: { className?: string }) {
   const rest = posts.slice(1);
 
   return (
-    <section aria-labelledby="popular-articles" className={className}>
+    <section
+      aria-labelledby="popular-articles"
+      className={cn(
+        "border-member-border bg-member-panel shadow-member rounded-lg border p-6",
+        className,
+      )}
+    >
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="reveal">
+        {/* No scroll reveal on this heading: it must sit on the same line
+            as the birthday board's at every scroll position. */}
+        <div>
           <p className="text-brand text-caption mb-2 font-semibold tracking-[0.16em] uppercase">
             From the archive
           </p>

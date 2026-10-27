@@ -30,13 +30,10 @@ export const metadata: Metadata = {
  */
 export default function DashboardPage() {
   return (
-    <div className="page-enter space-y-10">
+    <div className="space-y-10">
       <div>
-        <div className="space-y-0.5">
-          <DashboardHeader />
-          <BlogSearch />
-        </div>
-        <div className="mt-4.5">
+        <DashboardHeader search={<BlogSearch />} />
+        <div className="mt-6">
           <HeroSlides />
         </div>
       </div>

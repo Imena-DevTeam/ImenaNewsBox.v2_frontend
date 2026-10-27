@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { SLIDES } from "../data";
 import { cn } from "@/lib/cn";
+import { useDocumentVisible } from "@/hooks/useDocumentVisible";
 
 const INTERVAL_MS = 7000;
 const SWIPE_THRESHOLD_PX = 48;
@@ -28,7 +29,10 @@ export function HeroSlides() {
   const [manualPaused, setManualPaused] = useState(false);
   const swipeStart = useRef<number | null>(null);
   const slide = SLIDES[index] ?? SLIDES[0];
-  const paused = hoverPaused || focusPaused || manualPaused;
+  /* A hidden tab clears the interval outright, so returning to the page
+     never brings a burst of throttled ticks or a sudden jump. */
+  const visible = useDocumentVisible();
+  const paused = hoverPaused || focusPaused || manualPaused || !visible;
 
   const go = (delta: number) =>
     setIndex((value) => (value + delta + SLIDES.length) % SLIDES.length);
@@ -106,7 +110,7 @@ export function HeroSlides() {
                   placeholder="blur"
                   fill
                   priority={i === 0}
-                  loading={i === index ? undefined : "lazy"}
+                  loading={i === 0 ? undefined : i === index ? "eager" : "lazy"}
                   sizes="(min-width: 1280px) 1100px, 100vw"
                   className="object-cover"
                 />
@@ -128,7 +132,7 @@ export function HeroSlides() {
         >
           <p
             key={index}
-            className="font-member-serif text-h3-m md:text-h3 text-surface page-enter max-w-md"
+            className="font-member-serif text-h3-m md:text-h3 text-surface page-enter max-w-2xl text-balance"
           >
             <span className="sr-only">
               Slide {index + 1} of {SLIDES.length}:{" "}
