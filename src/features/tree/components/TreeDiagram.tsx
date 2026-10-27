@@ -5,7 +5,7 @@ import {
   HouseHeartOrnament,
   SunOrnament,
   TreeOrnament,
-} from "@/features/story/components/Ornaments";
+} from "@/components/ui/Ornaments";
 import {
   BRANCH_EDGES,
   DIAGRAM,

@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { HeartsOrnament } from "@/features/story/components/Ornaments";
+import { HeartsOrnament } from "@/components/ui/Ornaments";
 
 export function TreeIntro() {
   return (

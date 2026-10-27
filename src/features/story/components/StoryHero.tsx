@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { HouseHeartOrnament } from "@/features/story/components/Ornaments";
+import { HouseHeartOrnament } from "@/components/ui/Ornaments";
 
 export function StoryHero() {
   return (

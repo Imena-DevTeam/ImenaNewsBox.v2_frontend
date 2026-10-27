@@ -1,7 +1,7 @@
 import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { HeartsOrnament } from "@/features/story/components/Ornaments";
+import { HeartsOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 
 /* The four slogans, placed at the top, left, right and bottom of the cross.
