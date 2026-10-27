@@ -1,16 +1,26 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
+import {
+  SESSION_COOKIE,
+  SESSION_MAX_AGE,
+  createSessionToken,
+} from "@/lib/session";
 
 /**
  * Only async functions may be exported from a "use server" module, so the
- * cookie's name and lifetime live in @/lib/session.
+ * cookie's name, lifetime and signing live in @/lib/session.
  */
 export async function startMemberSession(): Promise<void> {
-  const store = await cookies();
+  const token = await createSessionToken();
+  if (!token) {
+    throw new Error(
+      "AUTH_SECRET is not set, so no member session can be issued. Generate one with `npx auth secret`.",
+    );
+  }
 
-  store.set(SESSION_COOKIE, "verified", {
+  const store = await cookies();
+  store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
