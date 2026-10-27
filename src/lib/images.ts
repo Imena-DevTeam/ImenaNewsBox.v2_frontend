@@ -10,21 +10,22 @@
  * plain path. The @public alias is declared in tsconfig.json.
  */
 
-import aboutFamily from "@public/images/about-family.png";
-import blogReunion from "@public/images/blog-reunion.png";
-import coreValues from "@public/images/core-values.png";
-import dashboardFamilyGathering from "@public/images/dashboard-family-gathering.png";
-import elder1 from "@public/images/elder-1.png";
-import elder2 from "@public/images/elder-2.png";
-import elder3 from "@public/images/elder-3.png";
-import elder4 from "@public/images/elder-4.png";
-import handover1 from "@public/images/handover-1.png";
-import handover2 from "@public/images/handover-2.png";
-import handover3 from "@public/images/handover-3.png";
-import heroFamily from "@public/images/hero-family.png";
-import storyCircle from "@public/images/story-circle.jpg";
-import storyCta from "@public/images/story-cta.png";
-import storyIntro from "@public/images/story-intro.jpg";
+import aboutFamily from "@public/images/about-family.webp";
+import blogReunion from "@public/images/blog-reunion.webp";
+import coreValues from "@public/images/core-values.webp";
+import dashboardFamilyGathering from "@public/images/dashboard-family-gathering.webp";
+import elder1 from "@public/images/elder-1.webp";
+import elder2 from "@public/images/elder-2.webp";
+import elder3 from "@public/images/elder-3.webp";
+import elder4 from "@public/images/elder-4.webp";
+import ghost from "@public/images/ghost.webp";
+import handover1 from "@public/images/handover-1.webp";
+import handover2 from "@public/images/handover-2.webp";
+import handover3 from "@public/images/handover-3.webp";
+import heroFamily from "@public/images/hero-family.webp";
+import storyCircle from "@public/images/story-circle.webp";
+import storyCta from "@public/images/story-cta.webp";
+import storyIntro from "@public/images/story-intro.webp";
 
 export {
   aboutFamily,
@@ -38,6 +39,7 @@ export {
   handover1,
   handover2,
   handover3,
+  ghost,
   heroFamily,
   storyCircle,
   storyCta,

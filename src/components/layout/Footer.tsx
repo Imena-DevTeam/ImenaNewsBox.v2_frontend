@@ -13,7 +13,7 @@ export function Footer() {
       <div className="max-w-page text-surface relative isolate mx-auto overflow-hidden rounded-lg">
         {/* The wash from the Figma footer export. */}
         <Image
-          src="/images/footer-bg.png"
+          src="/images/footer-bg.webp"
           alt=""
           aria-hidden
           fill
