@@ -27,19 +27,25 @@ export const MEMBER_NAV: NavItem[] = [
   { label: "Profile", href: ROUTES.PROFILE },
 ];
 
-/** The member footer's quick links. "Archive" is the family blog. */
-export const MEMBER_FOOTER_NAV: NavItem[] = [
-  { label: "Dashboard", href: ROUTES.DASHBOARD },
-  { label: "Archive", href: ROUTES.BLOGS },
-  { label: "Tree", href: ROUTES.FAMILY_TREE },
-  { label: "Birthdays", href: ROUTES.BIRTHDAYS },
-  { label: "Profile", href: ROUTES.PROFILE },
+/** The member footer's link groups. "Archive" is the family blog. */
+export const MEMBER_FOOTER_GROUPS: { heading: string; items: NavItem[] }[] = [
+  {
+    heading: "The family",
+    items: [
+      { label: "Dashboard", href: ROUTES.DASHBOARD },
+      { label: "Family tree", href: ROUTES.FAMILY_TREE },
+      { label: "Birthdays", href: ROUTES.BIRTHDAYS },
+    ],
+  },
+  {
+    heading: "Memories",
+    items: [
+      { label: "Gallery", href: ROUTES.GALLERY },
+      { label: "Archive", href: ROUTES.BLOGS },
+      { label: "Resources", href: ROUTES.RESOURCES },
+    ],
+  },
 ];
-
-/** The three branches, as the footer's chips link to them. */
-export const SUBFAMILY_LINKS: NavItem[] = ["Wihogora", "Light", "Hope"].map(
-  (name) => ({ label: name, href: `${ROUTES.FAMILY_TREE}#family-tree` }),
-);
 
 /** The footer columns. Every destination here is a page that exists. */
 export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [

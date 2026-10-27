@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { OPEN_UPDATES_EVENT } from "@/components/layout/NotificationBell";
 import { FAMILY_MOTTO } from "@/constants/site";
+import { NOTIFICATIONS, NOTIFICATIONS_READ_KEY } from "@/lib/notifications";
 import { MemberFooter } from "./MemberFooter";
 
 /* The sign-out action is a server action; the footer only needs to wire it. */
@@ -8,52 +10,89 @@ vi.mock("@/app/actions/session", () => ({
   endMemberSession: vi.fn(async () => undefined),
 }));
 
+beforeEach(() => localStorage.clear());
+
 describe("MemberFooter", () => {
-  it("signs off with the family motto and its heritage, not legalese", () => {
+  it("says what the place is and carries the family motto", () => {
     render(<MemberFooter />);
 
+    expect(screen.getByText(/private archive/i)).toBeInTheDocument();
     expect(screen.getByText(`“${FAMILY_MOTTO}”`)).toHaveAttribute("lang", "rw");
-    expect(screen.getByText(/Est\. 1996, UNR Butare/)).toBeInTheDocument();
-    expect(screen.queryByText(/all rights reserved/i)).not.toBeInTheDocument();
   });
 
-  it("shows who is signed in and the archive's status", () => {
+  it("makes no claim about who is online", () => {
     render(<MemberFooter />);
 
-    expect(screen.getByText(/logged in as/i)).toHaveTextContent(
-      "Logged in as Aganze • Wihogora Family",
-    );
-    expect(screen.getByText(/family archive live/i)).toHaveTextContent(
-      /140\+ Members Connected/,
+    expect(screen.queryByText(/connected|live/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Together since 1996/)).toHaveTextContent(
+      "more than 140 of us",
     );
   });
 
-  it("links the three branches and the member pages, and offers a way out", () => {
+  it("links the member pages under two plain headings", () => {
     render(<MemberFooter />);
-
-    const branches = screen.getByRole("navigation", {
-      name: "Family branches",
-    });
-    for (const name of ["Wihogora", "Light", "Hope"]) {
-      expect(
-        branches.querySelector(`a[href="/family-tree#family-tree"]`),
-      ).not.toBeNull();
-      expect(screen.getByRole("link", { name })).toBeInTheDocument();
-    }
 
     for (const [name, href] of [
       ["Dashboard", "/dashboard"],
-      ["Archive", "/blogs"],
-      ["Tree", "/family-tree"],
+      ["Family tree", "/family-tree"],
       ["Birthdays", "/birthdays"],
-      ["Profile", "/profile"],
+      ["Gallery", "/gallery"],
+      ["Archive", "/blogs"],
+      ["Resources", "/resources"],
     ]) {
-      expect(screen.getByRole("link", { name })).toHaveAttribute("href", href);
+      expect(screen.getByRole("link", { name: name! })).toHaveAttribute(
+        "href",
+        href,
+      );
     }
+    expect(
+      screen.getByRole("heading", { name: "The family" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Memories" }),
+    ).toBeInTheDocument();
+  });
+
+  it("gives the signed-in member their profile and a way out", () => {
+    render(<MemberFooter />);
+
+    expect(screen.getByRole("heading", { name: "You" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Aganze, Wihogora family" }),
+    ).toHaveAttribute("href", "/profile");
+    expect(
+      screen.getByRole("button", { name: /sign out of this device/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("counts the updates not yet seen and opens them", () => {
+    const opened = vi.fn();
+    window.addEventListener(OPEN_UPDATES_EVENT, opened);
+    render(<MemberFooter />);
+
+    const button = screen.getByRole("button", { name: /family updates/i });
+    expect(button).toHaveTextContent(`${NOTIFICATIONS.length} new`);
+
+    fireEvent.click(button);
+    expect(opened).toHaveBeenCalledTimes(1);
+    window.removeEventListener(OPEN_UPDATES_EVENT, opened);
+  });
+
+  it("drops the count once everything has been read", () => {
+    localStorage.setItem(
+      NOTIFICATIONS_READ_KEY,
+      JSON.stringify(NOTIFICATIONS.map((item) => item.id)),
+    );
+    render(<MemberFooter />);
 
     expect(
-      screen.getByRole("button", { name: /sign out/i }),
+      screen.getByRole("button", { name: "Family updates" }),
     ).toBeInTheDocument();
+  });
+
+  it("can send the member back to the top", () => {
+    render(<MemberFooter />);
+
     expect(
       screen.getByRole("button", { name: /back to top/i }),
     ).toBeInTheDocument();

@@ -9,9 +9,10 @@ export const FAMILY_MOTTO_MEANING =
   "With courage and faith, our bright future shall never fade";
 
 /** Where and when the family began. */
-export const FAMILY_HERITAGE = "IMENA Family Sanctuary • Est. 1996, UNR Butare";
+export const FAMILY_FOUNDED = 1996;
+export const FAMILY_ORIGIN = "IMENA Family Sanctuary, UNR Butare";
 
 /* TODO: a real count from the family register. Until then this is the
-   figure the family gives for itself, shown as a total — not a live count of
-   who is online, which nothing here can know. */
-export const FAMILY_MEMBER_COUNT = "140+";
+   figure the family gives for itself, "more than", as a total — not a count
+   of who is online, which nothing here can know. */
+export const FAMILY_MEMBER_COUNT = 140;

@@ -291,6 +291,16 @@
   --text-section-m--line-height: 1.15;
   --text-section-m--font-weight: 500;
 
+  /* The family motto that closes every member page: a serif line big enough
+     to be the thing remembered, and its phone size. */
+  --text-motto: 2.75rem; /* 44px */
+  --text-motto--line-height: 1.18;
+  --text-motto--font-weight: 500;
+
+  --text-motto-m: 1.875rem; /* 30px */
+  --text-motto-m--line-height: 1.22;
+  --text-motto-m--font-weight: 500;
+
   /* The huge "4 ghost 4" of the not-found page, and its mobile size. */
   --text-ghost: 7.5rem; /* 120px */
   --text-ghost--line-height: 1;

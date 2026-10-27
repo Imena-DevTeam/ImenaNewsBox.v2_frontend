@@ -36,6 +36,8 @@ const FONT_SIZES = [
   "section-m",
   "tagline",
   "ghost",
+  "motto",
+  "motto-m",
   "ghost-m",
   "tagline-m",
 ];
