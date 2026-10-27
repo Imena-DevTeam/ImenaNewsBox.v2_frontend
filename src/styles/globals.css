@@ -189,6 +189,104 @@
   --spacing-section: 6rem; /* 96px — desktop section padding */
   --spacing-section-m: 3.5rem; /* 56px — mobile section padding */
 
+  /* Member area (dashboard, sidebar and its friends). Sampled from the
+     Figma member frames; nothing here is shared with the public site's
+     blues, so this section names them rather than borrowing tokens that
+     mean something else nearby. */
+  --color-member-tint: #f4f0fc; /* the lavender panels behind the birthdays column */
+  --color-member-night: #343059; /* the dark "today's birthday" card */
+  /* Date and day chips carry a 12px white label, so the chip is darker than
+     the design's #8173e0: against white that reached only 3.85:1, below the
+     4.5:1 WCAG AA asks of normal text, while #6f5bd8 holds the same hue and
+     clears it at 5.2:1. */
+  --color-member-chip: #6f5bd8;
+  --color-member-field: #e8e8ec; /* the grey search pill */
+  --color-member-panel: #fbfaff; /* quiet card surface in the member area */
+  --color-member-border: #e7e1f4; /* edges that hold member cards together */
+  --color-member-ink: #24213d; /* softer than black for member headings */
+  --color-member-heart: #f26493; /* the wish counters' pink heart */
+
+  /* The member frame itself — the rail, the page headers and the footer.
+     Sampled from the gallery and blogs frames, which share all of it. */
+  --color-member-accent: #5136b0; /* "Featured Videos" and its underline */
+  --color-member-active: #bfa3d3; /* the tile behind the open page in the rail */
+  --color-member-rail-ink: #454655; /* the rail's icons and labels */
+  --color-member-dot: #6b0174; /* the unread mark on the bell */
+  --color-member-rule: #b1b1b1; /* the bar above the copyright line */
+  /* The closing line both member frames end on. */
+  --color-tagline-ink: #1a1a29;
+  --color-tagline-accent: #303ccf;
+  /* The line-drawn camera, hearts and sun scattered behind the gallery. */
+  --color-gallery-ornament: #e3e1f2;
+
+  --shadow-member: 0 12px 36px rgb(52 48 89 / 0.08);
+  /* The rail is a floating card, so its corners are far rounder than a
+     card's: a 100px column with a 48px radius reads as a lozenge. */
+  --radius-member-rail: 3rem;
+  /* The gallery's video frame, rounder than --radius-lg. */
+  --radius-media: 30px;
+
+  /* The gallery's five-up stage, its album cards and its video frame, as
+     the ratios measured off the design rather than restated per component. */
+  --aspect-gallery-stage: 436 / 399;
+  --aspect-gallery-stage-mid: 92 / 313;
+  --aspect-gallery-stage-side: 71 / 264;
+  --aspect-gallery-album: 39 / 28;
+  --aspect-gallery-video: 800 / 518;
+
+  /* The welcome line. Heavier than any public heading, and the only
+     place the member area sets its own display size. */
+  --text-welcome: 2.5rem; /* 40px */
+  --text-welcome--line-height: 1.05;
+  --text-welcome--font-weight: 800;
+
+  --text-welcome-m: 1.5rem; /* 24px */
+  --text-welcome-m--line-height: 1.1;
+  --text-welcome-m--font-weight: 800;
+
+  --text-caption-sm: 0.625rem; /* 10px — compact member profile metadata */
+
+  /* The rail's labels. The design sets them at 10px; 11px is the smallest
+     a primary navigation label should be and the rail is wide enough. */
+  --text-rail: 0.6875rem; /* 11px */
+  --text-rail--line-height: 1.3;
+  --text-rail--font-weight: 600;
+  --text-caption-sm--line-height: 1.3;
+  --text-caption-sm--font-weight: 600;
+
+  /* The one-word title a member page opens with — GALLERY, BLOGS. Set far
+     larger than any public heading and tracked in a little, the way the
+     design draws it. */
+  --text-page-title: 4.25rem; /* 68px */
+  --text-page-title--line-height: 1;
+  --text-page-title--font-weight: 800;
+  --text-page-title--letter-spacing: -0.02em;
+
+  --text-page-title-m: 2.25rem; /* 36px */
+  --text-page-title-m--line-height: 1.05;
+  --text-page-title-m--font-weight: 800;
+  --text-page-title-m--letter-spacing: -0.02em;
+
+  /* "Featured Videos", "Featured Album", "Recent Posts": the violet section
+     headings of the member pages, lighter than a public heading at the same
+     size and carrying an underline rather than a weight. */
+  --text-section: 3rem; /* 48px */
+  --text-section--line-height: 1.1;
+  --text-section--font-weight: 500;
+
+  --text-section-m: 2rem; /* 32px */
+  --text-section-m--line-height: 1.15;
+  --text-section-m--font-weight: 500;
+
+  /* The serif line every member page closes on. */
+  --text-tagline: 2.25rem; /* 36px */
+  --text-tagline--line-height: 1.15;
+  --text-tagline--font-weight: 700;
+
+  --text-tagline-m: 1.5rem; /* 24px */
+  --text-tagline-m--line-height: 1.2;
+  --text-tagline-m--font-weight: 700;
+
   /* Family Tree. Sampled from the design; the member cards use a lighter
      ink and a violet edge that nothing else on the site uses. */
   --color-tree-card: #f7f5fc; /* the member card fill */
@@ -282,6 +380,12 @@
   --font-auth-display: var(--font-bricolage), system-ui, sans-serif;
   --font-auth-heading: var(--font-instrument), system-ui, sans-serif;
   --font-auth-body: var(--font-jost), system-ui, sans-serif;
+
+  /* Member area. Poppins carries the interface and the heavy welcome
+     heading; Playfair Display is the serif of the blog titles and the
+     closing tagline. Variables are set in src/app/(member)/layout.tsx. */
+  --font-member-sans: var(--font-poppins), system-ui, sans-serif;
+  --font-member-serif: var(--font-playfair), Georgia, serif;
 }
 
 @layer base {
@@ -409,6 +513,26 @@
     * {
       animation-play-state: paused;
     }
+  }
+}
+
+/* The carousel's slow breathe: the active photograph settles from a slight
+   zoom onto true size for the length a slide is on screen, so the hero
+   feels alive without any of the controls moving. Guarded like every
+   other animation, and the small offset keeps the edges inside the frame. */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.045);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@utility hero-zoom {
+  @media (prefers-reduced-motion: no-preference) {
+    transform: scale(1.045);
+    animation: hero-zoom 7s var(--ease-out-soft) both;
   }
 }
 
@@ -623,4 +747,41 @@
   height: 0.25rem;
   border-radius: var(--radius-pill);
   background-color: var(--color-heading);
+}
+
+/* The gallery's five-up stage: one large photograph with two narrower ones
+   either side, in the design's own proportions — the columns are the widths
+   it draws (71, 92, 436, 92, 71) expressed as fractions, so the whole stage
+   scales with the page instead of holding a fixed pixel width.
+
+   Below the large breakpoint there is no room for five, so the flanking
+   photographs step out and the centre one takes the width on its own. */
+@utility gallery-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 21px;
+
+  & > [data-stage="side"] {
+    display: none;
+  }
+
+  /* Tablets have room for three but not five, so the outer pair steps out
+     first and the stage keeps its shape rather than losing it entirely. */
+  @media (width >= 48rem) {
+    grid-template-columns: 92fr 436fr 92fr;
+
+    & > [data-depth="mid"] {
+      display: block;
+    }
+  }
+
+  @media (width >= 64rem) {
+    grid-template-columns: 71fr 92fr 436fr 92fr 71fr;
+
+    & > [data-stage="side"] {
+      display: block;
+    }
+  }
 }

@@ -13,11 +13,14 @@
 import aboutFamily from "@public/images/about-family.png";
 import blogReunion from "@public/images/blog-reunion.png";
 import coreValues from "@public/images/core-values.png";
+import dashboardFamilyGathering from "@public/images/dashboard-family-gathering.png";
 import elder1 from "@public/images/elder-1.png";
 import elder2 from "@public/images/elder-2.png";
 import elder3 from "@public/images/elder-3.png";
 import elder4 from "@public/images/elder-4.png";
 import handover1 from "@public/images/handover-1.png";
+import handover2 from "@public/images/handover-2.png";
+import handover3 from "@public/images/handover-3.png";
 import heroFamily from "@public/images/hero-family.png";
 import storyCircle from "@public/images/story-circle.jpg";
 import storyCta from "@public/images/story-cta.png";
@@ -27,11 +30,14 @@ export {
   aboutFamily,
   blogReunion,
   coreValues,
+  dashboardFamilyGathering,
   elder1,
   elder2,
   elder3,
   elder4,
   handover1,
+  handover2,
+  handover3,
   heroFamily,
   storyCircle,
   storyCta,
