@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { startMemberSession } from "@/app/actions/session";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/cn";
 import { useCountdown } from "../hooks/useCountdown";
@@ -26,7 +27,13 @@ async function verifyCode(code: string) {
  * the code is checked as soon as the last digit lands, and a correct code
  * takes you into the site.
  */
-export function VerifyForm({ email }: { email?: string }) {
+export function VerifyForm({
+  email,
+  returnTo,
+}: {
+  email?: string;
+  returnTo?: string;
+}) {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -48,10 +55,15 @@ export function VerifyForm({ email }: { email?: string }) {
     }
 
     setStatus("verified");
-    // TODO: once the session exists, send each role to its own home (the
-    // member dashboard, the admin panel). Home is the only signed-in page
-    // there is so far. `replace` keeps the code step out of history.
-    router.replace(ROUTES.HOME);
+
+    /* The gate the middleware reads. Until the auth API exists this is the
+       whole of the session; see @/lib/session. */
+    await startMemberSession();
+
+    // TODO: once roles exist, send each one to its own home (the member
+    // dashboard, the admin panel). `replace` keeps the code step out of
+    // history, and returnTo carries whoever was bounced here back.
+    router.replace(returnTo ?? ROUTES.DASHBOARD);
   };
 
   const handleChange = (next: string) => {

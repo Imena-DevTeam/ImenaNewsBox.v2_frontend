@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { VerifyForm } from "@/features/auth/components/VerifyForm";
 import { ROUTES } from "@/constants/routes";
+import { RETURN_PARAM } from "@/lib/session";
 
 /**
  * Reads the address and the role out of the query string.
@@ -17,6 +18,14 @@ import { ROUTES } from "@/constants/routes";
 export function VerifyPanel() {
   const params = useSearchParams();
   const email = params.get("email") ?? undefined;
+
+  /* Only ever a path on this site: a query string is not somewhere to be
+     sent, so anything that is not a plain absolute path is dropped. */
+  const requested = params.get(RETURN_PARAM) ?? "";
+  const returnTo =
+    requested.startsWith("/") && !requested.startsWith("//")
+      ? requested
+      : undefined;
 
   /* Back goes to whichever login sent you here. */
   const back =
@@ -41,7 +50,7 @@ export function VerifyPanel() {
       </Link>
 
       <div className="pb-auth-lg flex flex-1 items-center">
-        <VerifyForm email={email} />
+        <VerifyForm email={email} returnTo={returnTo} />
       </div>
     </>
   );

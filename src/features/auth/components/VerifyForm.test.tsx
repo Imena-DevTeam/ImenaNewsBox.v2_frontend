@@ -1,9 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { ROUTES } from "@/constants/routes";
 import { VerifyForm } from "./VerifyForm";
 
 const replace = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
+
+/* A server action cannot run in jsdom; the form only needs it to resolve. */
+vi.mock("@/app/actions/session", () => ({
+  startMemberSession: vi.fn(async () => undefined),
+}));
 
 const box = (n: number) => screen.getByLabelText(`Digit ${n}`);
 
@@ -35,6 +41,6 @@ describe("VerifyForm", () => {
     expect(
       await screen.findByText("Verified! Taking you in…"),
     ).toBeInTheDocument();
-    expect(replace).toHaveBeenCalledExactlyOnceWith("/");
+    expect(replace).toHaveBeenCalledExactlyOnceWith(ROUTES.DASHBOARD);
   });
 });

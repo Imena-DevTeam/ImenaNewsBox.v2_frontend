@@ -4,7 +4,10 @@ import { AdminLoginForm } from "./AdminLoginForm";
 import { LoginForm } from "./LoginForm";
 
 const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 const logIn = () =>
   fireEvent.click(screen.getByRole("button", { name: "Log In" }));
