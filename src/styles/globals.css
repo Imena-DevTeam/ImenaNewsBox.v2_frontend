@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Viewports too short for the full-size dock: landscape phones and tablets,
+   small laptops with the browser chrome showing. */
+@custom-variant short (@media (max-height: 32rem));
+
 /* ---------------------------------------------------------------------------
    IMENA Family Times — typography & colour system v1.0
    Single source of truth. Components use the generated utility classes only
@@ -211,15 +215,22 @@
   --color-member-accent: #5136b0; /* "Featured Videos" and its underline */
   --color-member-active: #bfa3d3; /* the tile behind the open page in the rail */
   --color-member-rail-ink: #454655; /* the rail's icons and labels */
-  --color-member-dot: #6b0174; /* the unread mark on the bell */
-  --color-member-rule: #b1b1b1; /* the bar above the copyright line */
   /* The closing line both member frames end on. */
+  /* The celebration board's gold: the birthday badge and the foil's warm
+     edge. Decorative and on dark surfaces only. */
+  --color-celebration-gold: #f2c14e;
   --color-tagline-ink: #1a1a29;
   --color-tagline-accent: #303ccf;
   /* The line-drawn camera, hearts and sun scattered behind the gallery. */
   --color-gallery-ornament: #e3e1f2;
 
   --shadow-member: 0 12px 36px rgb(52 48 89 / 0.08);
+  /* The navigation dock: a long, low, primary-tinted shadow so the glass
+     reads as floating above the page. */
+  --shadow-dock: 0 20px 50px rgb(13 26 186 / 0.08);
+  /* The member footer's lift: cast upwards, barely there. */
+  --shadow-footer: 0 -10px 30px rgb(52 48 89 / 0.03);
+  --radius-dock: 2rem; /* 32px — the dock's pill silhouette */
   /* The rail is a floating card, so its corners are far rounder than a
      card's: a 100px column with a 48px radius reads as a lozenge. */
   --radius-member-rail: 3rem;
@@ -229,8 +240,10 @@
   /* The gallery's five-up stage, its album cards and its video frame, as
      the ratios measured off the design rather than restated per component. */
   --aspect-gallery-stage: 436 / 399;
-  --aspect-gallery-stage-mid: 92 / 313;
-  --aspect-gallery-stage-side: 71 / 264;
+  /* The flanking photographs keep a natural portrait shape, so faces stay
+     faces; they step back by size and fade instead of being sliced thin. */
+  --aspect-gallery-stage-mid: 3 / 4;
+  --aspect-gallery-stage-side: 3 / 4;
   --aspect-gallery-album: 39 / 28;
   --aspect-gallery-video: 800 / 518;
 
@@ -278,6 +291,15 @@
   --text-section-m--line-height: 1.15;
   --text-section-m--font-weight: 500;
 
+  /* The huge "4 ghost 4" of the not-found page, and its mobile size. */
+  --text-ghost: 7.5rem; /* 120px */
+  --text-ghost--line-height: 1;
+  --text-ghost--font-weight: 700;
+
+  --text-ghost-m: 5rem; /* 80px */
+  --text-ghost-m--line-height: 1;
+  --text-ghost-m--font-weight: 700;
+
   /* The serif line every member page closes on. */
   --text-tagline: 2.25rem; /* 36px */
   --text-tagline--line-height: 1.15;
@@ -324,6 +346,9 @@
   --duration-fast: 150ms;
   --duration-base: 300ms;
   --duration-slow: 600ms;
+  /* Overshoots a touch and settles, for things that should feel physical:
+     the dock's active pill gliding to a new page. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* A slow drift, as if the card were resting on air. Pair with motion-safe:
      so it never plays for someone who asked for reduced motion. */
@@ -335,6 +360,32 @@
      upright while it travels. */
   --animate-orbit: orbit 45s linear infinite;
   --animate-orbit-reverse: orbit-reverse 45s linear infinite;
+
+  /* Dialogs. Keyframes rather than @starting-style transitions: an
+     animation always runs when an element is displayed, where a transition
+     into the top layer can fail to start and leave a dialog off-screen. */
+  --animate-drawer-in: drawer-in 350ms var(--ease-out-soft) both;
+  --animate-dialog-pop: dialog-pop 250ms var(--ease-out-soft) both;
+
+  @keyframes drawer-in {
+    from {
+      translate: 100% 0;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes dialog-pop {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+    }
+  }
 
   @keyframes float {
     0%,
@@ -503,6 +554,112 @@
   }
 }
 
+/* The member pages' route transition: a short fade and rise, with the
+   softest blur, so the new page settles in rather than cutting. Driven by
+   (member)/template.tsx, which re-mounts on every navigation. */
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@utility route-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: route-enter 450ms var(--ease-out-soft) both;
+  }
+}
+
+/* The gallery stage's clock. The progress bar's animation *is* the timer:
+   when it ends the stage advances, so pausing the bar pauses the slide and
+   the two can never drift apart. */
+@keyframes stage-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@utility stage-progress {
+  transform-origin: left;
+  animation: stage-progress 5s linear forwards;
+}
+
+/* The slow cinematic push on the photograph in the middle of the stage,
+   over exactly the time it is on screen. */
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@utility ken-burns {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ken-burns 5s linear forwards;
+  }
+}
+
+/* A preview card taking a new photograph fades it in rather than swapping. */
+@keyframes stage-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility stage-fade {
+  animation: stage-fade 400ms var(--ease-out-soft) both;
+}
+
+/* Holds every animation inside where it is — hover, touch, an open
+   lightbox — for components that track their own pause state. */
+@utility animations-paused {
+  &,
+  & * {
+    animation-play-state: paused;
+  }
+}
+
+/* The birthday card's foil: a soft diagonal sheen drifting across a
+   gradient, like light on wrapping paper. Still for reduced motion. */
+@keyframes foil-sheen {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+
+@utility foil-sheen {
+  background-image: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.16) 47%,
+    rgb(242 193 78 / 0.18) 52%,
+    transparent 64%
+  );
+  background-size: 250% 100%;
+  background-position: 50% 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: foil-sheen 6s ease-in-out infinite;
+  }
+}
+
 /* Stops every animation inside while the pointer is over it or something
    within it has focus. WCAG 2.2.2 asks that motion running longer than five
    seconds can be paused, and moving text cannot be read otherwise. */
@@ -551,54 +708,6 @@
     color, background-color, border-color, box-shadow, transform, opacity;
   transition-duration: var(--duration-base);
   transition-timing-function: var(--ease-out-soft);
-}
-
-/* The branch strokes draw themselves in as the tree scrolls past. Each path
-   carries pathLength="1", so one dash covers the whole stroke whatever its
-   real length, and the offset animates to zero.
-
-   The timeline is named on the wrapper rather than taken per path: an SVG
-   path is not a scroll box of its own, so `view()` on it would do nothing. */
-@utility tree-timeline {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      view-timeline-name: --tree;
-    }
-  }
-}
-
-/* The dash lives in the keyframes, not on the element. If the animation
-   never runs — forced off, an unresolved timeline — the stroke simply draws
-   solid instead of staying invisible forever. */
-@keyframes draw {
-  from {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-}
-
-@utility draw-in {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation-name: draw;
-      animation-fill-mode: both;
-      animation-timing-function: linear;
-      animation-timeline: --tree;
-      animation-range: entry 5% cover 60%;
-
-      /* Staggered so the branches arrive in sequence rather than at once. */
-      &:nth-child(3n + 2) {
-        animation-range: entry 12% cover 68%;
-      }
-      &:nth-child(3n + 3) {
-        animation-range: entry 19% cover 76%;
-      }
-    }
-  }
 }
 
 /* The login photograph cycles between a few pictures. Each layer is visible
@@ -740,6 +849,15 @@
   }
 }
 
+/* The family tree canvas: a lit lineage line glows gold around its violet
+   stroke. A class on an @xyflow/react edge, so a plain rule rather than a
+   utility. */
+@layer components {
+  .lineage-lit path {
+    filter: drop-shadow(0 0 6px rgb(242 193 78 / 0.85));
+  }
+}
+
 /* The short accent bar under a section title. */
 @utility accent-bar {
   display: block;
@@ -749,19 +867,18 @@
   background-color: var(--color-heading);
 }
 
-/* The gallery's five-up stage: one large photograph with two narrower ones
-   either side, in the design's own proportions — the columns are the widths
-   it draws (71, 92, 436, 92, 71) expressed as fractions, so the whole stage
-   scales with the page instead of holding a fixed pixel width.
+/* The gallery's five-up stage: one large photograph with two smaller ones
+   either side, stepping back in size. The columns are fractions, so the
+   stage scales with the page instead of holding a fixed pixel width.
 
-   Below the large breakpoint there is no room for five, so the flanking
-   photographs step out and the centre one takes the width on its own. */
+   Below the large breakpoint the outer pair steps out, and on phones the
+   centre photograph takes the width on its own. */
 @utility gallery-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   justify-items: center;
-  gap: 21px;
+  gap: 1.25rem;
 
   & > [data-stage="side"] {
     display: none;
@@ -770,7 +887,7 @@
   /* Tablets have room for three but not five, so the outer pair steps out
      first and the stage keeps its shape rather than losing it entirely. */
   @media (width >= 48rem) {
-    grid-template-columns: 92fr 436fr 92fr;
+    grid-template-columns: 150fr 436fr 150fr;
 
     & > [data-depth="mid"] {
       display: block;
@@ -778,7 +895,7 @@
   }
 
   @media (width >= 64rem) {
-    grid-template-columns: 71fr 92fr 436fr 92fr 71fr;
+    grid-template-columns: 110fr 150fr 436fr 150fr 110fr;
 
     & > [data-stage="side"] {
       display: block;
