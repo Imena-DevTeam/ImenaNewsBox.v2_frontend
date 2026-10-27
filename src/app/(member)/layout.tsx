@@ -26,25 +26,23 @@ export default function MemberLayout({ children }: { children: ReactNode }) {
     <div
       className={`${poppins.variable} ${playfair.variable} font-member-sans bg-surface text-text flex min-h-dvh flex-col`}
     >
-      {/* The rail and the page sit in a page-width row; the footer bar runs
-          the full width beneath them, as the design draws it. */}
-      <div className="max-w-page mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 px-4 pt-6 md:flex-row md:gap-14 md:px-6 md:pt-9">
-        {/* The first thing a keyboard or screen-reader user reaches on these
-            frames, so nobody walks the seven rail links before the page
-            they asked for. Hidden until it takes focus. */}
-        <a
-          href="#member-content"
-          className="bg-brand text-surface rounded-field sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-5 focus:py-3"
-        >
-          Skip to the page content
-        </a>
+      {/* The dock is fixed, so the page keeps its own column: room on the
+          left for the desktop dock, room at the foot for the mobile one. */}
+      <a
+        href="#member-content"
+        className="bg-brand text-surface rounded-field sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:px-5 focus:py-3"
+      >
+        Skip to the page content
+      </a>
 
-        <MemberSidebar />
+      <MemberSidebar />
 
-        <main id="member-content" className="min-w-0 flex-1">
-          {children}
-        </main>
-      </div>
+      <main
+        id="member-content"
+        className="max-w-page mx-auto w-full min-w-0 flex-1 px-4 pt-6 md:pt-9 md:pr-8 md:pl-30"
+      >
+        {children}
+      </main>
 
       <MemberFooter />
     </div>

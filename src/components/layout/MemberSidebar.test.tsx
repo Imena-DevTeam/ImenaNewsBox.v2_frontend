@@ -42,21 +42,21 @@ describe("MemberSidebar", () => {
     );
   });
 
-  it("lifts the open page to the top of the rail", () => {
+  it("keeps every destination in one fixed order", () => {
     render(<MemberSidebar />);
 
     const names = screen
       .getAllByRole("link")
-      .map((link) => link.textContent?.trim());
+      .map((link) => link.getAttribute("aria-label"));
 
-    expect(names).toEqual([
-      "Gallery",
-      "Home",
-      "Blogs",
-      "Tree",
-      "Resources",
-      "Birthdays",
-      "Profile",
-    ]);
+    expect(names).toEqual(LABELS);
+  });
+
+  it("names every destination in a tooltip as well", () => {
+    render(<MemberSidebar />);
+
+    expect(
+      screen.getAllByRole("tooltip").map((tip) => tip.textContent),
+    ).toEqual(LABELS);
   });
 });

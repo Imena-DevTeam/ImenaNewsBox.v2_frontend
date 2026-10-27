@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { elder3 } from "@/lib/images";
 import { MEMBER } from "@/constants/member";
+import { NotificationBell } from "./NotificationBell";
 
 /**
  * The one-word title every member page opens with, with the bell and the
@@ -30,19 +30,8 @@ export function PageHeader({
         ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-6 md:gap-11">
-        {/* Not a button: there is nowhere for it to lead until family
-            updates are connected, so it says what it is and nothing more. */}
-        <span className="text-member-rail-ink relative inline-flex">
-          <Bell aria-hidden className="size-6" strokeWidth={1.7} />
-          <span
-            aria-hidden
-            className="bg-member-dot rounded-pill absolute -top-0.5 -right-0.5 size-1.75"
-          />
-          <span className="sr-only">
-            Family notifications, not connected yet
-          </span>
-        </span>
+      <div className="flex shrink-0 items-center gap-4 md:gap-8">
+        <NotificationBell />
 
         <Link
           href={ROUTES.PROFILE}

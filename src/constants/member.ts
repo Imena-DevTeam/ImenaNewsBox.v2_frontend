@@ -6,4 +6,5 @@
 export const MEMBER = {
   name: "Aganze",
   role: "Family Member",
+  subfamily: "Wihogora",
 } as const;

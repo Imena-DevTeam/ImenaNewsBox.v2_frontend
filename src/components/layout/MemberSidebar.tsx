@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { CSSProperties } from "react";
 import {
   BookOpen,
   Cake,
@@ -25,67 +26,103 @@ const ICONS = {
 } as const;
 
 /**
- * The member navigation, framed as the design draws it: one floating white
- * lozenge of a column, 100px wide, holding seven icon-and-label tiles, with
- * the open page filled in behind its tile and Profile sitting apart at the
- * foot.
+ * The member navigation: a compact floating glass dock.
  *
- * The open page is lifted to the top of the rail. Both member frames in the
- * design do this — Gallery leads the gallery rail, Blogs the blogs one — so
- * it is the rail's rule rather than one frame's accident. The order is
- * otherwise MEMBER_NAV's own, and `sort` is stable, so nothing else moves.
+ * Desktop — a 64px column pinned to the left edge and centred on the
+ * viewport, so it never scrolls away and never needs a scrollbar of its own:
+ * seven 48px targets make it 400px tall, and on screens under 32rem (512px)
+ * the targets drop to 36px, making it 292px. Labels live in tooltips that
+ * slide out to the right on hover and keyboard focus, keeping the footprint
+ * small while every destination stays named.
  *
- * The design draws it as a card that travels with the page rather than one
- * pinned to the viewport: it is 790px of rail against a 2470px page, and the
- * album grid below it runs into the gutter it leaves behind.
+ * Mobile — the same seven targets as a floating dock along the bottom edge.
  *
- * On small screens a 100px column would eat the viewport, so it lies down
- * into a scrolling strip. aria-current marks the page so screen readers
- * announce what the violet tile shows.
+ * The open page is marked by one pill that glides between items on a spring
+ * rather than snapping, driven by a single --i custom property: its row on
+ * desktop, its column on mobile. aria-current carries the same fact for
+ * screen readers.
  */
 export function MemberSidebar() {
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === href : pathname.startsWith(href);
-
-  const items = [...MEMBER_NAV].sort(
-    (a, b) => Number(isActive(b.href)) - Number(isActive(a.href)),
+  const activeIndex = MEMBER_NAV.findIndex((item) =>
+    item.href === "/" ? pathname === "/" : pathname.startsWith(item.href),
   );
 
   return (
     <nav
       aria-label="Member"
       className={cn(
-        "bg-surface shadow-menu rounded-member-rail relative z-10 w-full max-w-full self-start overflow-x-auto",
-        "md:mt-14 md:w-25 md:shrink-0 md:overflow-visible",
+        "fixed z-50 border backdrop-blur-xl",
+        /* Mobile: the bottom dock. */
+        "inset-x-4 bottom-4 mx-auto h-16 max-w-sm rounded-full border-white/40 bg-white/90 shadow-2xl",
+        /* Desktop: the left dock, centred on the viewport. */
+        "md:inset-x-auto md:top-1/2 md:bottom-auto md:left-6 md:mx-0 md:h-auto md:w-16 md:max-w-none md:-translate-y-1/2",
+        "md:rounded-dock md:shadow-dock md:border-white/60 md:bg-white/80",
       )}
     >
-      <ul className="flex min-w-max flex-row gap-1 p-2 md:min-w-0 md:flex-col md:gap-6.5 md:px-3 md:pt-2 md:pb-11">
-        {items.map((item) => {
-          const active = isActive(item.href);
+      <ul
+        className="md:short:gap-1 relative grid h-full grid-cols-7 items-center px-2 md:flex md:flex-col md:gap-2 md:px-2 md:py-2"
+        style={{ "--i": Math.max(activeIndex, 0) } as CSSProperties}
+      >
+        {/* The gliding pill. One element, moved by transform, so the change
+            of page reads as motion instead of two colours swapping. */}
+        {activeIndex >= 0 ? (
+          <li
+            aria-hidden
+            className={cn(
+              "bg-member-active/70 ease-spring pointer-events-none absolute rounded-full transition-transform duration-500 motion-reduce:transition-none",
+              /* Mobile: one seventh of the strip, stepping across. */
+              "top-2 bottom-2 left-2 w-[calc((100%-1rem)/7)] translate-x-[calc(var(--i)*100%)]",
+              /* Desktop: a 48px circle stepping down in 56px rows. */
+              "md:top-2 md:bottom-auto md:left-2 md:size-12 md:translate-x-0 md:translate-y-[calc(var(--i)*3.5rem)]",
+              /* Short screens: a 36px circle stepping down in 40px rows. */
+              "md:short:left-3.5 md:short:size-9 md:short:translate-y-[calc(var(--i)*2.5rem)]",
+            )}
+          />
+        ) : null}
+
+        {MEMBER_NAV.map((item, index) => {
+          const active = index === activeIndex;
           const Icon = ICONS[item.label as keyof typeof ICONS] ?? House;
 
           return (
-            <li
-              key={item.href}
-              className={cn(
-                "flex-none",
-                /* The design sets Profile apart from the six above it. */
-                item.label === "Profile" && "md:mt-15",
-              )}
-            >
+            <li key={item.href} className="relative flex justify-center">
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
+                aria-label={item.label}
                 className={cn(
-                  "text-member-rail-ink transition-fast flex w-20 flex-col items-center justify-center gap-1.5 rounded-lg py-3",
-                  "md:h-18.5 md:w-full md:py-0",
-                  active ? "bg-member-active" : "hover:bg-member-tint",
+                  "group focus-visible:outline-brand md:short:size-9 relative grid size-11 place-items-center rounded-full md:size-12",
+                  "transition-transform duration-150 active:scale-90",
+                  active
+                    ? "text-member-ink"
+                    : "text-member-rail-ink/70 hover:text-member-ink",
                 )}
               >
-                <Icon aria-hidden className="size-6" strokeWidth={1.7} />
-                <span className="text-rail">{item.label}</span>
+                <Icon
+                  aria-hidden
+                  className="size-5 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:scale-110"
+                  strokeWidth={active ? 2.1 : 1.8}
+                />
+
+                {/* The label, sliding in from the right with a pointer.
+                    Desktop only: on the bottom dock a label would cover the
+                    page, and aria-label already names each link. */}
+                <span
+                  role="tooltip"
+                  className={cn(
+                    "bg-member-ink text-surface text-caption shadow-menu pointer-events-none absolute top-1/2 left-full ml-4 hidden -translate-y-1/2 rounded-lg px-3 py-1.5 whitespace-nowrap md:block",
+                    "translate-x-2 opacity-0 transition-[opacity,transform] duration-200 ease-out",
+                    "group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
+                  )}
+                >
+                  <span
+                    aria-hidden
+                    className="bg-member-ink absolute top-1/2 -left-1 size-2 -translate-y-1/2 rotate-45"
+                  />
+                  {item.label}
+                </span>
               </Link>
             </li>
           );
