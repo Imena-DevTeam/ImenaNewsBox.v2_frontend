@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "cdn.21st.dev" },
     ],
   },
 
@@ -43,6 +44,10 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/icons/:path*",
+        headers: [{ key: "Cache-Control", value: ASSET_CACHE }],
+      },
+      {
+        source: "/videos/:path*",
         headers: [{ key: "Cache-Control", value: ASSET_CACHE }],
       },
     ];

@@ -1,49 +1,31 @@
 import { Camera, Heart, Sun } from "lucide-react";
 
 /*
- * The line-drawn camera, hearts and sun the design scatters behind the
- * page. Each one is anchored to the section it sits beside rather than to
- * the page, so none of them move when a section grows. They step out below
- * the large breakpoint, where there is no margin left to sit in.
+ * The line-drawn camera, hearts and sun from the design, kept small and
+ * soft. They are handed to SectionHeading, which sets them beside the words
+ * they decorate, so they read as part of the heading rather than as stray
+ * marks in the margin.
  */
 
-const HIDDEN =
-  "text-gallery-ornament pointer-events-none absolute hidden lg:block";
-
-/** Top right, over the opening stage. */
 export function CameraOrnament() {
-  return (
-    <Camera
-      aria-hidden
-      className={`${HIDDEN} -top-30 right-37 size-30 -rotate-12`}
-      strokeWidth={1.4}
-    />
-  );
+  return <Camera className="size-12 -rotate-12" strokeWidth={1.5} />;
 }
 
-/** Left, beside the "Featured Videos" heading. */
 export function HeartsOrnament() {
   return (
-    <span aria-hidden className={`${HIDDEN} -top-13 left-43 size-30`}>
+    <span className="relative block size-12">
       <Heart
-        className="absolute top-0 left-0 size-17 -rotate-12"
-        strokeWidth={2}
+        className="absolute top-0 left-0 size-8 -rotate-12"
+        strokeWidth={1.8}
       />
       <Heart
-        className="absolute top-4 left-7 size-20 rotate-6"
-        strokeWidth={2}
+        className="absolute right-0 bottom-0 size-9 rotate-6"
+        strokeWidth={1.8}
       />
     </span>
   );
 }
 
-/** Right, level with the video frame's shoulder. */
 export function SunOrnament() {
-  return (
-    <Sun
-      aria-hidden
-      className={`${HIDDEN} top-2 right-0 size-36`}
-      strokeWidth={1.3}
-    />
-  );
+  return <Sun className="size-12" strokeWidth={1.5} />;
 }

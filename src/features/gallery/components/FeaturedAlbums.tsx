@@ -4,6 +4,7 @@ import { ArrowRight, Images } from "lucide-react";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { ROUTES } from "@/constants/routes";
 import { FEATURED_ALBUMS } from "../data";
+import { SunOrnament } from "./GalleryOrnaments";
 
 /**
  * Six albums, three across, each a photograph with its name on a white pill
@@ -15,7 +16,9 @@ export function FeaturedAlbums() {
   if (FEATURED_ALBUMS.length === 0) {
     return (
       <section aria-labelledby="featured-albums">
-        <SectionHeading id="featured-albums">Featured Album</SectionHeading>
+        <SectionHeading id="featured-albums" after={<SunOrnament />}>
+          Featured Album
+        </SectionHeading>
         <p className="border-member-border bg-member-tint text-body text-muted mt-11 rounded-lg border px-6 py-16 text-center">
           No albums have been added yet. They will appear here as the family
           gallery is filled in.
@@ -26,7 +29,9 @@ export function FeaturedAlbums() {
 
   return (
     <section aria-labelledby="featured-albums">
-      <SectionHeading id="featured-albums">Featured Album</SectionHeading>
+      <SectionHeading id="featured-albums" after={<SunOrnament />}>
+        Featured Album
+      </SectionHeading>
 
       <ul className="reveal-stagger mt-11 grid gap-x-5 gap-y-13 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURED_ALBUMS.map((album) => (

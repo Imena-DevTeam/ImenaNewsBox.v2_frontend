@@ -15,8 +15,8 @@ export function GallerySkeleton() {
         <div className={`${SHIMMER} rounded-pill size-12`} />
       </div>
 
-      <div className="md:-ml-39">
-        <div className="gallery-stage mx-auto mt-12 w-full max-w-212 md:mt-30">
+      <div>
+        <div className="gallery-stage mx-auto mt-12 w-full max-w-240 md:mt-20">
           <div
             data-stage="side"
             data-depth="outer"
@@ -27,7 +27,9 @@ export function GallerySkeleton() {
             data-depth="mid"
             className={`${SHIMMER} aspect-gallery-stage-mid w-full`}
           />
-          <div className={`${SHIMMER} aspect-gallery-stage w-full`} />
+          <div
+            className={`${SHIMMER} aspect-gallery-stage w-full rounded-lg`}
+          />
           <div
             data-stage="side"
             data-depth="mid"
@@ -40,14 +42,14 @@ export function GallerySkeleton() {
           />
         </div>
 
-        <div className="mt-14 md:mt-28">
+        <div className="mt-16 md:mt-24">
           <div className={`${SHIMMER} mx-auto h-11 w-64`} />
           <div
             className={`${SHIMMER} rounded-media aspect-gallery-video mx-auto mt-11 w-full max-w-200`}
           />
         </div>
 
-        <div className="mt-14 md:mt-20">
+        <div className="mt-16 md:mt-24">
           <div className={`${SHIMMER} mx-auto h-11 w-56`} />
           <ul className="mt-11 grid gap-x-5 gap-y-13 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }, (_, index) => (
