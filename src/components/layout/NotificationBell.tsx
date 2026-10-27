@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { Bell, Cake, Images, ScrollText, X } from "lucide-react";
 import {
   NOTIFICATIONS,
+  NOTIFICATIONS_READ_KEY,
+  parseRead,
   timeAgo,
   type NotificationKind,
 } from "@/lib/notifications";
@@ -18,18 +20,8 @@ const KIND_ICON: Record<NotificationKind, typeof Bell> = {
   handover: ScrollText,
 };
 
-const READ_KEY = "imena:notifications-read";
-
 /** Dispatch this on window to open the drawer from anywhere on the page. */
 export const OPEN_UPDATES_EVENT = "imena:open-updates";
-
-function parseRead(raw: string): Set<string> {
-  try {
-    return new Set(JSON.parse(raw));
-  } catch {
-    return new Set();
-  }
-}
 
 /**
  * The bell, and the slide-over drawer of family updates it opens.
@@ -46,7 +38,7 @@ export function NotificationBell() {
   const dialog = useRef<HTMLDialogElement>(null);
   /* Read state and "time ago" depend on this device and this moment, so
      both come from external stores that the server renders as empty. */
-  const [rawRead, setRawRead] = useStoredValue(READ_KEY, "[]");
+  const [rawRead, setRawRead] = useStoredValue(NOTIFICATIONS_READ_KEY, "[]");
   const read = useMemo(() => parseRead(rawRead), [rawRead]);
   const now = useNow(60_000);
 

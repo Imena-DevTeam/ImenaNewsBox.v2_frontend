@@ -41,6 +41,18 @@ export const NOTIFICATIONS: FamilyNotification[] = [
   },
 ];
 
+/** Where which updates have been opened is kept on this device. */
+export const NOTIFICATIONS_READ_KEY = "imena:notifications-read";
+
+/** The ids stored under NOTIFICATIONS_READ_KEY; anything unreadable is none. */
+export function parseRead(raw: string): Set<string> {
+  try {
+    return new Set(JSON.parse(raw));
+  } catch {
+    return new Set();
+  }
+}
+
 /** "just now", "3 hours ago", "2 days ago" — relative to `now`. */
 export function timeAgo(iso: string, now: number = Date.now()): string {
   const minutes = Math.max(0, Math.round((now - Date.parse(iso)) / 60000));
