@@ -21,7 +21,7 @@ export interface TreePerson {
   /** The title as the family says it, e.g. "Grand Père", "Mère Light". */
   roleLabel: string;
   subfamily: Subfamily;
-  image: StaticImageData;
+  image: StaticImageData | string;
   bio: string;
   quote?: string;
   /** Where they are now, e.g. "Kigali, Rwanda" or "Diaspora". */

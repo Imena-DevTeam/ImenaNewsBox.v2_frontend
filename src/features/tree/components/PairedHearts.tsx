@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
-import { Heart } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 /**
- * Two line-drawn hearts that overlap, one amber and one lavender, drifting
- * slowly. The drift is skipped for anyone who asked for reduced motion.
+ * Line-drawn hearts matching the login page brand system (/images/hearts.svg),
+ * drifting slowly with reduced motion support.
  */
 export function PairedHearts({
   className,
@@ -16,19 +16,19 @@ export function PairedHearts({
   return (
     <span
       aria-hidden
-      className={cn("motion-safe:animate-float-slow block", className)}
+      className={cn(
+        "motion-safe:animate-float-slow pointer-events-none block select-none",
+        className,
+      )}
       style={style}
     >
-      <span className="relative block size-12">
-        <Heart
-          className="text-celebration-gold/70 absolute top-0 left-0 size-8 fill-none"
-          strokeWidth={1.6}
-        />
-        <Heart
-          className="text-member-active absolute right-0 bottom-0 size-9 rotate-12 fill-none"
-          strokeWidth={1.6}
-        />
-      </span>
+      <Image
+        src="/images/hearts.svg"
+        alt=""
+        width={48}
+        height={44}
+        className="opacity-70 drop-shadow-xs"
+      />
     </span>
   );
 }

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { branchName } from "../branch";
-import { PROMOTIONS } from "../promotions";
+import { ALL_MEMBERS, PROMOTIONS } from "../promotions";
 import type { TreePerson } from "../types";
 import { PairedHearts } from "./PairedHearts";
 
@@ -70,7 +70,9 @@ export function FloatingFaceHero() {
       ))}
 
       {FACES.map((face, index) => {
-        const person: TreePerson = PROMOTIONS[face.year]!.members[face.role]!;
+        const person: TreePerson | undefined =
+          PROMOTIONS[face.year]?.members[face.role] ?? ALL_MEMBERS[index];
+        if (!person) return null;
         return (
           <div
             key={`${face.left}-${face.top}`}
