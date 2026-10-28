@@ -215,6 +215,21 @@
   --color-member-accent: #5136b0; /* "Featured Videos" and its underline */
   --color-member-active: #bfa3d3; /* the tile behind the open page in the rail */
   --color-member-rail-ink: #454655; /* the rail's icons and labels */
+  /* The family tree gives each branch its own spirit: the Sanctuary's
+     royal indigo, Light's sunlit amber, Wihogora's rose and Hope's sky.
+     Each is an edge, a quiet tint and an ink that clears 4.5:1 on it. */
+  --color-sanctuary-edge: #c7d2fe;
+  --color-sanctuary-tint: #eef2ff;
+  --color-sanctuary-ink: #1e1b4b;
+  --color-light-edge: #fde68a;
+  --color-light-tint: #fffbeb;
+  --color-light-ink: #451a03;
+  --color-wihogora-edge: #fecdd3;
+  --color-wihogora-tint: #fff1f2;
+  --color-wihogora-ink: #4c0519;
+  --color-hope-edge: #bae6fd;
+  --color-hope-tint: #f0f9ff;
+  --color-hope-ink: #082f49;
   /* The closing line both member frames end on. */
   /* The celebration board's gold: the birthday badge and the foil's warm
      edge. Decorative and on dark surfaces only. */
