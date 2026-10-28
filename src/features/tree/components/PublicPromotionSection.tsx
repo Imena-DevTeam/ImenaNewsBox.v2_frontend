@@ -36,15 +36,15 @@ function MemberCardContent({
         WebkitBackfaceVisibility: "hidden",
       }}
       className={cn(
-        "relative flex h-full w-full flex-col sm:flex-row items-center sm:items-stretch gap-6",
-        "bg-white rounded-3xl border border-[#e8edf7] p-5 sm:p-6 md:p-7",
+        "relative flex h-full w-full flex-col items-center gap-6 sm:flex-row sm:items-stretch",
+        "rounded-3xl border border-[#e8edf7] bg-white p-5 sm:p-6 md:p-7",
         "shadow-[0_4px_24px_rgba(13,26,186,0.04)] hover:shadow-[0_20px_45px_rgba(13,26,186,0.08)]",
         "transition-shadow duration-300 select-none",
         isBack && "border-[#dbeafe] shadow-[0_6px_28px_rgba(13,26,186,0.06)]",
       )}
     >
       {/* Subtle Flip Micro-Indicator */}
-      <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex size-8 items-center justify-center rounded-full bg-slate-100/70 text-slate-400 opacity-60 transition-all duration-300 group-hover:bg-blue-50 group-hover:text-primary group-hover:opacity-100">
+      <div className="group-hover:text-primary absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-slate-100/70 text-slate-400 opacity-60 transition-all duration-300 group-hover:bg-blue-50 group-hover:opacity-100 sm:top-5 sm:right-5">
         <svg
           className="size-4 transition-transform duration-500 group-hover:rotate-180"
           viewBox="0 0 24 24"
@@ -61,7 +61,7 @@ function MemberCardContent({
       </div>
 
       {/* Left Column: Portrait */}
-      <div className="relative aspect-[4/5] w-full sm:w-44 md:w-52 shrink-0 overflow-hidden rounded-2xl bg-[#eaeff5] ring-1 ring-black/5">
+      <div className="relative aspect-[4/5] w-full shrink-0 overflow-hidden rounded-2xl bg-[#eaeff5] ring-1 ring-black/5 sm:w-44 md:w-52">
         {member.imageUrl ? (
           <Image
             src={member.imageUrl}
@@ -80,31 +80,28 @@ function MemberCardContent({
               aria-hidden="true"
             >
               <circle cx="50" cy="38" r="22" fill="currentColor" />
-              <path
-                d="M14 110 C 14 74, 86 74, 86 110 Z"
-                fill="currentColor"
-              />
+              <path d="M14 110 C 14 74, 86 74, 86 110 Z" fill="currentColor" />
             </svg>
           </div>
         )}
       </div>
 
       {/* Right Column: Details */}
-      <div className="flex flex-1 flex-col justify-center py-1 sm:py-2 text-left w-full">
+      <div className="flex w-full flex-1 flex-col justify-center py-1 text-left sm:py-2">
         {/* Name in bold uppercase/caps matching the design */}
-        <h4 className="font-heading font-black text-2xl md:text-[26px] text-slate-900 tracking-tight leading-tight uppercase">
+        <h4 className="font-heading text-2xl leading-tight font-black tracking-tight text-slate-900 uppercase md:text-[26px]">
           {member.name}
         </h4>
 
         {/* Badges */}
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold bg-[#ebf3fe] text-[#1d4ed8] border border-[#dbeafe]">
+          <span className="inline-flex items-center rounded-full border border-[#dbeafe] bg-[#ebf3fe] px-3.5 py-1 text-xs font-semibold text-[#1d4ed8]">
             {member.role}
             {yearTag ? ` • ${yearTag}` : ""}
           </span>
 
           {member.familyName && (
-            <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-medium bg-white text-[#1d4ed8] border border-[#bfdbfe]">
+            <span className="inline-flex items-center rounded-full border border-[#bfdbfe] bg-white px-3.5 py-1 text-xs font-medium text-[#1d4ed8]">
               {member.familyName}
             </span>
           )}
@@ -112,7 +109,7 @@ function MemberCardContent({
 
         {/* Saying / Quote with authentic typographical styling */}
         {member.saying && (
-          <p className="mt-4 text-sm md:text-base text-slate-600 italic font-normal leading-relaxed">
+          <p className="mt-4 text-sm leading-relaxed font-normal text-slate-600 italic md:text-base">
             &ldquo;{member.saying}&rdquo;
           </p>
         )}
@@ -130,7 +127,7 @@ function PublicMemberFlipCard({
 }: PublicMemberFlipCardProps) {
   return (
     <div
-      className="group relative min-h-[300px] w-full [perspective:1400px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 rounded-3xl"
+      className="group focus-visible:ring-primary relative min-h-[300px] w-full cursor-pointer rounded-3xl [perspective:1400px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
       tabIndex={0}
       role="button"
       aria-label={`${member.name}, ${member.role}. Click to flip and view preceding generation`}
@@ -143,7 +140,7 @@ function PublicMemberFlipCard({
       onClick={onToggleFlip}
     >
       <div
-        className="relative h-full w-full rounded-3xl [transform-style:preserve-3d] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+        className="relative h-full w-full rounded-3xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] [transform-style:preserve-3d]"
         style={{
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           transitionDelay: `${staggerDelayMs}ms`,
@@ -177,7 +174,8 @@ function PublicMemberFlipCard({
                 role: member.role,
                 familyName: "Founder Patriarch",
                 imageUrl: null,
-                saying: "Umuryango ukura ku mizi yawo (Our strength comes from our roots)",
+                saying:
+                  "Umuryango ukura ku mizi yawo (Our strength comes from our roots)",
               }}
               yearTag="Founder Lineage"
               isBack
@@ -291,11 +289,11 @@ export function PublicPromotionSection({
               className={cn(
                 "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
                 isFlipped
-                  ? "opacity-0 -translate-y-2 pointer-events-none"
-                  : "opacity-100 translate-y-0",
+                  ? "pointer-events-none -translate-y-2 opacity-0"
+                  : "translate-y-0 opacity-100",
               )}
             >
-              <span className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white shadow-xs">
+              <span className="bg-primary rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
                 {currentYear}
               </span>
             </div>
@@ -305,11 +303,11 @@ export function PublicPromotionSection({
               className={cn(
                 "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
                 isFlipped
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-2 pointer-events-none",
+                  ? "translate-y-0 opacity-100"
+                  : "pointer-events-none translate-y-2 opacity-0",
               )}
             >
-              <span className="rounded-full bg-heading px-6 py-2 text-sm font-semibold text-white shadow-xs">
+              <span className="bg-heading rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
                 {precedingYear}
               </span>
             </div>
