@@ -4,7 +4,6 @@ import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
 
-
 export function StoryHero() {
   return (
     <section className="section-y relative isolate overflow-hidden">
