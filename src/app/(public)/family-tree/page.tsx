@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PublicPromotionSection, TreeHero } from "@/features/tree/components";
+import { PublicFamilyTreeClient } from "@/features/tree/components";
 
 export const metadata: Metadata = {
   title: "Family Tree",
@@ -8,10 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function FamilyTreePage() {
-  return (
-    <div className="page-enter">
-      <TreeHero />
-      <PublicPromotionSection />
-    </div>
-  );
+  return <PublicFamilyTreeClient />;
 }

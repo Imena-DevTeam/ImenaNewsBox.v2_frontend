@@ -5,14 +5,37 @@ import {
   TREE_CARDS,
   TREE_PORTRAIT_NODES,
   TREE_ROOT_BENON,
+  type PromotionYear,
   type TreeNodeData,
 } from "@/features/tree/publicTreeData";
 
-export function PublicTreeIllustration() {
+interface PublicTreeIllustrationProps {
+  activeYear?: PromotionYear;
+  onSelectYear?: (year: PromotionYear) => void;
+}
+
+export function PublicTreeIllustration({
+  activeYear,
+  onSelectYear,
+}: PublicTreeIllustrationProps) {
   const [hoveredNode, setHoveredNode] = useState<TreeNodeData | null>(null);
 
+  const handleNodeClick = (node: TreeNodeData) => {
+    if (onSelectYear && node.generation) {
+      onSelectYear(node.generation);
+      const el = document.getElementById("promotion-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  const isGenActiveOrHovered = (gen: string) => {
+    return hoveredNode?.generation === gen || activeYear === gen;
+  };
+
   return (
-    <div className="relative mx-auto w-full max-w-5xl select-none px-2 sm:px-4">
+    <div className="relative mx-auto w-full max-w-5xl px-2 select-none sm:px-4">
       <svg
         viewBox="0 0 1000 680"
         className="h-auto w-full overflow-visible"
@@ -40,125 +63,216 @@ export function PublicTreeIllustration() {
               dy="3"
               stdDeviation="3"
               floodColor="#000000"
-              floodOpacity="0.15"
+              floodOpacity="0.14"
             />
+          </filter>
+
+          {/* Soft violet lineage glow for active/hovered branch */}
+          <filter id="branch-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
 
         {/* -------------------------------------------------------------
-            BACKGROUND OUTLINE ORNAMENTS (Sun, House, Tree)
+            ORGANIC CONNECTING BRANCHES (with Lineage Glowing on Hover)
         ------------------------------------------------------------- */}
-        <g stroke="#cbd5e1" strokeWidth="2.5" fill="none" opacity="0.75">
-          {/* Sun in top-left */}
-          <g transform="translate(25, 75)">
-            <circle cx="45" cy="45" r="22" />
-            <line x1="45" y1="12" x2="45" y2="2" />
-            <line x1="45" y1="78" x2="45" y2="88" />
-            <line x1="12" y1="45" x2="2" y2="45" />
-            <line x1="78" y1="45" x2="88" y2="45" />
-            <line x1="22" y1="22" x2="15" y2="15" />
-            <line x1="68" y1="68" x2="75" y2="75" />
-            <line x1="22" y1="68" x2="15" y2="75" />
-            <line x1="68" y1="22" x2="75" y2="15" />
-          </g>
-
-          {/* House in bottom-left */}
-          <g transform="translate(30, 480)">
-            <path
-              d="M15 50 L45 18 L75 50 L75 85 L15 85 Z"
-              strokeLinejoin="round"
-            />
-            <path d="M35 85 L35 58 L55 58 L55 85" strokeLinejoin="round" />
-          </g>
-
-          {/* Tree in bottom-right */}
-          <g transform="translate(805, 500)">
-            <path
-              d="M48 20 C32 20 20 32 20 48 C20 62 30 72 42 75 L42 105 L54 105 L54 75 C66 72 76 62 76 48 C76 32 64 20 48 20 Z"
-              strokeLinejoin="round"
-            />
-            <line x1="28" y1="105" x2="68" y2="105" />
-          </g>
-        </g>
-
-        {/* -------------------------------------------------------------
-            ORGANIC CONNECTING BRANCHES (matching media_1793182339302.png)
-        ------------------------------------------------------------- */}
-        <g
-          stroke="#1e2025"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
+        <g fill="none" strokeLinecap="round" strokeLinejoin="round">
           {/* Branch 1: Top-left entry into Benon circle */}
-          <path d="M 25 150 C 70 150, 110 160, 130 180" />
+          <path
+            d="M 25 150 C 70 150, 110 160, 130 180"
+            stroke="#1e2025"
+            strokeWidth={2.5}
+          />
 
-          {/* Branch 2: From Benon down to Pacifique & Patience pair */}
-          <path d="M 190 277 C 190 320, 210 320, 232 295" />
+          {/* Branch 2: From Benon down to Sylvain & Honette (2019-2021) */}
+          <path
+            d="M 190 270 C 190 310, 215 310, 240 310"
+            stroke={isGenActiveOrHovered("2019-2021") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2019-2021") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2019-2021")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
 
-          {/* Branch 3: Under Pacifique and Patience to lower card */}
-          <path d="M 271 295 C 271 360, 290 400, 310 440" />
+          {/* Branch 3: Under Sylvain and Honette to card c1 */}
+          <path
+            d="M 277 310 C 277 335, 270 350, 267 360"
+            stroke={isGenActiveOrHovered("2019-2021") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2019-2021") ? 3.8 : 2.5}
+            className="transition-all duration-300"
+          />
 
-          {/* Branch 4: Loop from Benon rightwards into upper middle branch */}
-          <path d="M 262 205 C 340 220, 370 200, 425 175" />
+          {/* Branch 4: Loop from Benon rightwards to Innocent & Jolie (2021-2022) */}
+          <path
+            d="M 260 200 C 330 200, 360 175, 425 175"
+            stroke={isGenActiveOrHovered("2021-2022") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2021-2022") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2021-2022")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
 
-          {/* Branch 5: Top center entry down to Laurent & Celia */}
-          <path d="M 425 100 C 425 140, 425 150, 425 175" />
-          <path d="M 425 211 C 425 290, 415 320, 415 355" />
-          <path d="M 462 178 C 462 280, 492 310, 492 350" />
+          {/* Branch 5: Top center entry into Innocent & Jolie */}
+          <path
+            d="M 425 100 C 425 130, 425 150, 425 175"
+            stroke="#1e2025"
+            strokeWidth={2.5}
+          />
 
-          {/* Branch 6: Deep looping branch under Laurent & Celia to Prince & Loic */}
-          <path d="M 500 218 C 500 320, 560 410, 620 370 C 660 340, 665 240, 675 191" />
+          {/* Branch 6: Connecting down to Elua & Joyeuse (2023-2024) */}
+          <path
+            d="M 425 209 C 425 260, 415 295, 415 345"
+            stroke={isGenActiveOrHovered("2023-2024") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2023-2024") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2023-2024")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
+          <path
+            d="M 498 209 C 498 260, 490 295, 490 345"
+            stroke={isGenActiveOrHovered("2023-2024") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2023-2024") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2023-2024")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
 
-          {/* Branch 7: From Prince & Loic down towards Frank & Bernice */}
-          <path d="M 675 191 C 675 260, 690 300, 710 350" />
-          <path d="M 750 201 C 750 260, 765 300, 782 350" />
+          {/* Branch 7: Loop across to Patrick & Francine (2022-2023) */}
+          <path
+            d="M 498 175 C 550 175, 610 155, 665 155"
+            stroke={isGenActiveOrHovered("2022-2023") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2022-2023") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2022-2023")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
 
-          {/* Branch 8: Right long curve from Loic down to lower cards */}
-          <path d="M 786 165 C 830 180, 840 290, 770 360 C 720 400, 620 420, 500 480" />
+          {/* Branch 8: Connecting from Patrick & Francine down to Thierry & Liliane (2024-2025) */}
+          <path
+            d="M 665 189 C 665 240, 705 290, 705 345"
+            stroke={isGenActiveOrHovered("2024-2025") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2024-2025") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2024-2025")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
+          <path
+            d="M 740 199 C 740 240, 778 290, 778 345"
+            stroke={isGenActiveOrHovered("2024-2025") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2024-2025") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2024-2025")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
 
-          {/* Branch 9: Connecting lower pair (Shallon & Joella) */}
-          <path d="M 415 425 C 415 470, 385 490, 365 520" />
-          <path d="M 365 556 C 390 600, 430 600, 455 566" />
-          <path d="M 455 566 C 475 540, 490 540, 500 545" />
+          {/* Branch 9: Long sweep from right looping down into lower tier */}
+          <path
+            d="M 778 379 C 778 440, 720 460, 600 470 C 520 475, 480 485, 445 485"
+            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2025-2026")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
+
+          {/* Branch 10: Downward connection from Elua & Joyeuse to Pacifique & Hyguette (2025-2026) */}
+          <path
+            d="M 415 379 C 415 425, 370 440, 370 485"
+            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2025-2026")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
+          />
+
+          {/* Branch 11: Under Pacifique & Hyguette into card c7 */}
+          <path
+            d="M 407 519 C 407 545, 460 550, 500 535"
+            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
+            className="transition-all duration-300"
+          />
         </g>
 
         {/* -------------------------------------------------------------
-            ROUNDED RECTANGLE CARDS
+            ROUNDED RECTANGLE CARDS (with Meaningful Generation Labels)
         ------------------------------------------------------------- */}
-        <g fill="#e2e5eb" stroke="#c9ced8" strokeWidth="1.2">
+        <g fill="#e6e9f0" stroke="#c9ced8" strokeWidth="1.2">
           {TREE_CARDS.map((card) => (
-            <rect
-              key={card.id}
-              x={card.x}
-              y={card.y}
-              width={card.w}
-              height={card.h}
-              rx="15"
-              className="transition-colors hover:fill-[#d5d9e2]"
-            />
+            <g key={card.id}>
+              <rect
+                x={card.x}
+                y={card.y}
+                width={card.w}
+                height={card.h}
+                rx="16"
+                className="transition-colors hover:fill-[#d8dce6]"
+              />
+              <text
+                x={card.x + card.w / 2}
+                y={card.y + card.h / 2 + 4.5}
+                textAnchor="middle"
+                fill="#64748b"
+                fontSize="11.5"
+                fontWeight="700"
+                fontFamily="var(--font-sans), sans-serif"
+                className="pointer-events-none tracking-wide select-none"
+              >
+                {card.label}
+              </text>
+            </g>
           ))}
         </g>
 
         {/* -------------------------------------------------------------
-            PORTRAIT NODES (Family Members: Photo + Single Name)
+            PORTRAIT NODES (Strictly Grandpere & Grandmere from each generation)
+            Single name shows ONLY on hover via the tooltip!
         ------------------------------------------------------------- */}
         {TREE_PORTRAIT_NODES.map((node) => {
           const isHovered = hoveredNode?.id === node.id;
+          const isSelected = activeYear === node.generation;
           return (
             <g
               key={node.id}
               className="cursor-pointer"
               tabIndex={0}
               role="button"
-              aria-label={`Family member ${node.name}`}
+              aria-label={`${node.role} ${node.name} (${node.generation}). Click to view generation.`}
               onMouseEnter={() => setHoveredNode(node)}
               onMouseLeave={() => setHoveredNode(null)}
               onFocus={() => setHoveredNode(node)}
               onBlur={() => setHoveredNode(null)}
+              onClick={() => handleNodeClick(node)}
             >
-              <title>{node.name}</title>
+              <title>{`${node.name} · ${node.role} (${node.generation})`}</title>
 
               {/* White backing & shadow */}
               <circle
@@ -206,35 +320,24 @@ export function PublicTreeIllustration() {
                 </g>
               )}
 
-              {/* Outer stroke ring */}
+              {/* Outer stroke ring (glows when hovered or selected) */}
               <circle
                 cx={node.cx}
                 cy={node.cy}
                 r={node.r}
                 fill="none"
-                stroke={isHovered ? "#0d1aba" : "#1e2025"}
-                strokeWidth={isHovered ? 3.5 : 2}
+                stroke={
+                  isHovered ? "#0d1aba" : isSelected ? "#5a36da" : "#1e2025"
+                }
+                strokeWidth={isHovered ? 4 : isSelected ? 3 : 2}
                 className="transition-all duration-200"
               />
 
-              {/* Single Name label */}
-              <text
-                x={node.cx}
-                y={node.cy + node.r + 17}
-                textAnchor="middle"
-                fontSize="12.5"
-                fontWeight="700"
-                fill={isHovered ? "#0d1aba" : "#1e2025"}
-                className="transition-colors duration-150"
-              >
-                {node.name}
-              </text>
-
-              {/* 100% Guaranteed Mouse Hitbox */}
+              {/* 100% Reliable Hitbox capturing mouse events */}
               <circle
                 cx={node.cx}
                 cy={node.cy}
-                r={node.r + 8}
+                r={node.r + 6}
                 fill="#ffffff"
                 opacity="0.001"
                 style={{ cursor: "pointer", pointerEvents: "all" }}
@@ -245,18 +348,20 @@ export function PublicTreeIllustration() {
 
         {/* -------------------------------------------------------------
             THE FIRST CIRCLE: ROOT (BENON)
-            "on the image i uploaded .. the first circle .. u may leave it
-            blank .. or add icon of no profile page icon ... and when a
-            perso hovers it shows a text called Benon...."
+            Blank/silhouette avatar, and ONLY on hover shows "Benon"
         ------------------------------------------------------------- */}
         <g
           className="cursor-pointer"
           tabIndex={0}
           role="button"
           aria-label="Root ancestor Benon"
-          onMouseEnter={() => setHoveredNode(TREE_ROOT_BENON)}
+          onMouseEnter={() =>
+            setHoveredNode(TREE_ROOT_BENON as unknown as TreeNodeData)
+          }
           onMouseLeave={() => setHoveredNode(null)}
-          onFocus={() => setHoveredNode(TREE_ROOT_BENON)}
+          onFocus={() =>
+            setHoveredNode(TREE_ROOT_BENON as unknown as TreeNodeData)
+          }
           onBlur={() => setHoveredNode(null)}
         >
           <title>Benon</title>
@@ -273,7 +378,7 @@ export function PublicTreeIllustration() {
             className="transition-all duration-200"
           />
 
-          {/* Clean No-Profile Avatar Silhouette Icon */}
+          {/* Clean Silhouette Icon */}
           <g clipPath="url(#clip-benon)">
             <circle
               cx={TREE_ROOT_BENON.cx}
@@ -290,11 +395,11 @@ export function PublicTreeIllustration() {
             />
           </g>
 
-          {/* 100% Guaranteed Mouse Hitbox */}
+          {/* 100% Reliable Hitbox */}
           <circle
             cx={TREE_ROOT_BENON.cx}
             cy={TREE_ROOT_BENON.cy}
-            r={TREE_ROOT_BENON.r + 10}
+            r={TREE_ROOT_BENON.r + 8}
             fill="#ffffff"
             opacity="0.001"
             style={{ cursor: "pointer", pointerEvents: "all" }}
@@ -302,7 +407,7 @@ export function PublicTreeIllustration() {
         </g>
 
         {/* -------------------------------------------------------------
-            FLOATING TOOLTIP (Direct SVG element above hovered node)
+            FLOATING TOOLTIP: Displays SINGLE NAME on hover
         ------------------------------------------------------------- */}
         {hoveredNode && (
           <g
@@ -310,9 +415,9 @@ export function PublicTreeIllustration() {
             transform={`translate(${hoveredNode.cx}, ${hoveredNode.cy - hoveredNode.r - 20})`}
           >
             <rect
-              x="-50"
+              x="-52"
               y="-16"
-              width="100"
+              width="104"
               height="32"
               rx="16"
               fill="#0d1aba"

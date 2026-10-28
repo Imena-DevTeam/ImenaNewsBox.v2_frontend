@@ -1,7 +1,13 @@
 import { Container } from "@/components/layout/Container";
 import { PublicTreeIllustration } from "@/features/tree/components/PublicTreeIllustration";
+import type { PromotionYear } from "@/features/tree/publicTreeData";
 
-export function TreeHero() {
+interface TreeHeroProps {
+  activeYear?: PromotionYear;
+  onSelectYear?: (year: PromotionYear) => void;
+}
+
+export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
   return (
     <section className="relative isolate overflow-hidden pt-8 pb-14 md:pt-12 md:pb-20">
       <Container className="relative">
@@ -31,7 +37,10 @@ export function TreeHero() {
 
         {/* The organic illustrated family tree with circles and connecting branches */}
         <div className="mt-12 md:mt-16">
-          <PublicTreeIllustration />
+          <PublicTreeIllustration
+            activeYear={activeYear}
+            onSelectYear={onSelectYear}
+          />
         </div>
       </Container>
     </section>
