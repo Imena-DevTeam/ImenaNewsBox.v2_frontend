@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import {
-  MemberGroups,
-  TreeExplorer,
-  TreeHero,
-  TreeIntro,
-} from "@/features/tree/components";
+import { PublicPromotionSection, TreeHero } from "@/features/tree/components";
 
 export const metadata: Metadata = {
   title: "Family Tree",
@@ -16,11 +11,7 @@ export default function FamilyTreePage() {
   return (
     <div className="page-enter">
       <TreeHero />
-      <TreeIntro />
-      <div className="mt-10 md:mt-14">
-        <TreeExplorer />
-      </div>
-      <MemberGroups />
+      <PublicPromotionSection />
     </div>
   );
 }
