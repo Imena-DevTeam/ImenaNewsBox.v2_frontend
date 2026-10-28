@@ -1,253 +1,159 @@
-# IMENA Member Blog Article Detail Page: Visual Audit, UX Architecture & Implementation Blueprint
+# IMENA Family Times — Claude Code Development Guide & Specifications
 
-This document contains a comprehensive **design audit, UX critique, structural specifications, and implementation guide** for building the **Blog Article Detail Page** (`/blogs/[slug]` or `src/app/(member)/blogs/[slug]/page.tsx`) in the IMENA Family Sanctuary web application.
-
----
-
-## 1. Visual & UX Audit of the Design Mockup
-
-A rigorous inspection of the provided mockup reveals several key strengths along with critical visual, typographical, and ergonomic gaps that must be enhanced for a state-of-the-art reading experience:
-
-### ⚠️ Flaw 1: Static Placeholder Block vs. Living Story Media
-
-- **Problem**: The hero media container in the mockup depicts a flat, static gray container with the centered IMENA emblem. While respectful of the brand identity, real family stories thrive on vivid photography of the actual gathering.
-- **Correction**:
-  - Support high-resolution photography with graceful fallback to the embossed IMENA coat of arms in a warm sanctuary gradient frame (`bg-stone-100 dark:bg-stone-800/40 border border-stone-200/60`).
-  - Add subtle image hover zoom (`transition-transform duration-500 hover:scale-[1.02]`) and accessible `alt` text detailing the gathering.
-
-### ⚠️ Flaw 2: Capitalized Body Text & Typographic Fatigue
-
-- **Problem**: The mockup renders all body text in Title Case (_"Amidst The Hustle And Bustle Of Our Daily Lives, This Family Reunion Serves As A Reminder..."_). In long-form reading, Title Case creates severe eye fatigue and violates editorial standards.
-- **Correction**:
-  - Use sentence case with modern editorial typography (`font-body text-stone-700 dark:text-stone-300 leading-relaxed text-base sm:text-lg`).
-  - Stylize the lead paragraph as an editorial summary (`text-lg sm:text-xl font-medium text-stone-900 dark:text-stone-100 leading-relaxed border-l-4 border-brand/60 pl-4 py-1 italic`).
-
-### ⚠️ Flaw 3: Anonymous Secondary Media Container
-
-- **Problem**: The middle of the article contains a blank gray box placeholder with no captions, tags, or interaction.
-- **Correction**:
-  - Render an inline photo highlight or interactive mini-gallery component (`ArticleMediaBlock.tsx`) showing moments from the reunion with a subtle caption: _"Generations embracing at the welcome banquet • Photo by Family Media Team"_.
-  - Include click-to-expand / lightbox support for immersive viewing.
-
-### ⚠️ Flaw 4: Insufficient Interaction in the Author & Meta Bar
-
-- **Problem**: The bottom author bar only shows a static avatar, the author name ("NGABE"), the date, and a generic paper airplane icon.
-- **Correction**:
-  - Provide a full interactive engagement row:
-    - **Author Block**: Circular portrait, author name with subfamily chip (e.g., `NGABE • Wihogora Family`), and publish date.
-    - **Reactions & Engagement**: Interactive Like/Heart button with live counter, Comment trigger with counter, and Share button.
-    - **Share Action**: Copies the article link to clipboard with a toast notification or triggers native `navigator.share` on mobile devices.
-
-### ⚠️ Flaw 5: Back Navigation Ergonomics
-
-- **Problem**: The circular `<` button floats in isolation above the hero image without clear context on where it leads.
-- **Correction**:
-  - Implement a sleek circular back button (`size-10 rounded-full border border-brand/30 text-brand hover:bg-brand/10 transition-all flex items-center justify-center shadow-xs`) that links back to `ROUTES.BLOGS` (`/blogs`), accompanied by an accessible `aria-label="Back to all stories"` and optional hover tooltip.
-
-### ⚠️ Flaw 6: Celebratory Background Doodles
-
-- **Problem**: The mockup contains faint line-art party horns in the margins. If implemented rigidly, these can overlap text on narrow screens or cause horizontal scrollbars.
-- **Correction**:
-  - Implement dynamic, non-intrusive floating party poppers/horns (`PartyPopper` from `lucide-react` or custom SVG doodles in `text-purple-300/30 dark:text-purple-600/20 pointer-events-none absolute -z-10`) positioned safely outside the reading column on large viewports (`hidden xl:block`).
+This document is the single source of truth for Claude Code when developing, extending, or refining the **IMENA Family Times** web application (`Imena-DevTeam/ImenaNewsBox.v2_frontend`).
 
 ---
 
-## 2. Corner-by-Corner Visual Specification & Layout
+## 1. Project Overview & Tech Stack
 
-```
-+-----------------------------------------------------------------------------------------+
-| [Member Dock]  BLOGS                                                   [Bell(3)]  [User]|
-|                Stories From Our Family                                                  |
-|                                                                                         |
-|  [ ACTIVITY ] (Category Pill Badge)                                                     |
-|                                                                                         |
-|  (<) (Circular Back Button)                                                             |
-|                                                                                         |
-|  +-----------------------------------------------------------------------------------+  |
-|  |                                                                                   |  |
-|  |                                  [ IMENA EMBLEM ]                                 |  |
-|  |                         or High-Res Reunion Featured Photo                        |  |
-|  |                                                                                   |  |
-|  +-----------------------------------------------------------------------------------+  |
-|                                                                           (\ Party Horn |
-|  A HEART-WARMING FAMILY REUNION: EMBRACING TOGETHERNESS !                 |  Doodle     |
-|  EMBARKING CHERISHED MOMENTS TOGETHER                                                   |
-|                                                                                         |
-|  "Amidst the hustle and bustle of our daily lives, this family reunion serves as a     |
-|   reminder of the importance of taking a pause and relishing the company of those..."   |
-|                                                                                         |
-|  Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque         |
-|  volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh viverra   |
-|  non semper suscipit posuere a pede.                                                    |
-|                                                                                         |
-|  Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet      |
-|  orci. Aenean dignissim pellentesque felis.                                             |
-|                                                                                         |
-|  +-----------------------------------------------------------------------------------+  |
-|  |                                                                                   |  |
-|  |                       [ INLINE REUNION PHOTO / MEDIA GALLERY ]                    |  |
-|  |                                                                                   |  |
-|  +-----------------------------------------------------------------------------------+  |
-|  / Party Horn                                                                           |
-|  | Doodle                                                                               |
-|  Amidst the hustle and bustle of our daily lives, this family reunion serves as a       |
-|  reminder of the importance of taking a pause and relishing the company of those...     |
-|                                                                                         |
-|  +-----------------------------------------------------------------------------------+  |
-|  | [Avatar]  NGABE                  [❤️ 48]  [💬 12]  [🔖 Save]            [📤 Share]  |  |
-|  |           May 31, 2026 • 6 min read                                               |  |
-|  +-----------------------------------------------------------------------------------+  |
-|                                                                                         |
-|                          Our History. Our Family. Our Future.                           |
-|                    © Copyright 2026, All Rights Reserved by IMENA FAMILY.               |
-+-----------------------------------------------------------------------------------------+
-```
-
-### Corner 1: Header & Context Navigation
-
-- **Header**: Standard member `<PageHeader title="BLOGS" subtitle="Stories From Our Family" />`.
-- **Category Badge**: Pill badge positioned above content:
-  - Classes: `inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand text-surface shadow-xs`.
-- **Back Button**:
-  - Markup: `<Link href={ROUTES.BLOGS} className="group inline-flex items-center justify-center size-10 rounded-full border border-brand/40 text-brand hover:bg-brand/10 hover:border-brand transition-colors focus-visible:outline-brand">`.
-  - Icon: `<ChevronLeft className="size-5 transition-transform group-hover:-translate-x-0.5" />`.
-
-### Corner 2: Featured Hero Image Block (`ArticleHero.tsx`)
-
-- Container: `relative w-full aspect-[16/9] sm:aspect-[2/1] rounded-2xl sm:rounded-3xl overflow-hidden border border-border/60 bg-stone-100 dark:bg-stone-900 shadow-sm`.
-- Centered Emblem / Hero Photo:
-  - If cover image exists: Next.js `<Image src={post.cover} alt={post.coverAlt} fill priority className="object-cover" sizes="(min-width: 1200px) 960px, 100vw" />`.
-  - If emblem mode: centered IMENA crest with soft ambient radial glow (`from-brand/10 via-transparent to-transparent`).
-
-### Corner 3: Editorial Headline & Lead Text (`ArticleHeader.tsx`)
-
-- **Headline**:
-  - Tag: `<h1>`.
-  - Typography: `font-heading font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight text-member-ink uppercase leading-tight mt-6 sm:mt-8`.
-- **Lead Excerpt**:
-  - Styled with typographic distinction: `text-lg sm:text-xl font-medium text-stone-700 dark:text-stone-300 leading-relaxed mt-4 sm:mt-6 border-l-4 border-brand pl-4 py-0.5`.
-
-### Corner 4: Story Body & Inline Media Block (`ArticleBody.tsx`)
-
-- **Prose Container**: Max measure optimized for reading ergonomics: `mx-auto max-w-3xl space-y-6 text-stone-700 dark:text-stone-300 text-base sm:text-lg leading-relaxed font-body`.
-- **Inline Media Block**:
-  - Container: `relative my-8 sm:my-10 w-full aspect-[16/9] rounded-2xl sm:rounded-3xl overflow-hidden border border-border/50 bg-stone-200/60 dark:bg-stone-800 shadow-xs`.
-  - Caption: Optional subtle photo credit or caption in `text-xs sm:text-sm text-stone-500 italic text-center mt-2`.
-
-### Corner 5: Author & Social Share Bar (`ArticleAuthorBar.tsx`)
-
-- Container: `flex flex-wrap items-center justify-between gap-4 border-t border-border/70 pt-6 mt-12`.
-- Left Side:
-  - Author Avatar: `size-12 rounded-full overflow-hidden border border-brand/20 shadow-xs`.
-  - Author Details:
-    - Author Name: `text-sm sm:text-base font-bold uppercase text-stone-900 dark:text-stone-100 tracking-wide`.
-    - Date & Read Time: `text-xs text-stone-500 dark:text-stone-400 mt-0.5`.
-- Right Side (Engagement & Share):
-  - Like Counter Button (`Heart` icon + count, active state).
-  - Share Button (`Send` or `Share2` icon button) triggering link copy with feedback toast.
-
-### Corner 6: Whimsical Celebration Atmosphere (`CelebrationOrnaments.tsx`)
-
-- Subtle celebratory party poppers / horns floating in the outer margins:
-  - Left doodle: `-left-12 top-1/2 -translate-y-1/2 size-24 -rotate-12 text-purple-300/30 dark:text-purple-600/20`.
-  - Right doodle: `-right-12 top-1/4 size-24 rotate-12 text-purple-300/30 dark:text-purple-600/20`.
-  - Hidden on mobile to avoid layout crowding (`hidden xl:block`).
-
-### Corner 7: Footer & Tagline
-
-- `<FamilyTagline className="mt-16 sm:mt-24" />`
-- Copyright bar: `text-center text-xs text-stone-400 py-6 border-t border-border/40 mt-6`.
+* **Framework**: Next.js 15.x (App Router), React 19
+* **Language**: TypeScript (strict mode, zero errors tolerated)
+* **Styling**: Tailwind CSS v4 (`@import "tailwindcss";` in `src/styles/globals.css`)
+* **Fonts**:
+  * Headings: Roboto (`--font-heading`, `font-heading`)
+  * Body: Nunito Sans (`--font-sans`, `font-sans`)
+* **Color System**:
+  * Brand Primary: `#0d1aba` (`bg-primary`, `text-primary`)
+  * Heading Violet Accent: `#5a36da` (`text-heading`, `bg-heading`)
+  * Page Background: `#fcffff` (`bg-background`)
+  * Card Surface: `#ffffff` (`bg-surface`, `bg-white`)
+  * Muted Neutral: `#6b6b6b` (`text-muted`)
+  * Border: `#e5e7f0` or `#e8edf7`
+* **Package Manager**: `pnpm`
+* **Development Server**: `pnpm dev` on `http://localhost:3000`
+* **Typecheck Command**: `pnpm typecheck` (`tsc --noEmit`)
 
 ---
 
-## 3. Data Model & Types (`src/features/blogs/types.ts`)
+## 2. Critical Behavioral Guidelines & Rules
 
-```typescript
-export interface BlogAuthor {
-  id: string;
-  name: string; // e.g., "NGABE"
-  role?: string; // e.g., "Family Historian & Youth Lead"
-  subfamily?: string; // e.g., "Wihogora Family"
-  avatar: string; // image path or StaticImageData
-}
+> [!IMPORTANT]
+> **STRICT RULE ON GIT COMMITS**: NEVER run `git commit` or `git push` unless the user explicitly tells you to do so in their message! Keep all working changes unstaged/uncommitted until instructed.
 
-export interface BlogArticleDetail {
-  slug: string;
-  title: string;
-  category:
-    | "Activity"
-    | "Celebrations"
-    | "Family Gatherings"
-    | "Remembering (Kwibuka)"
-    | "Visits"
-    | "Milestones";
-  publishedAt: string; // e.g., "May 31, 2026"
-  readMinutes: number;
-  author: BlogAuthor;
-  coverImage?: string; // or StaticImageData
-  coverAlt: string;
-  excerpt: string;
-  contentParagraphs: string[];
-  secondaryImage?: string; // or StaticImageData
-  secondaryImageCaption?: string;
-  likes: number;
-  commentsCount: number;
-}
-```
+> [!CAUTION]
+> **AVOID "AI SLOP" & OVER-ENGINEERED UI**:
+> * Do **NOT** add artificial helper labels like *"Click card to flip"*, *"Preceding Generation"*, or explanatory pill badges that clutter the design.
+> * Do **NOT** use random emojis (e.g. `🔄`, `✨`) in buttons or headings.
+> * Do **NOT** add arbitrary thick borders (e.g. `border-l-4` blockquote lines) unless specifically indicated in the design mockup.
+> * **Preserve Design Fidelity**: The user wants clean, Apple/Stripe-caliber luxury aesthetics matching the exact design exports (`media_1793188908046.png`).
 
 ---
 
-## 4. File Structure & Component Plan
+## 3. Public Family Tree Page (`/family-tree`)
+
+### Page Route
+* `src/app/(public)/family-tree/page.tsx`
+* Uses client wrapper `src/features/tree/components/PublicFamilyTreeClient.tsx` to coordinate `activeYear` between the hero tree illustration and the bottom promotion section.
+
+### A. Hero Section & Interactive SVG Tree (`TreeHero.tsx` + `PublicTreeIllustration.tsx`)
+1. **Title & Heading**:
+   * Centered 3-line headline:
+     ```
+     Rediscover
+     Your Legacy.
+     ```
+     with subhead: *"A modern space for family history, connections, and stories."*
+   * Interactive button: *"Explore the Tree"* smoothly scrolls to `#promotion-section`.
+2. **SVG Tree Dimensions**:
+   * ViewBox: `0 0 1000 680`, non-overlapping nodes, clean organic branches.
+3. **Nodes & Roles**:
+   * **Root Node (Patriarch)**: Center bottom, displays a subtle silhouette icon. On hover, displays a clean floating badge with the name **"Benon"**.
+   * **Generations Included**: Only includes **Grandpère and Grandmère** for each generation (`2019-2021` up to `2025-2026`).
+   * **Portraits**: Circular avatar nodes (`r={28}` or `r={32}`) filled with verified high-res Sanity CDN photography via SVG `<pattern>`.
+   * **Hover Tooltips**: Names appear strictly on hover in an elevated floating badge (no static cluttering labels).
+   * **Interactive Branch Glowing**: Hovering or selecting any node highlights its genealogical path in amber-gold (`#F59E0B`) all the way down to Benon.
+   * **Click Navigation**: Clicking a node sets `activeYear` and scrolls to `#promotion-section`.
+
+---
+
+### B. Down Promotion Section (`PublicPromotionSection.tsx`)
+
+#### 1. Header Layout (Strictly Matching `media_1793188908046.png`)
+* **Centered Crest**: Official IMENA crest (`/images/imena-crest.webp`, 70x70) centered above the title.
+* **Main Heading**:
+  ```html
+  <h2 className="text-h1-m md:text-h1 font-black text-black">
+    AERG IMENA Family <span className="text-primary">Tree</span>
+  </h2>
+  ```
+* **Subtitle**:
+  *"Discover the connections and relationships within our extended family. Each level represents a generation, and each circle represents a family member."*
+* **Year Display**:
+  * Shows **one year above** at a time (e.g. `2025-2026`).
+  * Smooth cross-fade animation when cards are flipped (Current year fades out / previous year fades in).
+  * **Subheading**: `Grandpere & Grandmere` in bold, uppercase text.
+
+#### 2. Grandpère & Grandmère Cards
+* **Role Limitation**: Strictly displays **Grandpère and Grandmère** (no extra coordinator or parent groups).
+* **Card Dimensions & Styling**:
+  * Surface: `bg-white rounded-3xl border border-[#e8edf7] p-6 md:p-7 shadow-[0_4px_24px_rgba(13,26,186,0.04)] hover:shadow-[0_20px_45px_rgba(13,26,186,0.08)]`.
+  * Layout: Two columns (`flex-col sm:flex-row items-center sm:items-stretch gap-6`).
+  * Left Portrait: Aspect ratio `4:5`, rounded-2xl (`rounded-2xl overflow-hidden aspect-[4/5] w-full sm:w-44 md:w-52 relative bg-[#eaeff5] ring-1 ring-black/5`).
+  * Silhouette Fallback: For members without a photo, render a clean SVG silhouette on a soft `#eaeff5` container.
+  * Right Details:
+    * Name: `font-heading font-black text-2xl md:text-[26px] text-slate-900 tracking-tight leading-tight uppercase`.
+    * Role Badge: `inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold bg-[#ebf3fe] text-[#1d4ed8] border border-[#dbeafe]`.
+    * Family Clan Badge: `inline-flex items-center px-3.5 py-1 rounded-full text-xs font-medium bg-white text-[#1d4ed8] border border-[#bfdbfe]`.
+    * Saying / Quote: `text-sm md:text-base text-slate-600 italic font-normal leading-relaxed mt-4` wrapped in typographical quotes `“...”` (no left border line).
+* **3D Flip Interaction**:
+  * Clicking either card triggers a 3D flip (`rotateY(180deg)` with `perspective: 1400px` and `transform-style: preserve-3d`).
+  * Stagger: Grandpère flips at `0ms`, Grandmère flips at `75ms` delay.
+  * Reveal: Back of the cards reveals the **preceding generation's Grandpère and Grandmère** in that lineage with their authentic photo, role, family clan, and quote.
+  * Backface visibility: `backface-visibility: hidden; -webkit-backface-visibility: hidden;` on both faces.
+
+---
+
+## 4. Authentic Sanity CDN Member Data
+
+Data is structured in `src/features/tree/publicTreeData.ts`:
+
+| Promotion | Role | Name | Family Clan | Sourced Photo URL / Asset |
+|---|---|---|---|---|
+| **2025–2026** | Grandpère | MUGISHA Pacifique | Rwamamara | `https://cdn.sanity.io/images/bge18m05/production/0079bffac8150fffd03d00cd5be158de72219b83-309x931.jpg` |
+| **2025–2026** | Grandmère | ISIMBI Hyguette | Karabo | Silhouette placeholder (no official photo on site) |
+| **2024–2025** | Grandpère | RUDASESWA Thierry | Rwaka | `https://cdn.sanity.io/images/bge18m05/production/580b981c297507e207cfed2f06398289500f1312-424x756.jpg` |
+| **2024–2025** | Grandmère | INGABIRE Liliane | Marebe | `https://cdn.sanity.io/images/bge18m05/production/9983996c39ec338141c917b6ee54a78dd98bb3cf-480x1014.jpg` |
+| **2023–2024** | Grandpère | BUGINGO Elua | Nkotanyi | `https://cdn.sanity.io/images/bge18m05/production/bfb8c538cdaffcea16ae84a5e8b768c62f78f99e-720x1080.jpg` |
+| **2023–2024** | Grandmère | UWINEZA Joyeuse | gmere | `https://cdn.sanity.io/images/bge18m05/production/a60ff01b42586bb16f7cba4571d968218146c38c-690x1080.jpg` |
+| **2022–2023** | Grandpère | MANZI Sylvain | Intashya | `https://cdn.sanity.io/images/bge18m05/production/fc7f57ec71f98d63d8b13689b70b5514f77c5ba8-502x711.jpg` |
+| **2022–2023** | Grandmère | KANYANGE Elua | Nyamurunga | `https://cdn.sanity.io/images/bge18m05/production/c329486c997cb24b433cf57f4fb9f7a554a93ca0-475x882.jpg` |
+| **2021–2022** | Grandpère | NIYONZIMA Patrick | Inkomezamihigo | `https://cdn.sanity.io/images/bge18m05/production/5d4f3b25f992cf6d8ba986bf3ec09c6ae5e69e06-444x680.jpg` |
+| **2021–2022** | Grandmère | MUKESHIMANA Francine | Inyamibwa | `https://cdn.sanity.io/images/bge18m05/production/3e098ee3e070d65a882a9ba4f40f3b06cfa02927-463x742.jpg` |
+| **2019–2021** | Grandpère | NIYOMUKIZA Sylvain | Imenagitero | `https://cdn.sanity.io/images/bge18m05/production/4f086790488e19882d8eafd6bd49b9a762acca34-750x1050.jpg` |
+| **2019–2021** | Grandmère | MUREKATETE Honette | Isonga | Silhouette placeholder |
+| **Root Patriarch** | Founder | Benon | IMENA Family | Silhouette icon, revealed as "Benon" on hover |
+
+---
+
+## 5. File Map
 
 ```
 src/
 ├── app/
+│   ├── (public)/
+│   │   └── family-tree/
+│   │       └── page.tsx                         <-- Public family tree entry point
 │   └── (member)/
-│       └── blogs/
-│           ├── page.tsx                         <-- Blogs Index (Existing)
-│           └── [slug]/
-│               └── page.tsx                     <-- NEW: Article Detail Page
-└── features/
-    └── blogs/
-        ├── components/
-        │   ├── BlogsHome.tsx                    <-- Existing Index view
-        │   ├── BlogCard.tsx                     <-- Existing Card component
-        │   ├── ArticleDetailView.tsx            <-- Main Single Article Container
-        │   ├── ArticleHeader.tsx                <-- Category Pill + Back Button + Title
-        │   ├── ArticleHeroMedia.tsx             <-- Hero image / IMENA coat-of-arms crest
-        │   ├── ArticleBody.tsx                  <-- Structured prose + inline secondary media
-        │   ├── ArticleAuthorBar.tsx             <-- Author bio, date, likes, and share button
-        │   └── CelebrationOrnaments.tsx         <-- Floating party horns / confetti doodles
-        ├── data.ts                              <-- Extended with full article mock data & helper
-        └── types.ts                             <-- Shared interfaces for blogs & articles
+│       └── tree/
+│           └── page.tsx                         <-- Member internal tree
+├── features/
+│   └── tree/
+│       ├── publicTreeData.ts                    <-- Grandpere/Grandmere datasets, Sanity URLs, preceding generation resolver
+│       └── components/
+│           ├── PublicFamilyTreeClient.tsx       <-- State coordinator (activeYear)
+│           ├── TreeHero.tsx                     <-- Hero with 3-line headline and badges
+│           ├── PublicTreeIllustration.tsx       <-- SVG tree with branch glow, tooltips & Benon root
+│           ├── PublicPromotionSection.tsx       <-- Down section with clean year pill & 3D flip cards
+│           └── index.ts
+└── next.config.ts                               <-- Contains cdn.sanity.io in remotePatterns
 ```
 
 ---
 
-## 5. Implementation Checklist for Claude
+## 6. Verification Checklist Before Handing Off
 
-1. **Route Implementation**:
-   - Create `src/app/(member)/blogs/[slug]/page.tsx`.
-   - Export `generateStaticParams()` matching all slugs in `BLOG_PAGE_POSTS` for instant SSG.
-   - Set up dynamic metadata generation (`generateMetadata()`) for accurate titles and OpenGraph tags.
-
-2. **Data Layer Expansion**:
-   - Create helper `getArticleBySlug(slug: string)` in `src/features/blogs/data.ts`.
-   - Ensure the featured post `a-heart-warming-family-reunion` contains complete paragraph content matching the design mockup, author details for **NGABE**, and May 31, 2026 date.
-
-3. **Component Construction**:
-   - Build `ArticleHeader.tsx` with circular outline back button (`<ChevronLeft />`) and category pill (`ACTIVITY`).
-   - Build `ArticleHeroMedia.tsx` supporting both photographic covers and the official IMENA crest layout.
-   - Build `ArticleBody.tsx` with optimal typography (`max-w-3xl mx-auto`), paragraph spacing, and the secondary media showcase container.
-   - Build `ArticleAuthorBar.tsx` with author avatar, name, date, interactive Like state, and Share action with clipboard copy toast.
-   - Build `CelebrationOrnaments.tsx` for celebratory decorative line-art in the outer margins.
-
-4. **Interactive Polish & UX**:
-   - Provide copy-to-clipboard functionality with a brief visual toast (`"Article link copied to clipboard!"`).
-   - Back button should safely route to `/blogs`.
-   - Keyboard accessible back button with focus rings.
-
-5. **Quality & Standard Compliance**:
-   - `pnpm typecheck` must pass with 0 errors.
-   - `pnpm lint` must pass with 0 warnings.
-   - Fully responsive on mobile (375px), tablet (768px), and desktop (1280px+).
+1. Run `pnpm typecheck` (`tsc --noEmit`) — MUST exit with 0 errors.
+2. Confirm `next.config.ts` allows `cdn.sanity.io` image loading.
+3. Check responsive layout on mobile (`375px`), tablet (`768px`), and desktop (`1440px`).
+4. Ensure no unwanted UI clutter, artificial status badges, or instructional text on cards.
+5. **NEVER commit to git unless explicitly told to commit by the user.**
