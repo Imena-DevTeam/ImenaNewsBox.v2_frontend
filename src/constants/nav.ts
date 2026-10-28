@@ -12,7 +12,6 @@ export const PUBLIC_NAV: NavItem[] = [
   { label: "Family Tree", href: ROUTES.FAMILY_TREE },
 ];
 
-<<<<<<< HEAD
 /**
  * The single navigation model shared by every member page, in the order the
  * design's rail lists it. The rail itself lifts whichever of these is the
@@ -61,21 +60,6 @@ export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [
   {
     heading: "The family",
     items: [
-=======
-/** The footer columns. Every destination here is a page that exists. */
-export const FOOTER_NAV: { heading: string; items: NavItem[] }[] = [
-  {
-    heading: "Explore",
-    items: [
-      { label: "Family Tree", href: ROUTES.FAMILY_TREE },
-      { label: "Gallery", href: ROUTES.GALLERY },
-      { label: "Blogs", href: ROUTES.BLOGS },
-    ],
-  },
-  {
-    heading: "The family",
-    items: [
->>>>>>> main
       { label: "Our Story", href: ROUTES.OUR_STORY },
       { label: "Core values", href: `${ROUTES.HOME}#values` },
     ],

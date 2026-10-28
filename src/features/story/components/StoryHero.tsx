@@ -1,12 +1,9 @@
 import { Container } from "@/components/layout/Container";
-<<<<<<< HEAD
 import { HouseHeartOrnament } from "@/components/ui/Ornaments";
-=======
 import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
-import { HouseHeartOrnament } from "@/features/story/components/Ornaments";
->>>>>>> main
+
 
 export function StoryHero() {
   return (

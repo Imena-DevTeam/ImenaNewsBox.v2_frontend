@@ -1,7 +1,6 @@
 /** Where people reach the family. Used by the footer and the newsletter notice. */
 export const CONTACT_EMAIL = "hello@imenafamily.rw";
 export const CONTACT_EMAIL_HREF = `mailto:${CONTACT_EMAIL}`;
-<<<<<<< HEAD
 
 /** The family motto, and its sense in English. Closes every member page. */
 export const FAMILY_MOTTO =
@@ -17,5 +16,3 @@ export const FAMILY_ORIGIN = "IMENA Family Sanctuary, UNR Butare";
    figure the family gives for itself, "more than", as a total — not a count
    of who is online, which nothing here can know. */
 export const FAMILY_MEMBER_COUNT = 140;
-=======
->>>>>>> main

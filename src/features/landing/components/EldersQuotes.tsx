@@ -33,7 +33,6 @@ export function EldersQuotes() {
                 index % 2 === 1 && "md:mt-24",
               )}
             >
-<<<<<<< HEAD
               <Image
                 src={elder.image}
                 alt={elder.name}
@@ -41,27 +40,6 @@ export function EldersQuotes() {
                 sizes="10rem"
                 className="border-border w-32 shrink-0 rounded-md border object-cover sm:w-40"
               />
-=======
-              {/* The portrait arrives first; its quote card slides in from
-                  the photo's side a beat later, as if the elder had begun to speak.
-                  Cards in the right column trail the left a little, so the
-                  pairs read down the page in order. */}
-              <Reveal
-                from="bottom"
-                delay={(index % 2) * 0.15}
-                className="shrink-0"
-              >
-                <div className="img-zoom border-border w-32 rounded-md border sm:w-40">
-                  <Image
-                    src={elder.image}
-                    alt={elder.name}
-                    width={313}
-                    height={471}
-                    className="w-full object-cover"
-                  />
-                </div>
-              </Reveal>
->>>>>>> main
 
               {/* The card slides under the photo, so its content is padded
                   clear of it. */}

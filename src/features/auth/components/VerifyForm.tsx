@@ -3,14 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { startMemberSession } from "@/app/actions/session";
 import { ROUTES } from "@/constants/routes";
 import { useCountdown } from "../hooks/useCountdown";
 import { OTP_LENGTH, verifySchema } from "../schemas";
 import { AuthHeading } from "./AuthHeading";
 import { OtpInput } from "./OtpInput";
-import { SUCCESS_BADGE_DURATION_MS, SuccessBadge } from "./SuccessBadge";
+import { SuccessBadge } from "./SuccessBadge";
 
 const RESEND_SECONDS = 34;
 
