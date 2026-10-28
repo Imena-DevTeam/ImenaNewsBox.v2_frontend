@@ -3,6 +3,7 @@ export const ROUTES = {
   OUR_STORY: "/our-story",
   GALLERY: "/gallery",
   FAMILY_TREE: "/family-tree",
+  TREE: "/tree",
   BLOGS: "/blogs",
   LOGIN: "/login",
   ADMIN_LOGIN: "/admin/login",

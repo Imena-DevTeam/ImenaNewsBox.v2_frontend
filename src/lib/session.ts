@@ -28,6 +28,7 @@ export const MEMBER_PREFIXES = [
   "/profile",
   "/resources",
   "/birthdays",
+  "/tree",
 ] as const;
 
 export function isMemberPath(pathname: string): boolean {

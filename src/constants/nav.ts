@@ -20,7 +20,7 @@ export const PUBLIC_NAV: NavItem[] = [
 export const MEMBER_NAV: NavItem[] = [
   { label: "Home", href: ROUTES.DASHBOARD },
   { label: "Blogs", href: ROUTES.BLOGS },
-  { label: "Tree", href: ROUTES.FAMILY_TREE },
+  { label: "Tree", href: ROUTES.TREE },
   { label: "Gallery", href: ROUTES.GALLERY },
   { label: "Resources", href: ROUTES.RESOURCES },
   { label: "Birthdays", href: ROUTES.BIRTHDAYS },
@@ -33,7 +33,7 @@ export const MEMBER_FOOTER_GROUPS: { heading: string; items: NavItem[] }[] = [
     heading: "The family",
     items: [
       { label: "Dashboard", href: ROUTES.DASHBOARD },
-      { label: "Family tree", href: ROUTES.FAMILY_TREE },
+      { label: "Family tree", href: ROUTES.TREE },
       { label: "Birthdays", href: ROUTES.BIRTHDAYS },
     ],
   },
