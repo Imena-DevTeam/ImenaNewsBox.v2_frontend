@@ -1,8 +1,9 @@
+import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { HeartsOrnament } from "@/features/story/components/Ornaments";
+import { HeartsOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 
 /* The four slogans, placed at the top, left, right and bottom of the cross.
@@ -74,25 +75,25 @@ export function Slogans() {
                 item.placement,
               )}
             >
-              {/* The square is what makes the cross read as a cross, so it
-                  only applies from md. On a phone the cards are full width,
-                  and a square would leave most of each one empty. */}
-              <StaggerItem from="none" scale={0.8} className="h-full">
-                <figure className="bg-placeholder transition-base hover:shadow-menu flex h-full flex-col justify-center gap-3 p-5 motion-safe:hover:scale-105 md:aspect-square md:p-6">
-                  <figcaption className="text-caption text-primary tracking-wide uppercase">
-                    {item.value}
-                  </figcaption>
+              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-md p-6 md:p-8">
+                <span
+                  aria-hidden
+                  className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-9 items-center justify-center md:top-8 md:left-8"
+                >
+                  <Users className="size-4" />
+                </span>
 
-                  <blockquote className="text-body-sm text-text">
-                    {item.kinyarwanda && (
-                      <span className="block italic">
-                        &ldquo;{item.kinyarwanda}&rdquo;
-                      </span>
-                    )}
-                    {item.slogan}
-                  </blockquote>
-                </figure>
-              </StaggerItem>
+                <figcaption className="text-h4-m md:text-h4 font-heading text-text mt-10 tracking-wide md:mt-6">
+                  {item.title}
+                </figcaption>
+
+                {/* text-text, not the usual muted grey: on the lavender card
+                    #6b6b6b reaches only 2.9:1. The title still leads on weight
+                    and size. */}
+                <blockquote className="text-body-sm text-text mt-3">
+                  {item.slogan}
+                </blockquote>
+              </figure>
             </li>
           ))}
 

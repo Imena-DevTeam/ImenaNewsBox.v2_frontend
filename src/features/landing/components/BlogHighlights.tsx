@@ -14,7 +14,7 @@ const POSTS = [
     title: "A heart-warming family reunion:",
     excerpt:
       "This Family Reunion Serves As A Reminder Of The Importance Of Taking A Pause And Relishing The Company Of Those Who Matter Most.",
-    image: "/images/blog-reunion.png",
+    image: "/images/blog-reunion.webp",
     alt: "Family members at a remembrance ceremony lighting a flame",
   },
   {
@@ -22,7 +22,7 @@ const POSTS = [
     title: "A heart-warming family reunion:",
     excerpt:
       "This Family Reunion Serves As A Reminder Of The Importance Of Taking A Pause And Relishing The Company Of Those Who Matter Most.",
-    image: "/images/blog-reunion.png",
+    image: "/images/blog-reunion.webp",
     alt: "Family members gathered around a memorial flame",
   },
   {
@@ -30,7 +30,7 @@ const POSTS = [
     title: "A heart-warming family reunion:",
     excerpt:
       "Through Family Gatherings, Mentorship, Celebrations, And Shared Experiences, We Strengthen The Relationships That Connect Us.",
-    image: "/images/blog-reunion.png",
+    image: "/images/blog-reunion.webp",
     alt: "Family members standing together at a commemoration",
   },
 ];

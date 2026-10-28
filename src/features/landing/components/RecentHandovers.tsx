@@ -10,17 +10,17 @@ import { ROUTES } from "@/constants/routes";
 const HANDOVERS = [
   {
     title: "Fete 2025-2026:",
-    image: "/images/handover-1.png",
+    image: "/images/handover-1.webp",
     alt: "Family members in front of a green and blue balloon arch",
   },
   {
     title: "Fete 2025-2024:",
-    image: "/images/handover-2.png",
+    image: "/images/handover-2.webp",
     alt: "Family members celebrating under gold letter balloons",
   },
   {
     title: "Fete 2024-2023:",
-    image: "/images/handover-3.png",
+    image: "/images/handover-3.webp",
     alt: "Family members together at an evening celebration",
   },
 ];

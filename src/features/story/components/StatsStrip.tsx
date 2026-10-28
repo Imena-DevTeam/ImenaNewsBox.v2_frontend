@@ -4,7 +4,7 @@ import { MaskReveal } from "@/components/motion/MaskReveal";
 import { Reveal } from "@/components/motion/Reveal";
 import { CountUp } from "@/components/ui/CountUp";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { HouseHeartOrnament } from "@/features/story/components/Ornaments";
+import { HouseHeartOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 import { storyCircle } from "@/lib/images";
 

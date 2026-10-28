@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Viewports too short for the full-size dock: landscape phones and tablets,
+   small laptops with the browser chrome showing. */
+@custom-variant short (@media (max-height: 32rem));
+
 /* ---------------------------------------------------------------------------
    IMENA Family Times — typography & colour system v1.0
    Single source of truth. Components use the generated utility classes only
@@ -57,17 +61,6 @@
   --color-placeholder: #d9d9d9; /* the quote cards */
   --color-stat: #7b4a94; /* the third milestone badge on the timeline */
   --color-slogan-card: #c9b8e6; /* the lavender slogan cards */
-
-  /* Auth screens (login, admin login, verify). Sampled from the Figma auth
-     frames, which use a violet brand fill rather than --color-primary. Text
-     on these screens still uses --color-muted, not the design's #a8a8a8,
-     which only reached 2.3:1 on white. */
-  --color-brand: #5935da;
-  --color-brand-hover: #4a2bc4;
-  --color-field-border: #cccccc;
-  --color-field-placeholder: #c3c2c2;
-  /* Form errors only. */
-  --color-danger: #dc2626;
 
   /* Auth screens (login, admin login, verify). Sampled from the Figma auth
      frames, which use a violet brand fill rather than --color-primary. Text
@@ -200,6 +193,132 @@
   --spacing-section: 6rem; /* 96px — desktop section padding */
   --spacing-section-m: 3.5rem; /* 56px — mobile section padding */
 
+  /* Member area (dashboard, sidebar and its friends). Sampled from the
+     Figma member frames; nothing here is shared with the public site's
+     blues, so this section names them rather than borrowing tokens that
+     mean something else nearby. */
+  --color-member-tint: #f4f0fc; /* the lavender panels behind the birthdays column */
+  --color-member-night: #343059; /* the dark "today's birthday" card */
+  /* Date and day chips carry a 12px white label, so the chip is darker than
+     the design's #8173e0: against white that reached only 3.85:1, below the
+     4.5:1 WCAG AA asks of normal text, while #6f5bd8 holds the same hue and
+     clears it at 5.2:1. */
+  --color-member-chip: #6f5bd8;
+  --color-member-field: #e8e8ec; /* the grey search pill */
+  --color-member-panel: #fbfaff; /* quiet card surface in the member area */
+  --color-member-border: #e7e1f4; /* edges that hold member cards together */
+  --color-member-ink: #24213d; /* softer than black for member headings */
+  --color-member-heart: #f26493; /* the wish counters' pink heart */
+
+  /* The member frame itself — the rail, the page headers and the footer.
+     Sampled from the gallery and blogs frames, which share all of it. */
+  --color-member-accent: #5136b0; /* "Featured Videos" and its underline */
+  --color-member-active: #bfa3d3; /* the tile behind the open page in the rail */
+  --color-member-rail-ink: #454655; /* the rail's icons and labels */
+  /* The closing line both member frames end on. */
+  /* The celebration board's gold: the birthday badge and the foil's warm
+     edge. Decorative and on dark surfaces only. */
+  --color-celebration-gold: #f2c14e;
+  --color-tagline-ink: #1a1a29;
+  --color-tagline-accent: #303ccf;
+  /* The line-drawn camera, hearts and sun scattered behind the gallery. */
+  --color-gallery-ornament: #e3e1f2;
+
+  --shadow-member: 0 12px 36px rgb(52 48 89 / 0.08);
+  /* The navigation dock: a long, low, primary-tinted shadow so the glass
+     reads as floating above the page. */
+  --shadow-dock: 0 20px 50px rgb(13 26 186 / 0.08);
+  /* The member footer's lift: cast upwards, barely there. */
+  --shadow-footer: 0 -10px 30px rgb(52 48 89 / 0.03);
+  --radius-dock: 2rem; /* 32px — the dock's pill silhouette */
+  /* The rail is a floating card, so its corners are far rounder than a
+     card's: a 100px column with a 48px radius reads as a lozenge. */
+  --radius-member-rail: 3rem;
+  /* The gallery's video frame, rounder than --radius-lg. */
+  --radius-media: 30px;
+
+  /* The gallery's five-up stage, its album cards and its video frame, as
+     the ratios measured off the design rather than restated per component. */
+  --aspect-gallery-stage: 436 / 399;
+  /* The flanking photographs keep a natural portrait shape, so faces stay
+     faces; they step back by size and fade instead of being sliced thin. */
+  --aspect-gallery-stage-mid: 3 / 4;
+  --aspect-gallery-stage-side: 3 / 4;
+  --aspect-gallery-album: 39 / 28;
+  --aspect-gallery-video: 800 / 518;
+
+  /* The welcome line. Heavier than any public heading, and the only
+     place the member area sets its own display size. */
+  --text-welcome: 2.5rem; /* 40px */
+  --text-welcome--line-height: 1.05;
+  --text-welcome--font-weight: 800;
+
+  --text-welcome-m: 1.5rem; /* 24px */
+  --text-welcome-m--line-height: 1.1;
+  --text-welcome-m--font-weight: 800;
+
+  --text-caption-sm: 0.625rem; /* 10px — compact member profile metadata */
+
+  /* The rail's labels. The design sets them at 10px; 11px is the smallest
+     a primary navigation label should be and the rail is wide enough. */
+  --text-rail: 0.6875rem; /* 11px */
+  --text-rail--line-height: 1.3;
+  --text-rail--font-weight: 600;
+  --text-caption-sm--line-height: 1.3;
+  --text-caption-sm--font-weight: 600;
+
+  /* The one-word title a member page opens with — GALLERY, BLOGS. Set far
+     larger than any public heading and tracked in a little, the way the
+     design draws it. */
+  --text-page-title: 4.25rem; /* 68px */
+  --text-page-title--line-height: 1;
+  --text-page-title--font-weight: 800;
+  --text-page-title--letter-spacing: -0.02em;
+
+  --text-page-title-m: 2.25rem; /* 36px */
+  --text-page-title-m--line-height: 1.05;
+  --text-page-title-m--font-weight: 800;
+  --text-page-title-m--letter-spacing: -0.02em;
+
+  /* "Featured Videos", "Featured Album", "Recent Posts": the violet section
+     headings of the member pages, lighter than a public heading at the same
+     size and carrying an underline rather than a weight. */
+  --text-section: 3rem; /* 48px */
+  --text-section--line-height: 1.1;
+  --text-section--font-weight: 500;
+
+  --text-section-m: 2rem; /* 32px */
+  --text-section-m--line-height: 1.15;
+  --text-section-m--font-weight: 500;
+
+  /* The family motto that closes every member page: a serif line big enough
+     to be the thing remembered, and its phone size. */
+  --text-motto: 2.75rem; /* 44px */
+  --text-motto--line-height: 1.18;
+  --text-motto--font-weight: 500;
+
+  --text-motto-m: 1.875rem; /* 30px */
+  --text-motto-m--line-height: 1.22;
+  --text-motto-m--font-weight: 500;
+
+  /* The huge "4 ghost 4" of the not-found page, and its mobile size. */
+  --text-ghost: 7.5rem; /* 120px */
+  --text-ghost--line-height: 1;
+  --text-ghost--font-weight: 700;
+
+  --text-ghost-m: 5rem; /* 80px */
+  --text-ghost-m--line-height: 1;
+  --text-ghost-m--font-weight: 700;
+
+  /* The serif line every member page closes on. */
+  --text-tagline: 2.25rem; /* 36px */
+  --text-tagline--line-height: 1.15;
+  --text-tagline--font-weight: 700;
+
+  --text-tagline-m: 1.5rem; /* 24px */
+  --text-tagline-m--line-height: 1.2;
+  --text-tagline-m--font-weight: 700;
+
   /* Family Tree. Sampled from the design; the member cards use a lighter
      ink and a violet edge that nothing else on the site uses. */
   --color-tree-card: #f7f5fc; /* the member card fill */
@@ -237,6 +356,9 @@
   --duration-fast: 150ms;
   --duration-base: 300ms;
   --duration-slow: 600ms;
+  /* Overshoots a touch and settles, for things that should feel physical:
+     the dock's active pill gliding to a new page. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* A slow drift, as if the card were resting on air. Pair with motion-safe:
      so it never plays for someone who asked for reduced motion. */
@@ -248,6 +370,32 @@
      upright while it travels. */
   --animate-orbit: orbit 45s linear infinite;
   --animate-orbit-reverse: orbit-reverse 45s linear infinite;
+
+  /* Dialogs. Keyframes rather than @starting-style transitions: an
+     animation always runs when an element is displayed, where a transition
+     into the top layer can fail to start and leave a dialog off-screen. */
+  --animate-drawer-in: drawer-in 350ms var(--ease-out-soft) both;
+  --animate-dialog-pop: dialog-pop 250ms var(--ease-out-soft) both;
+
+  @keyframes drawer-in {
+    from {
+      translate: 100% 0;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes dialog-pop {
+    from {
+      opacity: 0;
+      scale: 0.96;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+    }
+  }
 
   @keyframes float {
     0%,
@@ -293,6 +441,12 @@
   --font-auth-display: var(--font-bricolage), system-ui, sans-serif;
   --font-auth-heading: var(--font-instrument), system-ui, sans-serif;
   --font-auth-body: var(--font-jost), system-ui, sans-serif;
+
+  /* Member area. Poppins carries the interface and the heavy welcome
+     heading; Playfair Display is the serif of the blog titles and the
+     closing tagline. Variables are set in src/app/(member)/layout.tsx. */
+  --font-member-sans: var(--font-poppins), system-ui, sans-serif;
+  --font-member-serif: var(--font-playfair), Georgia, serif;
 }
 
 @layer base {
@@ -365,6 +519,112 @@
   }
 }
 
+/* The member pages' route transition: a short fade and rise, with the
+   softest blur, so the new page settles in rather than cutting. Driven by
+   (member)/template.tsx, which re-mounts on every navigation. */
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@utility route-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: route-enter 450ms var(--ease-out-soft) both;
+  }
+}
+
+/* The gallery stage's clock. The progress bar's animation *is* the timer:
+   when it ends the stage advances, so pausing the bar pauses the slide and
+   the two can never drift apart. */
+@keyframes stage-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@utility stage-progress {
+  transform-origin: left;
+  animation: stage-progress 5s linear forwards;
+}
+
+/* The slow cinematic push on the photograph in the middle of the stage,
+   over exactly the time it is on screen. */
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@utility ken-burns {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ken-burns 5s linear forwards;
+  }
+}
+
+/* A preview card taking a new photograph fades it in rather than swapping. */
+@keyframes stage-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility stage-fade {
+  animation: stage-fade 400ms var(--ease-out-soft) both;
+}
+
+/* Holds every animation inside where it is — hover, touch, an open
+   lightbox — for components that track their own pause state. */
+@utility animations-paused {
+  &,
+  & * {
+    animation-play-state: paused;
+  }
+}
+
+/* The birthday card's foil: a soft diagonal sheen drifting across a
+   gradient, like light on wrapping paper. Still for reduced motion. */
+@keyframes foil-sheen {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+
+@utility foil-sheen {
+  background-image: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.16) 47%,
+    rgb(242 193 78 / 0.18) 52%,
+    transparent 64%
+  );
+  background-size: 250% 100%;
+  background-position: 50% 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: foil-sheen 6s ease-in-out infinite;
+  }
+}
+
 /* Stops every animation inside while the pointer is over it or something
    within it has focus. WCAG 2.2.2 asks that motion running longer than five
    seconds can be paused, and moving text cannot be read otherwise. */
@@ -375,6 +635,26 @@
     * {
       animation-play-state: paused;
     }
+  }
+}
+
+/* The carousel's slow breathe: the active photograph settles from a slight
+   zoom onto true size for the length a slide is on screen, so the hero
+   feels alive without any of the controls moving. Guarded like every
+   other animation, and the small offset keeps the edges inside the frame. */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.045);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@utility hero-zoom {
+  @media (prefers-reduced-motion: no-preference) {
+    transform: scale(1.045);
+    animation: hero-zoom 7s var(--ease-out-soft) both;
   }
 }
 
@@ -513,6 +793,52 @@
    Figma frame; the blob is centred in the space right of the form column
    (45px gutter + 11% inset + 343px column), so it drifts toward the middle on
    wide screens instead of hugging the right edge. */
+/* The login photograph is a slideshow behind one fixed silhouette.
+
+   The mask is the alpha channel of the designer's blob export, lifted into a
+   greyscale+alpha file of its own: the shape is all a mask needs, and on its
+   own it is 13KB rather than the 1.2MB of the photograph it came from. */
+@utility auth-photo-mask {
+  -webkit-mask-image: url("/images/auth-blob-mask.png");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("/images/auth-blob-mask.png");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* Each picture holds for about a quarter of the cycle and dissolves into the
+   next. The layers are offset by negative delays, so they are already spread
+   across the cycle on the first frame instead of all arriving together. */
+@keyframes auth-photo-cycle {
+  0%,
+  22% {
+    opacity: 1;
+  }
+  28%,
+  94% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility auth-photo-cycle {
+  opacity: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: auth-photo-cycle 24s ease-in-out infinite;
+  }
+
+  /* With motion turned down the first picture simply stays put. */
+  @media (prefers-reduced-motion: reduce) {
+    &:first-of-type {
+      opacity: 1;
+    }
+  }
+}
+
 @utility auth-blob {
   position: absolute;
   top: 0.5rem;
@@ -542,6 +868,15 @@
   }
 }
 
+/* The family tree canvas: a lit lineage line glows gold around its violet
+   stroke. A class on an @xyflow/react edge, so a plain rule rather than a
+   utility. */
+@layer components {
+  .lineage-lit path {
+    filter: drop-shadow(0 0 6px rgb(242 193 78 / 0.85));
+  }
+}
+
 /* The short accent bar under a section title. */
 @utility accent-bar {
   display: block;
@@ -551,104 +886,38 @@
   background-color: var(--color-heading);
 }
 
-/* ---------------------------------------------------------------------------
-   Hover and micro-interactions
-   Entrances are driven by Motion (src/components/motion). What lives here is
-   what CSS does better: hover states, which need no JavaScript and cost
-   nothing until the pointer arrives.
---------------------------------------------------------------------------- */
+/* The gallery's five-up stage: one large photograph with two smaller ones
+   either side, stepping back in size. The columns are fractions, so the
+   stage scales with the page instead of holding a fixed pixel width.
 
-/* Anchor jumps glide rather than cut, unless motion is reduced. */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
+   Below the large breakpoint the outer pair steps out, and on phones the
+   centre photograph takes the width on its own. */
+@utility gallery-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 1.25rem;
 
-/* For an overlay that has to follow its parent's corners. */
-@utility rounded-inherit {
-  border-radius: inherit;
-}
-
-/* An underline that draws in from the left on hover and withdraws to the
-   right when the pointer leaves. Drawn with a background, so it never
-   shifts the text or the line height. */
-@utility link-underline {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-position: 100% 100%;
-  background-size: 0% 1px;
-  transition: background-size var(--duration-base) var(--ease-out-soft);
-
-  &:hover,
-  &:focus-visible {
-    background-position: 0% 100%;
-    background-size: 100% 1px;
-  }
-}
-
-/* A photo that leans in slowly when its card is hovered. Put `group` on the
-   card and img-zoom on an element with overflow hidden around the image. */
-@utility img-zoom {
-  overflow: hidden;
-
-  & img {
-    transition: transform var(--duration-slow) var(--ease-out-soft);
+  & > [data-stage="side"] {
+    display: none;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    :where(.group):hover & img {
-      transform: scale(1.06);
+  /* Tablets have room for three but not five, so the outer pair steps out
+     first and the stage keeps its shape rather than losing it entirely. */
+  @media (width >= 48rem) {
+    grid-template-columns: 150fr 436fr 150fr;
+
+    & > [data-depth="mid"] {
+      display: block;
     }
   }
-}
 
-/* A band of light that sweeps across a button on hover. Mixed from the
-   text colour, so it shows on a white button as well as on a blue one. */
-@utility shine {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
+  @media (width >= 64rem) {
+    grid-template-columns: 110fr 150fr 436fr 150fr 110fr;
 
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(
-      110deg,
-      transparent 30%,
-      color-mix(in oklab, currentColor 22%, transparent) 50%,
-      transparent 70%
-    );
-    transform: translateX(-120%);
-    pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    &:hover::after {
-      transform: translateX(120%);
-      transition: transform 0.8s var(--ease-out-soft);
+    & > [data-stage="side"] {
+      display: block;
     }
-  }
-}
-
-/* The story call-to-action gradient drifts very slowly, so the band feels
-   lit rather than printed. Twenty seconds a cycle: you notice it is alive,
-   not that it is moving. */
-@utility gradient-drift {
-  background-size: 180% 100%;
-
-  @media (prefers-reduced-motion: no-preference) {
-    animation: gradient-drift 20s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes gradient-drift {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 100% 50%;
   }
 }

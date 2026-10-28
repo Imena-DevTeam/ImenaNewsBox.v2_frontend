@@ -8,4 +8,11 @@ export const ROUTES = {
   ADMIN_LOGIN: "/admin/login",
   VERIFY: "/verify",
   SIGNUP: "/signup",
+
+  /* Member area. The tree still lives on its public page until a member
+     version is built; the rail points there for now. */
+  DASHBOARD: "/dashboard",
+  RESOURCES: "/resources",
+  BIRTHDAYS: "/birthdays",
+  PROFILE: "/profile",
 } as const;

@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { startMemberSession } from "@/app/actions/session";
 import { ROUTES } from "@/constants/routes";
 import { useCountdown } from "../hooks/useCountdown";
 import { OTP_LENGTH, verifySchema } from "../schemas";
 import { AuthHeading } from "./AuthHeading";
 import { OtpInput } from "./OtpInput";
-import { SUCCESS_BADGE_DURATION_MS, SuccessBadge } from "./SuccessBadge";
+import { SuccessBadge } from "./SuccessBadge";
 
 const RESEND_SECONDS = 34;
 
@@ -25,7 +26,13 @@ async function verifyCode(code: string) {
  * the code is checked as soon as the last digit lands, and a correct code
  * takes you into the site.
  */
-export function VerifyForm({ email }: { email?: string }) {
+export function VerifyForm({
+  email,
+  returnTo,
+}: {
+  email?: string;
+  returnTo?: string;
+}) {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -47,14 +54,15 @@ export function VerifyForm({ email }: { email?: string }) {
     }
 
     setStatus("verified");
-    // TODO: once the session exists, send each role to its own home (the
-    // member dashboard, the admin panel). Home is the only signed-in page
-    // there is so far. `replace` keeps the code step out of history. It waits
-    // for the confirmation tick to finish drawing, so it is seen.
-    await new Promise((resolve) =>
-      setTimeout(resolve, SUCCESS_BADGE_DURATION_MS),
-    );
-    router.replace(ROUTES.HOME);
+
+    /* The gate the middleware reads. Until the auth API exists this is the
+       whole of the session; see @/lib/session. */
+    await startMemberSession();
+
+    // TODO: once roles exist, send each one to its own home (the member
+    // dashboard, the admin panel). `replace` keeps the code step out of
+    // history, and returnTo carries whoever was bounced here back.
+    router.replace(returnTo ?? ROUTES.DASHBOARD);
   };
 
   const handleChange = (next: string) => {

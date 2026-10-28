@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
+import { RETURN_PARAM } from "@/lib/session";
 import { userLoginSchema, type UserLoginValues } from "../schemas";
 import { AuthButton } from "./AuthButton";
 import { AuthSwitch } from "./AuthSwitch";
@@ -14,6 +15,7 @@ import { OrDivider } from "./OrDivider";
 /** Family-member login: a family name, then an emailed one-time password. */
 export function LoginForm() {
   const router = useRouter();
+  const params = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -25,8 +27,14 @@ export function LoginForm() {
 
   // TODO: swap for the real auth call; the API will supply the address the
   // one-time password was sent to, which /verify renders.
+  /* Carry on to wherever the member was headed when the gate stopped them. */
   const onSubmit = handleSubmit(() => {
-    router.push(ROUTES.VERIFY);
+    const next = params.get(RETURN_PARAM);
+    router.push(
+      next
+        ? `${ROUTES.VERIFY}?${RETURN_PARAM}=${encodeURIComponent(next)}`
+        : ROUTES.VERIFY,
+    );
   });
 
   return (

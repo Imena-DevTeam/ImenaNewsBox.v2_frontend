@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { TreeControls } from "@/features/tree/components/TreeControls";
-import { TreeDetail } from "@/features/tree/components/TreeDetail";
-import { TreeDiagram } from "@/features/tree/components/TreeDiagram";
+import { BioDrawer } from "@/features/tree/components/BioDrawer";
+import { TreeCanvas } from "@/features/tree/components/TreeCanvas";
 import { TreeList } from "@/features/tree/components/TreeList";
 import {
   DEFAULT_PROMOTION,
@@ -51,9 +51,12 @@ export function TreeExplorer() {
   );
 
   const select = (person: Person | null) => setSelected(person);
+  const close = useCallback(() => setSelected(null), []);
 
   return (
-    <Container className="relative">
+    /* The anchor the member footer's subfamily chips land on; scroll-mt
+       keeps it clear of the sticky navbar. */
+    <Container id="family-tree" className="relative scroll-mt-28">
       <TreeControls
         query={query}
         onQuery={setQuery}
@@ -67,10 +70,10 @@ export function TreeExplorer() {
 
       {hasRecords ? (
         <>
-          {/* The diagram is for pointers and large screens; below md it would
-              be 26px portraits, so the list takes over entirely. */}
-          <div className="mt-10 hidden md:block">
-            <TreeDiagram
+          {/* The canvas, at every width: wheel or pinch to zoom, drag to
+              pan, so a phone can explore it as well as a desktop. */}
+          <div className="mt-10">
+            <TreeCanvas
               selectedId={selected?.id ?? null}
               onSelect={select}
               litHouseholds={litHouseholds}
@@ -79,19 +82,10 @@ export function TreeExplorer() {
             />
           </div>
 
-          {selected && householdOfSelected ? (
-            <div className="mx-auto mt-8 max-w-2xl">
-              <TreeDetail
-                person={selected}
-                householdId={householdOfSelected.id}
-                onClose={() => setSelected(null)}
-              />
-            </div>
-          ) : (
-            <p className="text-body-sm text-muted mt-8 text-center md:mt-10">
-              Choose anyone to see their details and the line they come from.
-            </p>
-          )}
+          <p className="text-body-sm text-muted mt-6 text-center">
+            Scroll or pinch to zoom, drag to move around, and choose anyone to
+            light their line back to the first generation.
+          </p>
 
           <div className="mx-auto mt-12 max-w-3xl md:mt-16">
             <h3 className="text-h4-m md:text-h4 text-center">Everyone here</h3>
@@ -121,6 +115,12 @@ export function TreeExplorer() {
           </button>
         </div>
       )}
+
+      <BioDrawer
+        person={selected}
+        householdId={householdOfSelected?.id ?? null}
+        onClose={close}
+      />
 
       {/* Said plainly, because unlabelled stand-ins read as an unfinished
           page rather than a waiting one. */}
