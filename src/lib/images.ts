@@ -18,6 +18,7 @@ import elder1 from "@public/images/elder-1.webp";
 import elder2 from "@public/images/elder-2.webp";
 import elder3 from "@public/images/elder-3.webp";
 import elder4 from "@public/images/elder-4.webp";
+import imenaCrest from "@public/images/imena-crest.webp";
 import ghost from "@public/images/ghost.webp";
 import handover1 from "@public/images/handover-1.webp";
 import handover2 from "@public/images/handover-2.webp";
@@ -41,6 +42,7 @@ export {
   handover3,
   ghost,
   heroFamily,
+  imenaCrest,
   storyCircle,
   storyCta,
   storyIntro,

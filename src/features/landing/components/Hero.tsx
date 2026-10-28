@@ -26,17 +26,17 @@ const T = {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-x-clip">
       {/* Decorative rings from the design. They sit on a farther plane, so
-          they drift against the scroll. */}
+          they drift against the scroll. The top ring continues up to the browser screen end. */}
       <Parallax
         distance={50}
-        className="pointer-events-none absolute -top-24 -left-40"
+        className="pointer-events-none absolute -top-28 -left-28 sm:-top-32 sm:-left-24 lg:-top-36 lg:-left-20"
       >
         <Reveal onMount from="none" duration={1.6} delay={T.rings}>
           <span
             aria-hidden
-            className="rounded-pill border-primary/5 block size-96 border-[3rem]"
+            className="border-primary/5 block size-[30rem] rounded-full border-[3.5rem] sm:size-[34rem] lg:size-[38rem]"
           />
         </Reveal>
       </Parallax>
@@ -47,7 +47,7 @@ export function Hero() {
         <Reveal onMount from="none" duration={1.6} delay={T.rings + 0.2}>
           <span
             aria-hidden
-            className="rounded-pill border-primary/5 block size-[28rem] border-[3rem]"
+            className="border-primary/5 block size-[28rem] rounded-full border-[3rem]"
           />
         </Reveal>
       </Parallax>
@@ -90,21 +90,23 @@ export function Hero() {
             className="bg-primary/6 motion-safe:animate-float-slow pointer-events-none absolute inset-10 -z-10 rounded-full blur-3xl"
           />
 
-          <Parallax distance={-24}>
-            <MaskReveal
-              onMount
-              from="bottom"
-              delay={T.photo}
-              className="ml-auto w-full max-w-xl"
-            >
-              <Image
-                src={heroFamily}
-                alt="Members of the IMENA family posing together outside a family home"
-                priority
-                placeholder="blur"
-                className="motion-safe:animate-float w-full"
-              />
-            </MaskReveal>
+          <Parallax distance={-24} className="ml-auto w-full max-w-xl">
+            <div className="motion-safe:animate-float">
+              <MaskReveal
+                onMount
+                from="bottom"
+                delay={T.photo}
+                className="w-full"
+              >
+                <Image
+                  src={heroFamily}
+                  alt="Members of the IMENA family posing together outside a family home"
+                  priority
+                  placeholder="blur"
+                  className="w-full"
+                />
+              </MaskReveal>
+            </div>
           </Parallax>
 
           <Reveal
