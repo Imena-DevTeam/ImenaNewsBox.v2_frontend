@@ -215,6 +215,21 @@
   --color-member-accent: #5136b0; /* "Featured Videos" and its underline */
   --color-member-active: #bfa3d3; /* the tile behind the open page in the rail */
   --color-member-rail-ink: #454655; /* the rail's icons and labels */
+  /* The family tree gives each branch its own spirit: the Sanctuary's
+     royal indigo, Light's sunlit amber, Wihogora's rose and Hope's sky.
+     Each is an edge, a quiet tint and an ink that clears 4.5:1 on it. */
+  --color-sanctuary-edge: #c7d2fe;
+  --color-sanctuary-tint: #eef2ff;
+  --color-sanctuary-ink: #1e1b4b;
+  --color-light-edge: #fde68a;
+  --color-light-tint: #fffbeb;
+  --color-light-ink: #451a03;
+  --color-wihogora-edge: #fecdd3;
+  --color-wihogora-tint: #fff1f2;
+  --color-wihogora-ink: #4c0519;
+  --color-hope-edge: #bae6fd;
+  --color-hope-tint: #f0f9ff;
+  --color-hope-ink: #082f49;
   /* The closing line both member frames end on. */
   /* The celebration board's gold: the birthday badge and the foil's warm
      edge. Decorative and on dark surfaces only. */
@@ -679,54 +694,6 @@
     scale, rotate, opacity;
   transition-duration: var(--duration-base);
   transition-timing-function: var(--ease-out-soft);
-}
-
-/* The branch strokes draw themselves in as the tree scrolls past. Each path
-   carries pathLength="1", so one dash covers the whole stroke whatever its
-   real length, and the offset animates to zero.
-
-   The timeline is named on the wrapper rather than taken per path: an SVG
-   path is not a scroll box of its own, so `view()` on it would do nothing. */
-@utility tree-timeline {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      view-timeline-name: --tree;
-    }
-  }
-}
-
-/* The dash lives in the keyframes, not on the element. If the animation
-   never runs — forced off, an unresolved timeline — the stroke simply draws
-   solid instead of staying invisible forever. */
-@keyframes draw {
-  from {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-}
-
-@utility draw-in {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation-name: draw;
-      animation-fill-mode: both;
-      animation-timing-function: linear;
-      animation-timeline: --tree;
-      animation-range: entry 5% cover 60%;
-
-      /* Staggered so the branches arrive in sequence rather than at once. */
-      &:nth-child(3n + 2) {
-        animation-range: entry 12% cover 68%;
-      }
-      &:nth-child(3n + 3) {
-        animation-range: entry 19% cover 76%;
-      }
-    }
-  }
 }
 
 /* The login photograph cycles between a few pictures. Each layer is visible

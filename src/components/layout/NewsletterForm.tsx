@@ -24,12 +24,12 @@ export function NewsletterForm() {
           placeholder="Enter your email"
           aria-describedby={state.message ? "newsletter-status" : undefined}
           aria-invalid={state.status === "error" || undefined}
-          className="border-surface/25 bg-surface/10 text-surface placeholder:text-surface/70 focus:border-surface h-control-md text-body-sm w-56 rounded-sm border px-4 outline-none"
+          className="h-10 w-48 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm text-white transition-colors outline-none placeholder:text-white/60 focus:border-white/40 sm:w-56"
         />
         <button
           type="submit"
           disabled={pending}
-          className="bg-surface/20 hover:bg-surface/30 h-control-md text-body-sm transition-fast rounded-sm px-6 disabled:opacity-60"
+          className="h-10 rounded-lg bg-white/20 px-5 text-sm font-medium text-white transition-colors hover:bg-white/30 disabled:opacity-60"
         >
           {pending ? "Sending…" : "Subscribe"}
         </button>

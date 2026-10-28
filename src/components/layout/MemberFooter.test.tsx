@@ -34,7 +34,7 @@ describe("MemberFooter", () => {
 
     for (const [name, href] of [
       ["Dashboard", "/dashboard"],
-      ["Family tree", "/family-tree"],
+      ["Family tree", "/tree"],
       ["Birthdays", "/birthdays"],
       ["Gallery", "/gallery"],
       ["Archive", "/blogs"],

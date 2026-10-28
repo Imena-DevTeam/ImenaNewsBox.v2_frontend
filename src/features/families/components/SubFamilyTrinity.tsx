@@ -30,7 +30,7 @@ export function SubFamilyTrinity() {
           </h2>
         </div>
         <Link
-          href={ROUTES.FAMILY_TREE}
+          href={ROUTES.TREE}
           className="text-brand transition-fast hover:text-brand-hover text-caption inline-flex items-center gap-1 font-semibold"
         >
           Explore each family branch
@@ -42,7 +42,7 @@ export function SubFamilyTrinity() {
         {TRINITY.map((family) => (
           <li key={family.name}>
             <Link
-              href={ROUTES.FAMILY_TREE}
+              href={ROUTES.TREE}
               className="shadow-member lift group relative flex aspect-4/3 items-end overflow-hidden rounded-lg"
               aria-label={`${family.name} subfamily, ${family.members} members, led by ${family.leader} — explore the family tree`}
             >

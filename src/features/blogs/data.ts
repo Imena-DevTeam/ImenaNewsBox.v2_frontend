@@ -1,7 +1,9 @@
 import type { StaticImageData } from "next/image";
+import type { BlogArticleDetail, BlogAuthor } from "./types";
 import {
   blogReunion,
   dashboardFamilyGathering,
+  elder1,
   handover1,
   handover2,
   handover3,
@@ -91,7 +93,25 @@ export interface BlogPagePost extends FeaturedPost {
   date: string;
 }
 
+/** The story the blogs page opens with, and the one the design shows. */
+const REUNION_SLUG = "a-heart-warming-family-reunion";
+
 export const BLOG_PAGE_POSTS: BlogPagePost[] = [
+  {
+    slug: REUNION_SLUG,
+    tag: "Activity",
+    minutes: 6,
+    title:
+      "A Heart-Warming Family Reunion: Embracing Togetherness! Embarking Cherished Moments Together",
+    excerpt:
+      "Amidst the hustle and bustle of our daily lives, this family reunion serves as a reminder of the importance of taking a pause and relishing the company of those who matter most.",
+    likes: 48,
+    comments: 12,
+    cover: dashboardFamilyGathering,
+    coverAlt: "Family members smiling together outside a brick building",
+    category: "Activities",
+    date: "May 31, 2026",
+  },
   {
     ...FEATURED_POST,
     category: "Celebrations",
@@ -167,3 +187,79 @@ export const BLOG_PAGE_POSTS: BlogPagePost[] = [
     cover: blogReunion,
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Reading a single article                                            */
+/* ------------------------------------------------------------------ */
+
+const NGABE: BlogAuthor = {
+  id: "ngabe",
+  name: "Ngabe",
+  role: "Family Historian & Youth Lead",
+  subfamily: "Wihogora Family",
+  avatar: elder1,
+};
+
+const REUNION_PARAGRAPHS = [
+  "The weekend began the way every good gathering does: with the sound of arrivals. Cars pulled up one after another, cousins who had not seen each other since the last handover recognised one another across the yard, and within minutes the compound was too loud to think in.",
+  "Each branch had been asked to bring one thing, a dish, a song or a story, and nobody was told what the others would bring. The long tables that evening held all three. Light's cooks and Wihogora's cooks competed without anyone admitting it, and Hope's youngest stood up to sing the verse the elders had been waiting years to hear.",
+  "Between the meals there was time to simply sit. The elders took the shaded chairs and the grandchildren took the ground beside them, and the questions came: what the village was like, who was named after whom, why the family keeps the dates it keeps.",
+  "What stays with us is not the programme. It is the small things: a hand on a shoulder, a name remembered, a photograph taken badly and kept anyway. Those are the things nobody thinks to write down, which is why we are writing them down.",
+  "Reunions like this are more than a pleasure. They are how a family of more than a hundred and forty people stays one family. Every face at the table is a reason for the next gathering.",
+  "Until the next time, we carry the evening home with us, and we keep the door open for everyone who could not make it.",
+];
+
+/* Until the blog API exists, every other story reads from a shared set of
+   paragraphs under its own lead. The page says so. */
+const SAMPLE_PARAGRAPHS = [
+  "The family has always told its stories out loud before it wrote them down. This is one of them, set down while the people who were there can still correct it.",
+  "It began, as most of our stories do, with someone saying yes to something small. A phone call, a borrowed chair, a seat kept at the table. The rest followed from there.",
+  "What mattered afterwards was not how it was organised but who showed up, and how long they stayed once the formal part was over.",
+  "If you were there, you will have your own version. Tell it to someone younger than you this week.",
+];
+
+function toArticle(post: BlogPagePost, index: number): BlogArticleDetail {
+  const isReunion = post.slug === REUNION_SLUG;
+  const secondary = [
+    dashboardFamilyGathering,
+    handover3,
+    storyCircle,
+    blogReunion,
+  ];
+  return {
+    slug: post.slug,
+    title: post.title,
+    category: post.category,
+    tag: post.tag,
+    publishedAt: post.date,
+    readMinutes: post.minutes,
+    author: NGABE,
+    /* The design opens the reunion on the crest; every other story has a
+       photograph to open on. */
+    coverImage: isReunion ? undefined : post.cover,
+    coverAlt: post.coverAlt,
+    excerpt: post.excerpt,
+    contentParagraphs: isReunion ? REUNION_PARAGRAPHS : SAMPLE_PARAGRAPHS,
+    secondaryImage: (isReunion
+      ? dashboardFamilyGathering
+      : secondary[index % secondary.length]) as StaticImageData,
+    secondaryImageAlt: isReunion
+      ? "Generations of the family gathered and smiling together outside a brick building"
+      : post.coverAlt,
+    secondaryImageCaption: isReunion
+      ? "Generations embracing at the welcome banquet \u2022 Photo by Family Media Team"
+      : "Photo by Family Media Team",
+    secondaryImageAfter: isReunion ? 3 : 2,
+    likes: post.likes,
+    commentsCount: post.comments,
+  };
+}
+
+export function getArticleBySlug(slug: string): BlogArticleDetail | undefined {
+  const index = BLOG_PAGE_POSTS.findIndex((post) => post.slug === slug);
+  const post = BLOG_PAGE_POSTS[index];
+  return post ? toArticle(post, index) : undefined;
+}
+
+/** Every slug that has an article, for the static build. */
+export const ARTICLE_SLUGS: string[] = BLOG_PAGE_POSTS.map((post) => post.slug);

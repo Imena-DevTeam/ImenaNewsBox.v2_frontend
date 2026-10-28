@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useId, useState } from "react";
-import { MotionConfig, motion, type Variants } from "framer-motion";
+import { MotionConfig, m, type Variants } from "motion/react";
 import { ROUTES } from "@/constants/routes";
 import { ghost } from "@/lib/images";
 import { FlowButton } from "./FlowButton";
@@ -100,7 +100,7 @@ export function NotFound() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="bg-surface flex min-h-dvh flex-col items-center justify-center px-4">
-        <motion.div
+        <m.div
           className="text-center"
           variants={containerVariants}
           initial="hidden"
@@ -111,15 +111,15 @@ export function NotFound() {
             role="img"
             aria-label="404, with a ghost for the zero"
           >
-            <motion.span
+            <m.span
               aria-hidden
               className={FOUR}
               variants={numberVariants}
               custom={-1}
             >
               4
-            </motion.span>
-            <motion.div
+            </m.span>
+            <m.div
               aria-hidden
               variants={ghostVariants}
               whileHover="hover"
@@ -135,36 +135,36 @@ export function NotFound() {
                 draggable={false}
                 className="h-20 w-auto object-contain select-none md:h-30"
               />
-            </motion.div>
-            <motion.span
+            </m.div>
+            <m.span
               aria-hidden
               className={FOUR}
               variants={numberVariants}
               custom={1}
             >
               4
-            </motion.span>
+            </m.span>
           </div>
 
-          <motion.h1
+          <m.h1
             className="text-h2-m md:text-h1 text-text mb-4 opacity-70 md:mb-6"
             variants={itemVariants}
           >
             Boo! Page missing!
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             className="text-body-lg text-text mb-8 opacity-60 md:mb-12"
             variants={itemVariants}
           >
             Whoops! This page must be a ghost &mdash; it&apos;s not here!
-          </motion.p>
+          </m.p>
 
-          <motion.div variants={itemVariants} className="flex justify-center">
+          <m.div variants={itemVariants} className="flex justify-center">
             <FlowButton text="Find shelter" href={ROUTES.HOME} />
-          </motion.div>
+          </m.div>
 
-          <motion.div className="mt-12" variants={itemVariants}>
+          <m.div className="mt-12" variants={itemVariants}>
             <button
               type="button"
               onClick={() => setExplaining((open) => !open)}
@@ -183,8 +183,8 @@ export function NotFound() {
               not exist &mdash; usually a mistyped link, or a page that has
               moved on.
             </p>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </MotionConfig>
   );

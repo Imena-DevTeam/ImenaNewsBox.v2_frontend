@@ -26,28 +26,41 @@ const T = {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      {/* Decorative rings from the design. They sit on a farther plane, so
-          they drift against the scroll. */}
+    <section className="relative -mt-20 overflow-x-clip pt-20">
+      {/* Decorative rings from the design:
+          1. Top-left ring enters from the very top/left of the browser screen, curving behind navbar & title.
+          2. Bottom-center ring loops underneath the tree preview card.
+          3. Right-edge ring drifts behind the family photo towards the screen edge. */}
       <Parallax
-        distance={50}
-        className="pointer-events-none absolute -top-24 -left-40"
+        distance={40}
+        className="pointer-events-none absolute -top-40 -left-40 sm:-top-48 sm:-left-44 lg:-top-56 lg:-left-36"
       >
         <Reveal onMount from="none" duration={1.6} delay={T.rings}>
           <span
             aria-hidden
-            className="rounded-pill border-primary/5 block size-96 border-[3rem]"
+            className="border-primary/5 block size-[36rem] rounded-full border-[3.5rem] sm:size-[42rem] lg:size-[48rem] lg:border-[4rem]"
+          />
+        </Reveal>
+      </Parallax>
+      <Parallax
+        distance={-30}
+        className="pointer-events-none absolute -bottom-48 left-[35%] sm:-bottom-56 sm:left-[42%] lg:-bottom-64 lg:left-[46%]"
+      >
+        <Reveal onMount from="none" duration={1.6} delay={T.rings + 0.2}>
+          <span
+            aria-hidden
+            className="border-primary/5 block size-[30rem] rounded-full border-[3rem] sm:size-[36rem] lg:size-[42rem] lg:border-[3.5rem]"
           />
         </Reveal>
       </Parallax>
       <Parallax
         distance={-40}
-        className="pointer-events-none absolute right-0 -bottom-40"
+        className="pointer-events-none absolute top-36 -right-28 sm:top-40 sm:-right-36 lg:top-48 lg:-right-44"
       >
-        <Reveal onMount from="none" duration={1.6} delay={T.rings + 0.2}>
+        <Reveal onMount from="none" duration={1.6} delay={T.rings + 0.3}>
           <span
             aria-hidden
-            className="rounded-pill border-primary/5 block size-[28rem] border-[3rem]"
+            className="border-primary/5 block size-[30rem] rounded-full border-[3rem] sm:size-[34rem] lg:size-[38rem] lg:border-[3.5rem]"
           />
         </Reveal>
       </Parallax>
@@ -90,21 +103,23 @@ export function Hero() {
             className="bg-primary/6 motion-safe:animate-float-slow pointer-events-none absolute inset-10 -z-10 rounded-full blur-3xl"
           />
 
-          <Parallax distance={-24}>
-            <MaskReveal
-              onMount
-              from="bottom"
-              delay={T.photo}
-              className="ml-auto w-full max-w-xl"
-            >
-              <Image
-                src={heroFamily}
-                alt="Members of the IMENA family posing together outside a family home"
-                priority
-                placeholder="blur"
-                className="motion-safe:animate-float w-full"
-              />
-            </MaskReveal>
+          <Parallax distance={-24} className="ml-auto w-full max-w-xl">
+            <div className="motion-safe:animate-float">
+              <MaskReveal
+                onMount
+                from="bottom"
+                delay={T.photo}
+                className="w-full"
+              >
+                <Image
+                  src={heroFamily}
+                  alt="Members of the IMENA family posing together outside a family home"
+                  priority
+                  placeholder="blur"
+                  className="w-full"
+                />
+              </MaskReveal>
+            </div>
           </Parallax>
 
           <Reveal
