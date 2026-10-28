@@ -24,9 +24,12 @@ const SIZES: Record<Size, string> = {
 };
 
 /* `transition` rather than transition-colors, so a transform added at the
-   call site animates instead of snapping. */
+   call site animates instead of snapping.
+   Feedback, in order: a band of light sweeps across on hover (shine), a
+   trailing icon nudges forward, and the button gives a little under a press.
+   Movement is held back under reduced motion; the colour change is not. */
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-pill text-ui transition-fast disabled:pointer-events-none disabled:opacity-50";
+  "group shine inline-flex items-center justify-center gap-2 rounded-pill text-ui transition-base motion-safe:active:scale-97 disabled:pointer-events-none disabled:opacity-50 [&_svg]:transition-base motion-safe:hover:[&_svg]:translate-x-0.5 motion-safe:hover:[&_svg]:-rotate-6";
 
 type ButtonProps = { variant?: Variant; size?: Size; children: ReactNode };
 

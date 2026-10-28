@@ -3,14 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { startMemberSession } from "@/app/actions/session";
 import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/cn";
 import { useCountdown } from "../hooks/useCountdown";
 import { OTP_LENGTH, verifySchema } from "../schemas";
 import { AuthHeading } from "./AuthHeading";
 import { OtpInput } from "./OtpInput";
+import { SuccessBadge } from "./SuccessBadge";
 
 const RESEND_SECONDS = 34;
 
@@ -74,12 +73,9 @@ export function VerifyForm({
 
   return (
     <div className="flex w-full flex-col items-center">
-      <VerifiedBadge
-        className={cn(
-          "transition-base size-16",
-          status === "verified" && "scale-110",
-        )}
-      />
+      {/* Empty until the code is accepted; the slot keeps its size, so the
+          heading never moves. */}
+      <SuccessBadge show={status === "verified"} />
 
       <AuthHeading
         lines={["Verify your", "account"]}

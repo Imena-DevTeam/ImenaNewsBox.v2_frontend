@@ -10,8 +10,10 @@ export function Footer() {
     /* The footer is a card inset in the page, not a full-bleed band: it keeps
        the page margin on three sides and is rounded on all four corners. */
     <footer className="mt-auto px-4 pb-4 md:px-6 md:pb-6">
+            
       <div className="max-w-page text-surface relative isolate mx-auto overflow-hidden rounded-lg">
-        {/* The wash from the Figma footer export. */}
+                {/* The wash from the Figma footer export. */}
+                
         <Image
           src="/images/footer-bg.webp"
           alt=""
@@ -20,8 +22,9 @@ export function Footer() {
           sizes="(min-width: 1280px) 1280px, 100vw"
           className="-z-10 object-cover"
         />
-
+                
         <div className="px-6 py-9 md:px-12 md:py-11">
+                    
           <h2 className="text-display-light-m md:text-display-light max-w-sm">
             Ready to add your chapter?
           </h2>
@@ -34,8 +37,10 @@ export function Footer() {
           </a>
 
           <div className="mt-10 grid gap-8 md:grid-cols-[minmax(0,1fr)_auto]">
+                        
             <div>
-              <p className="text-ui">Newsletter</p>
+                            <p className="text-ui">Newsletter</p>
+                            
               <p className="text-surface/80 text-body-sm mt-4 max-w-72">
                 A short letter each month: birthdays, handovers and new
                 photographs in the family archive.
@@ -43,51 +48,73 @@ export function Footer() {
 
               <NewsletterForm />
             </div>
-
+                        
             {/* The three columns sit together on the right, as in the design. */}
+                        
             <div className="flex flex-wrap gap-10 sm:justify-end sm:gap-0 md:[&>*:not(:last-child)]:w-44">
+                            
               {FOOTER_NAV.map((group) => (
                 <nav key={group.heading} aria-label={group.heading}>
-                  <p className="text-ui">{group.heading}</p>
+                                    <p className="text-ui">{group.heading}</p>
+                                    
                   <ul className="mt-4 space-y-3">
+                                        
                     {group.items.map((item) => (
                       <li key={item.label}>
+                                                
                         <Link
                           href={item.href}
                           className="text-surface/85 hover:text-surface text-body-sm"
                         >
-                          {item.label}
+                                                    {item.label}
+                                                  
                         </Link>
+                                              
                       </li>
                     ))}
+                                      
                   </ul>
+                                  
                 </nav>
               ))}
+                          
             </div>
+                      
           </div>
-
+                    
           <div className="mt-6 flex justify-end gap-3">
+                        
             <a
               href={CONTACT_EMAIL_HREF}
               aria-label="Email the IMENA family"
               className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
             >
+                            
               <Mail className="size-4" />
+                          
             </a>
+                        
             <a
               href="https://www.linkedin.com"
               aria-label="IMENA family on LinkedIn"
               className="bg-surface/15 hover:bg-surface/25 flex size-9 items-center justify-center rounded-sm"
             >
+                            
               <LinkedInIcon className="size-4" />
+                          
             </a>
+                      
           </div>
-
+                    
           <p className="text-surface/80 text-body-sm mt-8 text-center">
-            &copy; {new Date().getFullYear()} IMENA Family.
+                        &copy; {new Date().getFullYear()} IMENA Family.
+                      
           </p>
+                  
         </div>
+              
       </div>
+          
     </footer>
   );
 }
@@ -101,7 +128,9 @@ function LinkedInIcon({ className }: { className?: string }) {
       aria-hidden
       className={className}
     >
+            
       <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05a4.2 4.2 0 0 1 3.77-2.07c4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21h-4V9Z" />
+          
     </svg>
   );
 }

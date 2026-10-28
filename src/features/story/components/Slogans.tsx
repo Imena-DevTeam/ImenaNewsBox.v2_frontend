@@ -1,5 +1,7 @@
 import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { HeartsOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
@@ -39,15 +41,21 @@ export function Slogans() {
       <Container>
         <SectionTitle title="OUR SLOGANS" />
 
-        <p className="text-h3-m md:text-h3 mt-6 text-center">
-          Passionately Spoken
-        </p>
+        <Reveal blur delay={0.3} distance={16}>
+          <p className="text-h3-m md:text-h3 mt-6 text-center">
+            Passionately Spoken
+          </p>
+        </Reveal>
 
         {/* The whole cross turns slowly, so the cards travel in a circle.
-            Each column is capped at the card width, so the cards reach their
-            exact 346x419 where there is room and shrink in proportion where
-            there is not. */}
-        <ul
+            Before it starts, the cards assemble: each grows into its arm of
+            the cross in turn, top first, then the heart lands in the middle.
+            Motion only scales the cards inside each item, so it never touches
+            the transforms the orbit animation runs on. */}
+        <Stagger
+          as="ul"
+          stagger={0.12}
+          delay={0.2}
           className={cn(
             "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-24",
             "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3",
@@ -90,9 +98,11 @@ export function Slogans() {
           ))}
 
           <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
-            <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+            <StaggerItem from="none" scale={0.4}>
+              <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+            </StaggerItem>
           </li>
-        </ul>
+        </Stagger>
       </Container>
     </section>
   );

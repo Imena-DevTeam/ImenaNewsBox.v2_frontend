@@ -494,8 +494,8 @@
    Utilities
 --------------------------------------------------------------------------- */
 
-/* Defined outside @theme because it is driven by the reveal utilities below
-   rather than by an --animate-* token. */
+/* Defined outside @theme because it is driven by the page-enter utility
+   below rather than by an --animate-* token. */
 @keyframes rise {
   from {
     opacity: 0;
@@ -507,57 +507,12 @@
   }
 }
 
-/* Scroll reveal, with no JavaScript: the element's own progress through the
-   viewport drives the animation. Set longhand, because the `animation`
-   shorthand resets animation-timeline back to auto.
+/* Scroll reveals are driven by Motion: see src/components/motion. Unlike a
+   CSS view() timeline they also run in Firefox, and they can be sequenced. */
 
-   Guarded twice on purpose. Without `view()` (Firefox, for now) or with
-   reduced motion requested, no animation is declared at all, so the content
-   is simply there — never a section that stays invisible because the
-   animation that would have revealed it did not run. */
-@utility reveal {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation-name: rise;
-      animation-fill-mode: both;
-      animation-timing-function: linear;
-      animation-timeline: view();
-      animation-range: entry 5% cover 30%;
-    }
-  }
-}
-
-/* The same, for a row or grid of cards. Each child runs on its own view
-   timeline, so the stagger comes from starting them at different points of
-   that progress — a progress timeline ignores animation-delay. */
-@utility reveal-stagger {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      & > * {
-        animation-name: rise;
-        animation-fill-mode: both;
-        animation-timing-function: linear;
-        animation-timeline: view();
-      }
-      & > *:nth-child(1) {
-        animation-range: entry 5% cover 28%;
-      }
-      & > *:nth-child(2) {
-        animation-range: entry 12% cover 35%;
-      }
-      & > *:nth-child(3) {
-        animation-range: entry 19% cover 42%;
-      }
-      & > *:nth-child(n + 4) {
-        animation-range: entry 26% cover 49%;
-      }
-    }
-  }
-}
-
-/* Plays once when a page mounts, so moving between Home and Our Story reads
-   as an arrival rather than a cut. A true cross-fade of the outgoing page
-   needs React's ViewTransition, which is not in React 19.1. */
+/* Plays once when a page mounts, so it reads as an arrival rather than a
+   cut. The public pages get this from (public)/template.tsx; this is for the
+   auth pages, which need no Motion. */
 @utility page-enter {
   @media (prefers-reduced-motion: no-preference) {
     animation: rise var(--duration-slow) var(--ease-out-soft) both;
@@ -704,18 +659,24 @@
 }
 
 /* Tailwind has an --ease-* namespace but no --duration-* one, so these wrap
-   the duration tokens into classes. Use them instead of duration-150 or an
+   the duration tokens into classes.
+   They list translate, scale and rotate rather than transform: Tailwind v4's
+   translate-*, scale-* and rotate-* classes set those individual properties,
+   and Motion drives `transform` itself, so a CSS transition on transform
+   would drag every frame of a Motion animation behind it. Use them instead of duration-150 or an
    arbitrary duration-[250ms]. */
 @utility transition-fast {
   transition-property:
-    color, background-color, border-color, box-shadow, transform, opacity;
+    color, background-color, border-color, box-shadow, translate, scale, rotate,
+    opacity;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--ease-out-soft);
 }
 
 @utility transition-base {
   transition-property:
-    color, background-color, border-color, box-shadow, transform, opacity;
+    color, background-color, border-color, border-radius, box-shadow, translate,
+    scale, rotate, opacity;
   transition-duration: var(--duration-base);
   transition-timing-function: var(--ease-out-soft);
 }
