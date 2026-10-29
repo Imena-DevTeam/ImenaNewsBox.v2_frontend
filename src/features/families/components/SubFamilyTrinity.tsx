@@ -58,7 +58,7 @@ export function SubFamilyTrinity() {
                   the photograph. */}
               <span
                 aria-hidden
-                className="from-member-night/95 via-member-night/55 to-brand/10 absolute inset-0 bg-gradient-to-t"
+                className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/10"
               />
 
               <span className="text-member-ink text-caption absolute top-4 right-4 flex items-center gap-1.5 rounded-full border border-white/60 bg-white/80 px-3 py-1 font-semibold backdrop-blur-md">
