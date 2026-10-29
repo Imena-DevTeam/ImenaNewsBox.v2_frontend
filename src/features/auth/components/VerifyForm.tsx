@@ -53,16 +53,21 @@ export function VerifyForm({
       return;
     }
 
-    setStatus("verified");
+    try {
+      setStatus("verified");
 
-    /* The gate the middleware reads. Until the auth API exists this is the
-       whole of the session; see @/lib/session. */
-    await startMemberSession();
+      /* The gate the middleware reads. Until the auth API exists this is the
+         whole of the session; see @/lib/session. */
+      await startMemberSession();
 
-    // TODO: once roles exist, send each one to its own home (the member
-    // dashboard, the admin panel). `replace` keeps the code step out of
-    // history, and returnTo carries whoever was bounced here back.
-    router.replace(returnTo ?? ROUTES.DASHBOARD);
+      // TODO: once roles exist, send each one to its own home (the member
+      // dashboard, the admin panel). `replace` keeps the code step out of
+      // history, and returnTo carries whoever was bounced here back.
+      router.replace(returnTo ?? ROUTES.DASHBOARD);
+    } catch {
+      setStatus("idle");
+      setError("Unable to start session. Please try again.");
+    }
   };
 
   const handleChange = (next: string) => {

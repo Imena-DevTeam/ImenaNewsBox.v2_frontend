@@ -13,16 +13,18 @@ import { NotificationBell } from "./NotificationBell";
 export function PageHeader({
   title = "Gallery",
   subtitle,
+  as: Component = "h1",
 }: {
   title?: string;
   subtitle?: string;
+  as?: "h1" | "p";
 }) {
   return (
     <header className="flex w-full items-center justify-between gap-4">
       <div>
-        <h1 className="text-page-title-m md:text-page-title text-text uppercase">
+        <Component className="text-page-title-m md:text-page-title text-text uppercase">
           {title}
-        </h1>
+        </Component>
         {subtitle ? (
           <p className="text-member-ink text-caption mt-1 text-center">
             {subtitle}
