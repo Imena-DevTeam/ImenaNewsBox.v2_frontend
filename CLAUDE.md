@@ -168,9 +168,10 @@ src/
 ## 7. Resources Page (`/resources`) & Slack PDF Viewer Specifications
 
 ### A. The Problem Identified by the User
+
 1. **Modal Positioning / Z-Index Layering Bug**:
    - When a user clicks **"View PDF"** on a resource card, the current modal container can clip or render behind page elements (or create an awkward dark scrim overlay across the entire bottom half of the page while the container is misplaced or non-intuitive).
-   - The user noted: *"slack have container opened when u click on a pdf ... some small container .... that come in front .... not like this thing behind"*.
+   - The user noted: _"slack have container opened when u click on a pdf ... some small container .... that come in front .... not like this thing behind"_.
 2. **Container Sizing & Focus**:
    - The document viewer should NOT feel like an overwhelming full-page takeover that swallows the viewport.
    - In Slack, clicking on a PDF opens a **dedicated, self-contained, floating dialog container in front** of the interface (`z-[100]`), with clean borders, clear margins, dark Slack chrome (`#353535`/`#404040`), and immediate focus.
@@ -178,6 +179,7 @@ src/
 ---
 
 ### B. Expected Slack-Style Document Viewer Behavior (`PdfViewerModal.tsx`)
+
 1. **Portal-Mounted Front Container**:
    - Use `createPortal` (or a fixed root overlay at `z-[100]`) to ensure the viewer container ALWAYS renders directly into `document.body` in front of all member dock navigation, sticky headers, and footers.
 2. **Compact Slack Container Dimensions**:
@@ -198,6 +200,7 @@ src/
 ---
 
 ### C. Resources Page Layout & Architecture
+
 1. **Page Entry Point**:
    - `src/app/(member)/resources/page.tsx`
 2. **Core Components**:
@@ -216,6 +219,7 @@ src/
 ---
 
 ### D. Verification Checklist for Claude Code
+
 1. Click **"View PDF"** on `/resources`:
    - Confirm a clean, centered Slack container opens **directly in front** of all UI elements (`z-[100]`).
    - Confirm the background page does NOT render on top or clip the modal.
