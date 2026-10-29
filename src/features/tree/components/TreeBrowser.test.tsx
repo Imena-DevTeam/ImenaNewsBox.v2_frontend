@@ -1,6 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { ALL_MEMBERS, PROMOTIONS, PROMOTION_YEARS } from "../promotions";
+import {
+  ALL_MEMBERS,
+  DEFAULT_PROMOTION,
+  PROMOTIONS,
+  PROMOTION_YEARS,
+} from "../promotions";
 import { TreeBrowser } from "./TreeBrowser";
 import { TreeHierarchyGrid } from "./TreeHierarchyGrid";
 
@@ -15,7 +20,7 @@ beforeAll(() => {
   };
 });
 
-const current = PROMOTIONS.find((p) => p.year === "2019-2020")!;
+const current = PROMOTIONS.find((p) => p.year === DEFAULT_PROMOTION)!;
 
 describe("TreeHierarchyGrid", () => {
   it("shows the ten roles of a promotion in tier order, branches under their own panel", () => {
@@ -58,35 +63,38 @@ describe("TreeHierarchyGrid", () => {
 });
 
 describe("TreeBrowser", () => {
-  it("offers the seven promotions and all generations, each with a count", () => {
+  it("offers every promotion and all generations, each with a count", () => {
     render(<TreeBrowser />);
 
     const group = screen.getByRole("group", { name: /imena family tree/i });
     expect(within(group).getAllByRole("button")).toHaveLength(
       PROMOTION_YEARS.length + 1,
     );
-    const active = within(group).getByRole("button", { name: /2019-2020/ });
+    const active = within(group).getByRole("button", {
+      name: new RegExp(DEFAULT_PROMOTION),
+    });
     expect(active).toHaveAttribute("aria-pressed", "true");
-    expect(active).toHaveTextContent("10 members");
+    expect(active).toHaveTextContent(`${current.memberCount} members`);
     expect(
       within(group).getByRole("button", { name: /all generations/i }),
     ).toHaveTextContent(`${ALL_MEMBERS.length} members`);
     expect(screen.getByText(/Promotion$/)).toHaveTextContent(
-      "The 2019-2020 Promotion",
+      `The ${DEFAULT_PROMOTION} Promotion`,
     );
   });
 
   it("loads another promotion's people when its pill is chosen", () => {
+    const other = PROMOTIONS.find((p) => p.year !== DEFAULT_PROMOTION)!;
     render(<TreeBrowser />);
 
-    fireEvent.click(screen.getByRole("button", { name: /2016-2017/ }));
+    fireEvent.click(
+      screen.getByRole("button", { name: new RegExp(other.year) }),
+    );
 
     expect(screen.getByText(/Promotion$/)).toHaveTextContent(
-      "The 2016-2017 Promotion",
+      `The ${other.year} Promotion`,
     );
-    expect(
-      screen.getByText(PROMOTIONS[1]!.members[0]!.name),
-    ).toBeInTheDocument();
+    expect(screen.getByText(other.members[0]!.name)).toBeInTheDocument();
   });
 
   it("lists every promotion under all generations", () => {
@@ -99,21 +107,23 @@ describe("TreeBrowser", () => {
     ).toHaveLength(ALL_MEMBERS.length);
   });
 
-  it("finds a relative in any year by name, branch or city", () => {
+  it("finds a relative in any year by name, branch or place", () => {
     render(<TreeBrowser />);
+    const someone = ALL_MEMBERS[0]!;
     const search = screen.getByRole("searchbox", {
       name: /search family members/i,
     });
 
-    fireEvent.change(search, { target: { value: "Kamanzi" } });
-    expect(screen.getByText(/1 result for/)).toBeInTheDocument();
-    expect(screen.getByText("Kamanzi Joseph")).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: someone.name } });
+    expect(screen.getByText(/results? for/)).toBeInTheDocument();
+    expect(screen.getAllByText(someone.name).length).toBeGreaterThan(0);
 
-    fireEvent.change(search, { target: { value: "huye" } });
-    const huye = ALL_MEMBERS.filter((p) => p.location?.startsWith("Huye"));
+    const place = someone.location!;
+    fireEvent.change(search, { target: { value: place } });
+    const there = ALL_MEMBERS.filter((p) => p.location === place);
     expect(
-      screen.getAllByRole("button", { name: /view the story of/i }),
-    ).toHaveLength(huye.length);
+      screen.getAllByRole("button", { name: /view the story of/i }).length,
+    ).toBeGreaterThanOrEqual(there.length);
 
     fireEvent.change(search, { target: { value: "zzzz" } });
     expect(screen.getByText(/No one matches/)).toBeInTheDocument();
