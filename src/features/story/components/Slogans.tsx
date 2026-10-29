@@ -25,8 +25,8 @@ const SLOGANS = [
     placement: "md:col-start-3 md:row-start-2",
   },
   {
-    title: "FAMILLE IMENA",
-    slogan: "Ensemble lumineux et courageux",
+    title: "FAMILY HOPE",
+    slogan: "Learn from the past, live for today, hope for tomorrow",
     placement: "md:col-start-2 md:row-start-3",
   },
 ];
