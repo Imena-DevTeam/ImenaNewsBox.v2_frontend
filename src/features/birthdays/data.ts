@@ -1,5 +1,5 @@
 import type { StaticImageData } from "next/image";
-import { elder1, elder4 } from "@/lib/images";
+import { elder1, elder3, elder4 } from "@/lib/images";
 
 export interface TodaysBirthday {
   nickname: string;
@@ -48,5 +48,14 @@ export const UPCOMING: UpcomingBirthday[] = [
     parent: "Sheja Ngabo",
     avatar: elder1,
     avatarAlt: "Portrait of Bigwi beside memorial pillars",
+  },
+  {
+    month: "MAR",
+    day: "30",
+    name: "Muheto",
+    subfamily: "Wihogora",
+    parent: "Nkongi",
+    avatar: elder3,
+    avatarAlt: "Portrait of Muheto",
   },
 ];

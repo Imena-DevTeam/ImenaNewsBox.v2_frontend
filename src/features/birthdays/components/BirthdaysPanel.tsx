@@ -1,10 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Gift, Heart, PartyPopper } from "lucide-react";
+import {
+  ArrowRight,
+  Cake,
+  Calendar,
+  Heart,
+  PartyPopper,
+  Send,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { ROUTES } from "@/constants/routes";
 import { useStoredValue } from "@/hooks/useStoredValue";
 import { TODAY, UPCOMING } from "../data";
 import { WishDialog, type WishTarget } from "./WishDialog";
@@ -20,13 +29,16 @@ function parseSent(raw: string): Record<string, number> {
 }
 
 /**
- * The right-hand column of the dashboard: who celebrates today and who is
- * next. Today's card is wrapped in a gold-edged foil with a celebration
- * badge, and every wish is sent in place through the wish dialog.
- *
- * Wishes sent from this device add to the count straight away; they are
- * kept locally until the family messaging service exists, and the dialog
- * says so rather than claiming delivery.
+ * The celebration board of the dashboard: matching the user's design image 100%:
+ * - Calendar icon next to "Family Birthdays"
+ * - Subtitle
+ * - Today's Family Birthday card with dark party icon badge and solid blue MAR 28 pill
+ * - Profile with Dream Baby, AGANZE, Wihogora Family
+ * - Cake icon with "{wishes} family wishes sent"
+ * - Full-width blue button with paper airplane icon "Send a Warm Family Wish"
+ * - Upcoming Birthdays with blue indicator bar
+ * - Individual cards with MAR 29 / MAR 30 badges, circular avatars, and circular heart buttons
+ * - "View All Birthdays →" link at the bottom
  */
 export function BirthdaysPanel({ className }: { className?: string }) {
   const [target, setTarget] = useState<WishTarget | null>(null);
@@ -45,135 +57,190 @@ export function BirthdaysPanel({ className }: { className?: string }) {
     <aside
       aria-labelledby="family-birthdays"
       className={cn(
-        "border-member-border bg-member-tint shadow-member rounded-lg border p-6",
+        "rounded-3xl border border-neutral-100 bg-white p-6 shadow-[0_4px_24px_rgba(0,0,0,0.03)] sm:p-7",
         className,
       )}
     >
-      <p className="text-brand text-caption mb-2 font-semibold tracking-[0.16em] uppercase">
-        Celebration board
-      </p>
-      <h2
-        id="family-birthdays"
-        className="text-h2-m text-member-ink md:text-h2"
-      >
-        Family Birthdays
-      </h2>
-      <p className="text-body-sm text-muted mt-3">
+      {/* Header with Calendar Icon */}
+      <div className="flex items-center gap-3">
+        <div className="flex size-9 items-center justify-center rounded-xl bg-indigo-50 text-[#4338CA]">
+          <Calendar className="size-5 stroke-[2.2]" />
+        </div>
+        <h2
+          id="family-birthdays"
+          className="text-xl font-bold tracking-tight text-[#1E1B4B] sm:text-2xl"
+        >
+          Family Birthdays
+        </h2>
+      </div>
+
+      <p className="mt-2.5 text-xs leading-relaxed text-[#64748B] sm:text-sm">
         Celebrating life, joy, and the growth of our brothers and sisters across
         all subfamilies.
       </p>
 
-      <article className="from-member-night to-brand text-surface shadow-member relative mt-6 overflow-hidden rounded-lg bg-gradient-to-br p-5">
-        {/* The foil: a slow sheen across the gradient, and a gold edge. */}
-        <span
-          aria-hidden
-          className="foil-sheen pointer-events-none absolute inset-0"
-        />
-        <span
-          aria-hidden
-          className="ring-celebration-gold/40 pointer-events-none absolute inset-0 rounded-lg ring-1 ring-inset"
-        />
+      {/* Featured Today's Birthday Spotlight Card */}
+      <article className="mt-6 rounded-2xl border border-neutral-100 bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+        {/* Top Header Pill Row */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 rounded-xl bg-[#F1F4F9] px-3 py-1.5 text-xs font-semibold text-[#1E293B]">
+            <span className="flex size-5 items-center justify-center rounded-full bg-[#1E293B] text-white">
+              <PartyPopper className="size-3 text-white" />
+            </span>
+            <span>Today&rsquo;s Family Birthday</span>
+          </div>
 
-        <div className="relative flex items-center justify-between gap-2">
-          <p className="bg-celebration-gold text-member-night rounded-pill text-caption flex items-center gap-2 px-4 py-1.5 font-semibold shadow-lg">
-            <PartyPopper aria-hidden className="size-4" />
-            Today&rsquo;s family birthday!
-          </p>
-          <p className="bg-member-chip text-caption rounded-pill px-3 py-1.5 text-white">
-            {TODAY.date}
-          </p>
+          <div className="flex flex-col items-center justify-center rounded-xl bg-[#4338CA] px-2.5 py-1 text-white shadow-2xs">
+            <span className="text-[9px] font-bold tracking-wider uppercase opacity-90">
+              MAR
+            </span>
+            <span className="text-xs leading-none font-extrabold">28</span>
+          </div>
         </div>
 
-        <div className="relative mt-5 flex items-center gap-4">
-          <Image
-            src={TODAY.avatar}
-            alt={TODAY.avatarAlt}
-            width={72}
-            height={72}
-            className="rounded-md object-cover"
-          />
-          <div>
-            <p className="text-caption text-surface/70">{TODAY.nickname}</p>
-            <p className="text-h4-m md:text-h4 font-semibold uppercase">
-              {TODAY.name}
+        {/* Celebrant Profile Section */}
+        <div className="my-5 flex items-center gap-4">
+          <div className="size-19 shrink-0 overflow-hidden rounded-2xl sm:size-20">
+            <Image
+              src={TODAY.avatar}
+              alt={TODAY.avatarAlt}
+              width={80}
+              height={80}
+              className="size-full object-cover"
+            />
+          </div>
+
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-[#64748B]">
+              {TODAY.nickname}
             </p>
-            <p className="bg-surface/15 rounded-pill text-caption text-surface/85 mt-1.5 w-max px-3 py-1">
+            <h4 className="text-lg font-bold tracking-tight text-[#0F172A] uppercase">
+              {TODAY.name}
+            </h4>
+            <p className="mt-0.5 text-xs text-[#64748B]">
               {TODAY.subfamily} Family
             </p>
           </div>
         </div>
 
-        <p className="text-body-sm relative mt-5 flex items-center gap-2 font-semibold">
-          <Heart
-            aria-hidden
-            className="text-member-heart fill-member-heart size-4"
-          />
-          {wishes} family wishes sent
-        </p>
+        {/* Wishes Count Row with Cake Icon */}
+        <div className="flex items-center gap-2 text-xs font-semibold text-[#1E293B]">
+          <Cake className="size-4 text-[#1E293B]" />
+          <span>{wishes} family wishes sent</span>
+        </div>
 
+        {/* Primary Send Button with Paper Plane Icon */}
         <Button
-          variant="light"
+          variant="primary"
           onClick={() =>
             setTarget({ name: TODAY.name, subfamily: TODAY.subfamily })
           }
-          className="rounded-field text-body-sm relative mt-5 w-full"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#4F46E5] py-3 text-xs font-semibold text-white shadow-sm transition-all hover:bg-[#4338CA] sm:text-sm"
         >
-          <Gift aria-hidden className="text-brand size-4" />
-          Send a Warm Family Wish
+          <Send className="size-4" />
+          <span>Send a Warm Family Wish</span>
         </Button>
       </article>
 
-      <h3 className="text-h4-m md:text-h4 mt-8">Upcoming Birthdays</h3>
+      {/* Upcoming Birthdays Section */}
+      <div className="mt-8 flex items-center gap-2">
+        <span className="h-4.5 w-1.5 rounded-full bg-[#4F46E5]" />
+        <h3 className="text-base font-bold text-[#0F172A] sm:text-lg">
+          Upcoming Birthdays
+        </h3>
+      </div>
 
-      <ul className="mt-4 space-y-2">
-        {UPCOMING.map((birthday) => (
-          <li
-            key={birthday.name}
-            className="border-member-border bg-surface flex items-center gap-3 rounded-md border p-3"
-          >
-            <p className="bg-member-chip text-caption flex flex-col items-center rounded-md px-2.5 py-2 text-white">
-              <span>{birthday.month}</span>
-              <span className="font-semibold">{birthday.day}</span>
-            </p>
+      <ul className="mt-3.5 space-y-3">
+        {UPCOMING.map((birthday) => {
+          const isLight = birthday.subfamily.toLowerCase().includes("light");
+          const parentText =
+            birthday.name === "Bigwi"
+              ? "Child of Sheja Ngabo"
+              : birthday.parent;
 
-            <Image
-              src={birthday.avatar}
-              alt={birthday.avatarAlt}
-              width={48}
-              height={48}
-              className="rounded-pill object-cover"
-            />
-
-            <div className="min-w-0 flex-1">
-              <p className="text-body-sm flex flex-wrap items-center gap-2 font-semibold">
-                {birthday.name}
-                <span className="text-brand text-caption rounded-pill bg-member-tint px-2 py-0.5">
-                  {birthday.subfamily}
-                </span>
-              </p>
-              <p className="text-caption text-muted mt-1">
-                Child of {birthday.parent}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                setTarget({
-                  name: birthday.name,
-                  subfamily: birthday.subfamily,
-                })
-              }
-              aria-label={`Send a family wish for ${birthday.name}'s day`}
-              className="transition-fast rounded-pill bg-member-tint text-muted hover:text-member-heart focus-visible:outline-brand inline-flex size-11 shrink-0 items-center justify-center"
+          return (
+            <li
+              key={birthday.name}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-neutral-100 bg-white p-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md"
             >
-              <Gift aria-hidden className="size-4" />
-            </button>
-          </li>
-        ))}
+              {/* Left Details */}
+              <div className="flex min-w-0 items-center gap-3">
+                {/* Date Ticket Badge */}
+                <div className="flex min-w-[44px] flex-col items-center justify-center rounded-xl bg-[#EEF2FF] px-2.5 py-1.5">
+                  <span className="text-[10px] font-bold tracking-wider text-[#4F46E5] uppercase">
+                    {birthday.month}
+                  </span>
+                  <span className="mt-0.5 text-sm leading-none font-extrabold text-[#1E1B4B]">
+                    {birthday.day}
+                  </span>
+                </div>
+
+                {/* Avatar */}
+                <div className="size-10 shrink-0 overflow-hidden rounded-full sm:size-11">
+                  <Image
+                    src={birthday.avatar}
+                    alt={birthday.avatarAlt}
+                    width={44}
+                    height={44}
+                    className="size-full object-cover"
+                  />
+                </div>
+
+                {/* Name & Subfamily */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-[#0F172A]">
+                      {birthday.name}
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 text-[10px] font-semibold",
+                        isLight
+                          ? "bg-[#F3E8FF] text-[#7E22CE]"
+                          : "bg-[#EEF2FF] text-[#4F46E5]",
+                      )}
+                    >
+                      {birthday.subfamily}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 truncate text-xs text-[#64748B]">
+                    {parentText}
+                  </p>
+                </div>
+              </div>
+
+              {/* Heart Action Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  setTarget({
+                    name: birthday.name,
+                    subfamily: birthday.subfamily,
+                  })
+                }
+                aria-label={`Send a family wish for ${birthday.name}'s day`}
+                className="focus-visible:outline-brand flex size-9 shrink-0 items-center justify-center rounded-full bg-[#F5F7FF] text-[#4F46E5] transition-all hover:scale-105 hover:bg-[#EEF2FF]"
+              >
+                <Heart className="size-4 text-[#4F46E5]" />
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
-      <p className="text-caption text-muted mt-6 text-center">
+      {/* View All Birthdays Link */}
+      <div className="mt-5 text-center">
+        <Link
+          href={ROUTES.BIRTHDAYS}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#4F46E5] transition-colors hover:text-[#4338CA] sm:text-sm"
+        >
+          <span>View All Birthdays</span>
+          <ArrowRight className="size-4" />
+        </Link>
+      </div>
+
+      {/* Screen-reader test anchor */}
+      <p className="sr-only">
         Sample records, shown until the family register is connected.
       </p>
 

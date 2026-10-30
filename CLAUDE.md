@@ -231,7 +231,143 @@ src/
 
 ---
 
-## 8. UI/UX Audit — Issues Found Across the Frontend
+## 8. Family Birthdays Page (`/birthdays`) — Implementation Blueprint & Visual Design Specifications
+
+This section defines the exact visual design, component tree, layout structure, and interaction behavior for the **Family Birthdays Page** (`/birthdays`) based on the design export.
+
+### A. Route & Component Architecture
+
+1. **Page Entry Point**:
+   - `src/app/(member)/birthdays/page.tsx`
+   - Metadata title: `"Family Birthdays"`
+   - Renders a clean, single-column container: `max-w-5xl mx-auto flex flex-col gap-6 pb-24`
+   - Uses `PageHeader` with Cake icon badge and renders `<FamilyCelebrationsCalendar />`.
+
+2. **Core Feature Components**:
+   - `src/features/birthdays/components/FamilyCelebrationsCalendar.tsx` (Main interactive calendar, month selector, spotlight card, and staggered celebrants grid)
+   - `src/features/birthdays/components/WishDialog.tsx` (Accessible dialog for sending warm birthday wishes with confetti)
+   - `src/components/layout/PageHeader.tsx` (Member page header supporting circular icon badge and member actions)
+
+---
+
+### B. Visual Breakdown & Layout Specifications
+
+#### 1. Header Bar (`PageHeader.tsx`)
+
+- **Top Left Badge**:
+  - Circular badge container: `size-14 sm:size-16 rounded-full border border-member-border/40 bg-white shadow-menu flex flex-col items-center justify-center p-1 text-purple-600`
+  - Icon: `<Cake className="size-6 text-[#581C87]" />`
+  - Sub-label: `"Birthdays"` (`text-[10px] font-semibold text-neutral-600 leading-tight`)
+- **Main Title**:
+  - `BIRTHDAYS` in bold uppercase sans-serif (`text-page-title-m md:text-page-title font-extrabold tracking-tight uppercase text-text`).
+- **Top Right Actions**:
+  - `<NotificationBell />` (with active unread indicator dot).
+  - Member Avatar Link: Circular link to `/profile` with portrait photo (`elder3`).
+
+#### 2. Subtitle & Section Kicker
+
+- **Centered Subtitle**:
+  - `"Celebrating life, joy and the growth of our brothers and sisters across all subfamilies"`
+  - Styling: `text-center text-sm sm:text-base font-normal text-neutral-600 max-w-2xl mx-auto mt-2`
+- **Section Kicker**:
+  - `"CALENDAR HORIZON"`
+  - Styling: `text-center text-xs font-bold uppercase tracking-widest text-[#7C3AED] mt-8 mb-2`
+
+#### 3. Month Filter Bar & Counter
+
+- **Counter Bar (Right-Aligned)**:
+  - Text: `"{count} Birthdays in {selectedMonth}"` (e.g. `8 Birthdays in March`)
+  - Styling: `text-sm sm:text-base font-bold text-neutral-800 text-right mt-6 mb-2`
+- **Month Pills Bar**:
+  - Scrollable/flex row: `flex items-center gap-2.5 overflow-x-auto pb-3 pt-1 scrollbar-none`
+  - All 12 months: `Jan`, `Feb`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `October`, `November`, `December`.
+  - **Active Month Pill**:
+    - Styling: `bg-[#4338CA] text-white shadow-md ring-2 ring-[#4338CA]/20 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold flex items-center gap-2`
+    - Displays: `Month Name` + white dot separator (`size-1.5 rounded-full bg-white`) + birthday count number (e.g., `March • 8`).
+  - **Inactive Month Pills**:
+    - Styling: `bg-[#EEF2FF] text-[#4F46E5] hover:bg-[#E0E7FF] rounded-full px-5 py-2 text-xs sm:text-sm font-semibold shrink-0 transition-all`
+    - Months with notable celebrants show count in parentheses (e.g., `April (5)`).
+
+#### 4. Spotlight Hero Card ("TODAY'S FAMILY BIRTHDAY!")
+
+- **Card Container**:
+  - `w-full max-w-xl mx-auto bg-white rounded-2xl border border-neutral-100 p-5 sm:p-6 shadow-sm my-8`
+- **Top Bar**:
+  - Left Kicker: `🎉 TODAY'S FAMILY BIRTHDAY!` (`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600` with pink `<Sparkles className="size-3.5 text-pink-500" />`).
+  - Right Badges:
+    - Date Pill: `Jan 01` (`bg-neutral-100 text-neutral-600 rounded-full px-3 py-0.5 text-xs font-medium`).
+    - Subfamily Pill: `LIGHT FAMILY` (`bg-[#E9D5FF] text-[#6B21A8] rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider`).
+- **Middle Section**:
+  - Celebrant Avatar:
+    - Photo: `elder2` (`Bigwi`), rounded-2xl container (`size-16 sm:size-18 overflow-hidden rounded-2xl shadow-sm`).
+    - Violet Status Indicator: Small dot overlapping top-right corner (`size-3.5 bg-violet-600 rounded-full ring-2 ring-white absolute -top-1 -right-1`).
+  - Celebrant Details:
+    - Name: `Bigwi` (`text-xl sm:text-2xl font-extrabold text-neutral-900`).
+    - Subtitle: `Turned 16 today 🎉` (`text-xs sm:text-sm font-medium text-neutral-500 flex items-center gap-1.5`).
+- **Bottom Action**:
+  - Full-width button: `"Send Warm Family Wish"`
+  - Styling: `w-full rounded-xl bg-[#3B2883] hover:bg-[#311f70] text-white py-3 px-6 text-sm font-semibold transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer`.
+  - Interaction: Opens `WishDialog` targeting Bigwi (`{ name: "Bigwi", subfamily: "Light" }`).
+
+#### 5. Staggered Birthday Cards Constellation
+
+- **Constellation Grid Layout**:
+  - The celebrant cards are distributed across the page in an organic, staggered formation:
+    - Row 1: Left card (`justify-self-start sm:ml-4 md:ml-10`), Right card (`justify-self-end sm:mr-4 md:mr-16`)
+    - Row 2: Center card (`justify-self-center`)
+    - Row 3: Left card (`justify-self-start sm:ml-2 md:ml-6`), Right card (`justify-self-end sm:mr-8 md:mr-24`)
+    - Row 4: Left card (`justify-self-start sm:ml-6 md:ml-14`)
+    - Row 5: Center-Right card (`justify-self-center md:translate-x-12`), Right card (`justify-self-end sm:mr-6 md:mr-20`)
+- **Card Specifications**:
+  - Dimensions & Surface: `w-full max-w-xs bg-white rounded-2xl border border-neutral-100 p-2.5 sm:p-3 shadow-sm flex items-center gap-3 transition-transform hover:-translate-y-0.5`.
+  - **Date Block (Left)**:
+    - Container: `bg-neutral-100/90 rounded-xl px-2 py-1.5 text-center shrink-0 min-w-[44px] flex flex-col items-center justify-center`
+    - Month: `MAR` (`text-[10px] font-bold text-neutral-400 uppercase tracking-wider leading-none`)
+    - Day: `30` (`text-base font-extrabold text-neutral-900 leading-tight`)
+  - **Avatar**:
+    - `size-10 sm:size-11 rounded-xl overflow-hidden shrink-0` with portrait image (`elder1.webp`, object-cover).
+  - **Information (Center)**:
+    - Name: `Divine Kaneza` (`text-sm font-bold text-neutral-900 truncate`).
+    - Subfamily Badge: Pill with pink background `bg-pink-100 text-pink-600 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider` + separator dot `•`.
+    - Role: `Vice-Coordinator` (`text-[11px] text-neutral-400 truncate mt-0.5`).
+  - **Heart Action Button (Right)**:
+    - Container: `size-8 shrink-0 rounded-xl bg-indigo-50/70 hover:bg-indigo-100 text-indigo-500 hover:text-indigo-600 flex items-center justify-center transition-colors cursor-pointer`
+    - Icon: `<Heart className="size-4" />`
+    - Interaction: Opens `WishDialog` targeting the selected celebrant.
+
+---
+
+### C. Wish Sending Flow (`WishDialog.tsx`)
+
+1. Accessible `<dialog>` modal with backdrop overlay.
+2. Form with preset family messages or custom textarea with 280-character limit counter.
+3. Upon submit:
+   - Triggers `canvas-confetti` celebration burst with official family colors (`#5935da`, `#bfa3d3`, `#f26493`, `#f2c14e`, `#ffffff`).
+   - Persists wish confirmation on the local device without artificial failure states.
+   - Smoothly auto-closes or resets state.
+
+---
+
+### D. Verification Checklist for Claude Code
+
+1. Verify layout against uploaded mockup:
+   - Header: cake icon badge + "Birthdays" + uppercase "BIRTHDAYS" title.
+   - Centered subtitle + "CALENDAR HORIZON" kicker.
+   - Right-aligned "8 Birthdays in March".
+   - Active month pill is royal purple with count (`March • 8`).
+   - "TODAY'S FAMILY BIRTHDAY!" spotlight card is centered with Bigwi's portrait, purple status dot, and "Send Warm Family Wish" button.
+   - Staggered cards constellation flows across left, center, and right.
+2. Clicking "Send Warm Family Wish" or any card's heart button opens the `WishDialog`.
+3. Selecting a different month (e.g. April) updates the counter and filters the cards.
+4. Run `pnpm typecheck` (`tsc --noEmit`) — MUST exit with 0 errors.
+5. Run `pnpm lint` (`eslint .`) — MUST exit with 0 errors and 0 warnings.
+6. Run `pnpm format:check` (`prettier --check .`) — MUST be 100% compliant.
+7. Run `pnpm test` (`vitest run`) — all test suites must pass.
+8. **DO NOT run `git commit` or `git push` unless explicitly asked by the user.**
+
+---
+
+## 9. UI/UX Audit — Issues Found Across the Frontend
 
 Scope: what a person sees and does. Found by loading every route in a browser at 1440px and 390px, measuring the DOM, and reading screenshots. Dev-server findings, not a production build. Fix in priority order. Each item says where it is and what "done" looks like.
 

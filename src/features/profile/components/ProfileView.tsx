@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,15 +9,13 @@ import {
   FileText,
   Heart,
   LogOut,
-  MapPin,
-  MoreVertical,
   ShieldCheck,
   UserCheck,
   X,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { NotificationBell } from "@/components/layout/NotificationBell";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { SubfamilyBadge } from "@/components/ui/SubfamilyBadge";
 import { ROUTES } from "@/constants/routes";
 import { useStoredValue } from "@/hooks/useStoredValue";
 import { elder3 } from "@/lib/images";
@@ -29,25 +27,12 @@ interface ProfileViewProps {
 const DEFAULT_QUOTE = "“Shinjagira niyo waba ushira.”";
 
 export function ProfileView({ onSignOut }: ProfileViewProps) {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [quote, setQuote] = useStoredValue(
     "imena:profile_quote",
     DEFAULT_QUOTE,
   );
   const [tempQuote, setTempQuote] = useState(DEFAULT_QUOTE);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Close menu on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   function handleSaveQuote() {
     setQuote(tempQuote);
@@ -56,42 +41,11 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 pb-28">
-      {/* Header with Circular Profile Badge & Kebab Menu with Log Out */}
+      {/* Header with Circular Profile Badge & Hover-Revealing Avatar */}
       <PageHeader
         title="PROFILE"
         badgeIcon={<CircleUserRound className="size-6 text-[#581C87]" />}
         badgeLabel="Profile"
-        rightActions={
-          <div className="flex items-center gap-4">
-            <NotificationBell />
-
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Profile actions menu"
-                aria-expanded={menuOpen}
-                className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-neutral-200 bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200"
-              >
-                <MoreVertical className="size-5" />
-              </button>
-
-              {menuOpen && (
-                <div className="animate-in fade-in zoom-in-95 absolute top-12 right-0 z-50 w-36 rounded-2xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5">
-                  <form action={onSignOut}>
-                    <button
-                      type="submit"
-                      className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50"
-                    >
-                      <LogOut className="size-4" />
-                      Log out
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
-          </div>
-        }
       />
 
       {/* Main Profile Showcase Card matching design */}
@@ -114,9 +68,7 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
         <div className="flex flex-1 flex-col items-center text-center sm:items-start sm:text-left">
           {/* Subfamily Pill */}
           <div className="mb-2">
-            <span className="rounded-full bg-[#E9D5FF] px-3.5 py-1 text-xs font-bold tracking-wider text-[#6B21A8] uppercase">
-              LIGHT FAMILY
-            </span>
+            <SubfamilyBadge subfamily="LIGHT FAMILY" size="md" />
           </div>
 
           {/* Member Name */}
@@ -131,7 +83,7 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
             </p>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons with direct Log Out */}
           <div className="mt-2 flex flex-wrap items-center gap-4">
             <button
               type="button"
@@ -139,7 +91,7 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
                 setTempQuote(quote);
                 setIsEditing(true);
               }}
-              className="rounded-full bg-[#EDE9FE] px-8 py-2.5 text-sm font-semibold text-[#5B21B6] shadow-sm transition-colors hover:bg-[#DDD6FE]"
+              className="cursor-pointer rounded-full bg-[#EDE9FE] px-8 py-2.5 text-sm font-semibold text-[#5B21B6] shadow-sm transition-colors hover:bg-[#DDD6FE]"
             >
               Edit Profile
             </button>
@@ -150,12 +102,22 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
             >
               View Archive
             </Link>
+
+            <form action={onSignOut}>
+              <button
+                type="submit"
+                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50/70 px-6 py-2.5 text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-100 hover:text-rose-700"
+              >
+                <LogOut className="size-4" />
+                Log out
+              </button>
+            </form>
           </div>
         </div>
       </section>
 
       {/* Secondary Details & Lineage Summary */}
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3 text-neutral-600">
             <div className="flex size-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
@@ -183,18 +145,6 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
               <p className="font-semibold text-neutral-900">
                 2019–2020 Handover
               </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:col-span-2 lg:col-span-1">
-          <div className="flex items-center gap-3 text-neutral-600">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
-              <MapPin className="size-5" />
-            </div>
-            <div>
-              <p className="text-xs text-neutral-500">Affiliation Chapter</p>
-              <p className="font-semibold text-neutral-900">Kigali, Rwanda</p>
             </div>
           </div>
         </div>
