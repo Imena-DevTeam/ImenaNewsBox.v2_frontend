@@ -51,7 +51,7 @@ export function PageHeader({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-4 md:gap-8">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4 md:gap-8">
         {rightActions ?? (
           <>
             <NotificationBell />
@@ -59,15 +59,30 @@ export function PageHeader({
             <Link
               href={ROUTES.PROFILE}
               aria-label={`Open ${MEMBER.name}'s profile`}
-              className="border-member-border shadow-menu focus-visible:outline-brand rounded-pill grid size-12 place-items-center border p-1"
+              className="border-member-border bg-surface shadow-menu focus-visible:outline-brand group hover:border-brand relative flex size-10 items-center justify-center rounded-full border p-0.5 transition-all duration-200"
             >
-              <Image
-                src={elder3}
-                alt={`Portrait of ${MEMBER.name}`}
-                width={40}
-                height={40}
-                className="rounded-pill size-10 object-cover"
-              />
+              <div className="size-full overflow-hidden rounded-full">
+                <Image
+                  src={elder3}
+                  alt={`Portrait of ${MEMBER.name}`}
+                  width={36}
+                  height={36}
+                  className="size-full object-cover"
+                />
+              </div>
+
+              {/* Hover tooltip showing member name and role */}
+              <div
+                role="tooltip"
+                className="pointer-events-none absolute top-full right-0 z-50 mt-2 -translate-y-1 rounded-xl border border-neutral-200/90 bg-white/95 px-3 py-1.5 whitespace-nowrap opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+              >
+                <p className="text-xs leading-tight font-bold text-neutral-900">
+                  {MEMBER.name}
+                </p>
+                <p className="text-[10px] leading-tight font-medium text-neutral-500">
+                  {MEMBER.role}
+                </p>
+              </div>
             </Link>
           </>
         )}

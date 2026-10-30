@@ -3,6 +3,10 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Container } from "@/components/layout/Container";
+import { Grow } from "@/components/motion/Grow";
+import { Parallax } from "@/components/motion/Parallax";
+import { Reveal } from "@/components/motion/Reveal";
+import { SplitText } from "@/components/motion/SplitText";
 import { cn } from "@/lib/cn";
 import {
   PROMOTIONS_DATA,
@@ -223,32 +227,36 @@ export function PublicPromotionSection({
       id="promotion-section"
       className="relative scroll-mt-24 pt-12 pb-24 md:pt-16 md:pb-32"
     >
-      {/* Decorative Ornaments sourced directly from the Login page assets */}
-      <div
-        aria-hidden="true"
+      {/* Decorative Ornaments with parallax drift matching landing page */}
+      <Parallax
+        distance={-25}
         className="pointer-events-none absolute -top-6 left-4 hidden opacity-40 select-none md:block lg:left-12"
       >
-        <Image
-          src="/images/hearts.svg"
-          alt=""
-          width={80}
-          height={72}
-          className="object-contain"
-        />
-      </div>
+        <Reveal from="left" delay={0.15} distance={24}>
+          <Image
+            src="/images/hearts.svg"
+            alt=""
+            width={80}
+            height={72}
+            className="object-contain"
+          />
+        </Reveal>
+      </Parallax>
 
-      <div
-        aria-hidden="true"
+      <Parallax
+        distance={35}
         className="pointer-events-none absolute top-1/3 right-4 hidden opacity-35 select-none md:block lg:right-12"
       >
-        <Image
-          src="/images/house.svg"
-          alt=""
-          width={100}
-          height={104}
-          className="object-contain"
-        />
-      </div>
+        <Reveal from="right" delay={0.25} distance={24}>
+          <Image
+            src="/images/house.svg"
+            alt=""
+            width={100}
+            height={104}
+            className="object-contain"
+          />
+        </Reveal>
+      </Parallax>
 
       <Container className="relative">
         {/* ==============================================================
@@ -256,96 +264,118 @@ export function PublicPromotionSection({
         ============================================================== */}
         <div className="text-center">
           {/* Centered Crest */}
-          <div className="mx-auto mb-4 flex justify-center">
-            <Image
-              src="/images/imena-crest.webp"
-              alt="IMENA Family Crest"
-              width={70}
-              height={70}
-              className="object-contain drop-shadow-xs"
-              priority
-            />
-          </div>
+          <Reveal from="top" distance={20} duration={0.6}>
+            <div className="mx-auto mb-4 flex justify-center">
+              <Image
+                src="/images/imena-crest.webp"
+                alt="IMENA Family Crest"
+                width={70}
+                height={70}
+                className="object-contain drop-shadow-xs"
+                priority
+              />
+            </div>
+          </Reveal>
 
-          <h2 className="text-h1-m md:text-h1 font-black text-black">
-            AERG IMENA Family <span className="text-primary">Tree</span>
-          </h2>
+          <SplitText
+            lines={[
+              [
+                "AERG IMENA Family ",
+                { text: "Tree", className: "text-primary" },
+              ],
+            ]}
+            className="text-h1-m md:text-h1 font-black text-black"
+          />
 
-          <p className="text-body-lg text-muted mx-auto mt-3 max-w-2xl">
-            Discover the connections and relationships within our extended
-            family. Each level represents a generation, and each circle
-            represents a family member.
-          </p>
+          <Reveal from="bottom" blur delay={0.2} distance={20}>
+            <p className="text-body-lg text-muted mx-auto mt-3 max-w-2xl">
+              Discover the connections and relationships within our extended
+              family. Each level represents a generation, and each circle
+              represents a family member.
+            </p>
+          </Reveal>
         </div>
 
         {/* ==============================================================
             CLEAN DESIGN-MATCHING YEAR DISPLAY (Smooth Cross-Fade)
         ============================================================== */}
-        <div className="mt-8 flex flex-col items-center">
-          {/* Minimalist Year Pill with Cross-Fade */}
-          <div className="relative h-10 w-44">
-            {/* Current Year */}
-            <div
-              className={cn(
-                "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
-                isFlipped
-                  ? "pointer-events-none -translate-y-2 opacity-0"
-                  : "translate-y-0 opacity-100",
-              )}
-            >
-              <span className="bg-primary rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
-                {currentYear}
-              </span>
+        <Reveal from="bottom" delay={0.3} distance={20}>
+          <div className="mt-8 flex flex-col items-center">
+            {/* Minimalist Year Pill with Cross-Fade */}
+            <div className="relative h-10 w-44">
+              {/* Current Year */}
+              <div
+                className={cn(
+                  "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
+                  isFlipped
+                    ? "pointer-events-none -translate-y-2 opacity-0"
+                    : "translate-y-0 opacity-100",
+                )}
+              >
+                <span className="bg-primary rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
+                  {currentYear}
+                </span>
+              </div>
+
+              {/* Preceding Year */}
+              <div
+                className={cn(
+                  "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
+                  isFlipped
+                    ? "translate-y-0 opacity-100"
+                    : "pointer-events-none translate-y-2 opacity-0",
+                )}
+              >
+                <span className="bg-heading rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
+                  {precedingYear}
+                </span>
+              </div>
             </div>
 
-            {/* Preceding Year */}
-            <div
-              className={cn(
-                "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
-                isFlipped
-                  ? "translate-y-0 opacity-100"
-                  : "pointer-events-none translate-y-2 opacity-0",
-              )}
-            >
-              <span className="bg-heading rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
-                {precedingYear}
-              </span>
-            </div>
+            {/* Section Subhead strictly matching media_1793188908046.png */}
+            <h3 className="mt-6 text-xl font-bold tracking-tight text-black sm:text-2xl">
+              Grandpere &amp; Grandmere
+            </h3>
           </div>
-
-          {/* Section Subhead strictly matching media_1793188908046.png */}
-          <h3 className="mt-6 text-xl font-bold tracking-tight text-black sm:text-2xl">
-            Grandpere &amp; Grandmere
-          </h3>
-        </div>
+        </Reveal>
 
         {/* ==============================================================
             PREMIUM GRANDPERE & GRANDMERE 3D FLIP CARDS
         ============================================================== */}
         <div className="mx-auto mt-8 grid max-w-5xl gap-6 md:grid-cols-2">
           {grandpere && (
-            <PublicMemberFlipCard
-              member={grandpere}
-              predecessor={grandperePredecessor}
-              isFlipped={isFlipped}
-              onToggleFlip={toggleFlip}
-              staggerDelayMs={0}
-            />
+            <Reveal from="left" distance={30} duration={0.65} delay={0.1}>
+              <PublicMemberFlipCard
+                member={grandpere}
+                predecessor={grandperePredecessor}
+                isFlipped={isFlipped}
+                onToggleFlip={toggleFlip}
+                staggerDelayMs={0}
+              />
+            </Reveal>
           )}
 
           {grandmere && (
-            <PublicMemberFlipCard
-              member={grandmere}
-              predecessor={grandmerePredecessor}
-              isFlipped={isFlipped}
-              onToggleFlip={toggleFlip}
-              staggerDelayMs={75}
-            />
+            <Reveal from="right" distance={30} duration={0.65} delay={0.2}>
+              <PublicMemberFlipCard
+                member={grandmere}
+                predecessor={grandmerePredecessor}
+                isFlipped={isFlipped}
+                onToggleFlip={toggleFlip}
+                staggerDelayMs={75}
+              />
+            </Reveal>
           )}
         </div>
 
-        {/* Divider */}
-        <hr className="border-border mx-auto mt-20 max-w-5xl border-t" />
+        {/* Divider with graceful Grow animation */}
+        <Grow
+          axis="x"
+          delay={0.3}
+          className="mx-auto mt-20 max-w-5xl origin-center"
+        >
+          <hr className="border-border border-t" />
+        </Grow>
       </Container>
     </section>
   );
