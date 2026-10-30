@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, Download, LayoutGrid, List, Search, X } from "lucide-react";
 import { EmptyTestimonial } from "@/components/ui/empty-testimonial";
@@ -28,7 +28,25 @@ export function ResourcesBrowser() {
   const gridRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Identify the most popular resource
+  // Keyboard shortcut: Pressing "/" focuses search input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "/" &&
+        !["INPUT", "TEXTAREA", "SELECT"].includes(
+          (e.target as HTMLElement)?.tagName,
+        )
+      ) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Identify the featured/popular resource
   const popularResource = useMemo(() => {
     return (
       RESOURCES_DATA.find((r) => r.isPopular) ||
@@ -37,6 +55,9 @@ export function ResourcesBrowser() {
       )[0]
     );
   }, []);
+
+  const isBannerShowing =
+    !searchQuery && activeCategory === "All" && Boolean(popularResource);
 
   // Filtered resources based on category and search query
   const filteredResources = useMemo(() => {
@@ -54,12 +75,20 @@ export function ResourcesBrowser() {
     });
   }, [activeCategory, searchQuery]);
 
+  // Exclude featured banner item from list if banner is showing (deduplication)
+  const displayResources = useMemo(() => {
+    if (isBannerShowing && popularResource) {
+      return filteredResources.filter((item) => item.id !== popularResource.id);
+    }
+    return filteredResources;
+  }, [filteredResources, isBannerShowing, popularResource]);
+
   // Paginated resources slice
-  const totalPages = Math.ceil(filteredResources.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(displayResources.length / ITEMS_PER_PAGE);
   const paginatedResources = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredResources.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredResources, currentPage]);
+    return displayResources.slice(start, start + ITEMS_PER_PAGE);
+  }, [displayResources, currentPage]);
 
   const handleSelectCategory = (category: ResourceCategory) => {
     setActiveCategory(category);
@@ -102,8 +131,8 @@ export function ResourcesBrowser() {
 
   return (
     <div className="mt-8 space-y-8 md:mt-10 md:space-y-10">
-      {/* Featured / Most Popular Resource Spotlight Banner */}
-      {!searchQuery && activeCategory === "All" && popularResource && (
+      {/* Featured Spotlight Banner */}
+      {isBannerShowing && popularResource && (
         <FeaturedResourceBanner
           resource={popularResource}
           onView={handleView}
@@ -126,7 +155,7 @@ export function ResourcesBrowser() {
             <label htmlFor="resources-search" className="sr-only">
               Search documents
             </label>
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <div className="text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
               <Search className="size-4" />
             </div>
             <input
@@ -136,19 +165,19 @@ export function ResourcesBrowser() {
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search documents..."
-              className="w-full rounded-full border border-slate-200 bg-white py-2 pr-9 pl-9 text-xs font-medium text-slate-900 shadow-xs transition-colors placeholder:text-slate-400 focus:border-[#4828b8] focus:ring-2 focus:ring-[#4828b8]/15 focus:outline-hidden"
+              className="border-border bg-surface text-heading placeholder:text-muted focus:border-brand focus:ring-brand/20 min-h-[42px] w-full rounded-full border py-2 pr-9 pl-9 text-xs font-medium shadow-xs transition-colors focus:ring-2 focus:outline-hidden"
             />
             {searchQuery ? (
               <button
                 type="button"
                 onClick={() => handleSearchChange("")}
                 aria-label="Clear search query"
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+                className="text-muted hover:text-heading absolute inset-y-0 right-0 flex items-center pr-3"
               >
                 <X className="size-3.5" />
               </button>
             ) : (
-              <kbd className="pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 flex h-4 items-center rounded border border-slate-200 bg-slate-50 px-1.5 font-mono text-[10px] font-medium text-slate-400">
+              <kbd className="border-border bg-surface-elevated text-muted pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 flex h-5 items-center rounded border px-1.5 font-mono text-[11px] font-medium">
                 /
               </kbd>
             )}
@@ -158,16 +187,16 @@ export function ResourcesBrowser() {
           <div
             role="group"
             aria-label="Document view mode"
-            className="flex items-center rounded-full border border-slate-200 bg-white p-0.5 shadow-xs"
+            className="border-border bg-surface flex items-center rounded-full border p-0.5 shadow-xs"
           >
             <button
               type="button"
               onClick={() => setViewMode("grid")}
               aria-label="Grid view"
-              className={`flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors ${
+              className={`focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors ${
                 viewMode === "grid"
-                  ? "bg-[#4828b8] text-white shadow-xs"
-                  : "text-slate-500 hover:text-slate-900"
+                  ? "bg-brand text-white shadow-xs"
+                  : "text-muted hover:text-heading"
               }`}
             >
               <LayoutGrid className="size-4" />
@@ -176,10 +205,10 @@ export function ResourcesBrowser() {
               type="button"
               onClick={() => setViewMode("list")}
               aria-label="List view"
-              className={`flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors ${
+              className={`focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors ${
                 viewMode === "list"
-                  ? "bg-[#4828b8] text-white shadow-xs"
-                  : "text-slate-500 hover:text-slate-900"
+                  ? "bg-brand text-white shadow-xs"
+                  : "text-muted hover:text-heading"
               }`}
             >
               <List className="size-4" />
@@ -191,19 +220,19 @@ export function ResourcesBrowser() {
       {/* Results Count Meta Bar */}
       <div
         ref={gridRef}
-        className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs text-slate-500"
+        className="border-border text-muted flex items-center justify-between border-b pb-3 text-xs"
       >
         <p>
           Showing{" "}
-          <span className="font-semibold text-slate-800">
-            {filteredResources.length}
+          <span className="text-heading font-semibold">
+            {displayResources.length}
           </span>{" "}
           of {RESOURCES_DATA.length} documents
           {activeCategory !== "All" && (
             <span>
               {" "}
               in{" "}
-              <span className="font-medium text-[#4828b8]">
+              <span className="text-brand font-medium">
                 &ldquo;{activeCategory}&rdquo;
               </span>
             </span>
@@ -212,7 +241,7 @@ export function ResourcesBrowser() {
             <span>
               {" "}
               matching &ldquo;
-              <span className="font-medium text-slate-800">{searchQuery}</span>
+              <span className="text-heading font-medium">{searchQuery}</span>
               &rdquo;
             </span>
           )}
@@ -222,7 +251,7 @@ export function ResourcesBrowser() {
           <button
             type="button"
             onClick={handleResetFilters}
-            className="cursor-pointer font-semibold text-[#4828b8] transition-colors hover:text-[#3b1fa4] hover:underline"
+            className="text-brand cursor-pointer font-semibold transition-colors hover:underline"
           >
             Clear all filters
           </button>
@@ -233,7 +262,7 @@ export function ResourcesBrowser() {
       {paginatedResources.length > 0 ? (
         <div className="space-y-8">
           {viewMode === "grid" ? (
-            /* 2-Column Grid View (Equalized Card Heights) */
+            /* 2-Column Grid View */
             <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
               {paginatedResources.map((resource) => (
                 <ResourceCard
@@ -245,7 +274,7 @@ export function ResourcesBrowser() {
               ))}
             </div>
           ) : (
-            /* Dense List / Table View */
+            /* Dense List / Row View */
             <div className="space-y-3">
               {paginatedResources.map((resource) => (
                 <ResourceListItem
@@ -262,13 +291,13 @@ export function ResourcesBrowser() {
           <PaginationControls
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={filteredResources.length}
+            totalItems={displayResources.length}
             itemsPerPage={ITEMS_PER_PAGE}
             onPageChange={handlePageChange}
           />
         </div>
       ) : (
-        /* Empty State: Displays EmptyTestimonial when search has 0 results */
+        /* Empty State */
         <div className="w-full py-4">
           <EmptyTestimonial
             titlePrefix="Family"
@@ -298,20 +327,19 @@ export function ResourcesBrowser() {
         onDownload={handleDownload}
       />
 
-      {/* Portaled with the viewer, so it lands in front of it and is never
-          positioned against the page transition. */}
+      {/* Download Toast */}
       {toastMessage && typeof document !== "undefined"
         ? createPortal(
             <div
               role="status"
               aria-live="polite"
-              className="animate-in fade-in slide-in-from-bottom-4 fixed right-6 bottom-6 z-[110] flex items-center gap-2.5 rounded-2xl bg-slate-900 px-5 py-3.5 text-xs font-semibold text-white shadow-2xl"
+              className="animate-in fade-in slide-in-from-bottom-4 fixed right-6 bottom-6 z-[110] flex items-center gap-2.5 rounded-2xl bg-neutral-900 px-5 py-3.5 text-xs font-semibold text-white shadow-2xl"
             >
               <div className="flex size-5 items-center justify-center rounded-full bg-emerald-500 text-white">
                 <Check className="size-3 stroke-[3]" />
               </div>
               <span>{toastMessage}</span>
-              <Download className="ml-1 size-3.5 text-slate-400" />
+              <Download className="text-muted ml-1 size-3.5" />
             </div>,
             document.body,
           )

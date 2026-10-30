@@ -11,7 +11,7 @@ import { CelebrationOrnaments } from "./CelebrationOrnaments";
 export function ArticleDetailView({ article }: { article: BlogArticleDetail }) {
   return (
     <div className="min-w-0">
-      <PageHeader title="Blogs" subtitle="Stories From Our Family" />
+      <PageHeader title="Blogs" subtitle="Stories From Our Family" as="p" />
 
       <article className="relative mx-auto mt-8 max-w-5xl md:mt-10">
         <CelebrationOrnaments />

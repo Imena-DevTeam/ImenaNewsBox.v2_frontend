@@ -1,7 +1,8 @@
 import Image from "next/image";
 import type { Person } from "@/features/tree/data";
+import { SubfamilyBadge } from "@/components/ui/SubfamilyBadge";
 
-/** The role and subfamily are set as small outlined pills in the design. */
+/** The role is set as a small outlined pill in the design. */
 function Tag({ children }: { children: string }) {
   return (
     <span className="border-tree-edge/40 text-caption text-tree-role inline-flex w-fit rounded-sm border px-2 py-1">
@@ -25,8 +26,10 @@ export function MemberCard({ member }: { member: Person }) {
       <div className="flex flex-col justify-center gap-2.5 py-3 pr-3">
         <h4 className="text-h4-m md:text-h4 text-tree-ink">{member.name}</h4>
 
-        <Tag>{member.role}</Tag>
-        <Tag>{member.subfamily}</Tag>
+        <div className="flex flex-wrap items-center gap-2">
+          <Tag>{member.role}</Tag>
+          <SubfamilyBadge subfamily={member.subfamily} />
+        </div>
 
         <blockquote className="border-border text-body-sm text-tree-quote mt-1 border-l-2 pl-3">
           &ldquo;{member.saying}&rdquo;

@@ -31,12 +31,12 @@ export function PaginationControls({
       className="flex flex-col items-center justify-between gap-4 pt-6 sm:flex-row"
     >
       {/* Range Counter */}
-      <p className="text-xs text-slate-500">
+      <p className="text-muted text-xs">
         Showing{" "}
-        <span className="font-semibold text-slate-800">
+        <span className="text-heading font-semibold">
           {startItem}-{endItem}
         </span>{" "}
-        of <span className="font-semibold text-slate-800">{totalItems}</span>{" "}
+        of <span className="text-heading font-semibold">{totalItems}</span>{" "}
         resources
       </p>
 
@@ -48,7 +48,7 @@ export function PaginationControls({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
-          className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors hover:border-[#4828b8]/30 hover:bg-violet-50/50 hover:text-[#4828b8] disabled:pointer-events-none disabled:opacity-40"
+          className="border-border bg-surface text-muted hover:border-brand/40 hover:bg-surface-elevated hover:text-heading focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-40"
         >
           <ChevronLeft className="size-4" />
         </button>
@@ -62,10 +62,10 @@ export function PaginationControls({
               type="button"
               onClick={() => onPageChange(page)}
               aria-current={isActive ? "page" : undefined}
-              className={`flex size-9 cursor-pointer items-center justify-center rounded-full text-xs font-semibold transition-all duration-150 ${
+              className={`focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full text-xs font-semibold transition-all ${
                 isActive
-                  ? "bg-[#4828b8] text-white shadow-xs"
-                  : "border border-slate-200 bg-white text-slate-700 hover:border-[#4828b8]/30 hover:bg-violet-50/50 hover:text-[#4828b8]"
+                  ? "bg-brand text-white shadow-xs"
+                  : "border-border bg-surface text-muted hover:border-brand/40 hover:bg-surface-elevated hover:text-heading border"
               }`}
             >
               {page}
@@ -79,7 +79,7 @@ export function PaginationControls({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
-          className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors hover:border-[#4828b8]/30 hover:bg-violet-50/50 hover:text-[#4828b8] disabled:pointer-events-none disabled:opacity-40"
+          className="border-border bg-surface text-muted hover:border-brand/40 hover:bg-surface-elevated hover:text-heading focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-40"
         >
           <ChevronRight className="size-4" />
         </button>

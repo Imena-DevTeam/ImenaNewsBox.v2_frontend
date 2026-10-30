@@ -10,9 +10,9 @@ import { ArticleMediaBlock } from "./ArticleMediaBlock";
 export function ArticleBody({ article }: { article: BlogArticleDetail }) {
   return (
     <div className="mt-8 sm:mt-10">
-      <h2 className="font-heading text-member-ink text-h4-m sm:text-h3 lg:text-h2 leading-tight font-bold tracking-tight uppercase">
+      <h1 className="font-heading text-member-ink text-h4-m sm:text-h3 lg:text-h2 leading-tight font-bold tracking-tight uppercase">
         {article.title}
-      </h2>
+      </h1>
 
       <div className="mt-6 max-w-3xl">
         <p className="border-brand text-member-ink text-body-lg sm:text-h4 border-l-4 py-0.5 pl-4 font-medium italic">

@@ -33,7 +33,6 @@
     "@xyflow/react": "^12.12.0",
     "canvas-confetti": "1.9.3",
     "clsx": "^2.1.1",
-    "framer-motion": "^14.6.0",
     "lucide-react": "^1.57.0",
     "motion": "^12.43.0",
     "next": "15.5.27",
