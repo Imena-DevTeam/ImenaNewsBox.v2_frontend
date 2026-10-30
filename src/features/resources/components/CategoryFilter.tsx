@@ -15,7 +15,7 @@ export function CategoryFilter({
   return (
     <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
       {/* Categories Badge Button */}
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#4828b8] px-4 py-2 text-xs font-semibold text-white shadow-xs">
+      <div className="bg-brand inline-flex min-h-[38px] items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-white shadow-xs">
         <span>Categories</span>
         <span aria-hidden="true">&rarr;</span>
       </div>
@@ -28,10 +28,10 @@ export function CategoryFilter({
             key={category}
             type="button"
             onClick={() => onSelectCategory(category)}
-            className={`cursor-pointer rounded-full px-4 py-2 text-xs font-semibold transition-all duration-150 ${
+            className={`focus-visible:outline-brand min-h-[38px] cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-150 ${
               isActive
-                ? "bg-[#4828b8] text-white shadow-xs"
-                : "bg-[#ede9fe] text-[#5b21b6] hover:bg-[#ddd6fe] hover:text-[#4828b8]"
+                ? "bg-brand text-white shadow-xs"
+                : "border-border bg-surface-elevated text-muted hover:border-brand/40 hover:text-heading border"
             }`}
           >
             {category}

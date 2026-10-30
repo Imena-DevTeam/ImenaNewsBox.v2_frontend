@@ -15,19 +15,19 @@ const CATEGORY_STYLES: Record<
   { badge: string; dot: string }
 > = {
   Documents: {
-    badge: "bg-blue-50 text-blue-700 ring-blue-200/70",
+    badge: "border-blue-500/30 bg-blue-500/10 text-blue-700",
     dot: "bg-blue-500",
   },
   Guides: {
-    badge: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
+    badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
     dot: "bg-emerald-500",
   },
   "Family Resources": {
-    badge: "bg-violet-50 text-[#4828b8] ring-violet-200/70",
-    dot: "bg-[#4828b8]",
+    badge: "border-brand/30 bg-brand/10 text-brand",
+    dot: "bg-brand",
   },
   "Educational Materials": {
-    badge: "bg-amber-50 text-amber-800 ring-amber-200/70",
+    badge: "border-amber-500/30 bg-amber-500/10 text-amber-800",
     dot: "bg-amber-500",
   },
 };
@@ -41,82 +41,77 @@ export function ResourceCard({
     CATEGORY_STYLES[resource.category] ?? CATEGORY_STYLES.Documents;
 
   return (
-    <article className="group relative flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-7 text-center shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl sm:p-9 md:p-10">
+    <article className="border-border bg-surface shadow-subtle hover:border-brand/40 group relative flex h-full flex-col justify-between rounded-3xl border p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8">
       {/* Top Content Area */}
       <div className="flex flex-col items-center">
         {/* Top Metadata Badges */}
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-[11px] font-medium">
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 ring-1 ${categoryStyle.badge}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 ${categoryStyle.badge}`}
           >
             <span className={`size-1.5 rounded-full ${categoryStyle.dot}`} />
             <span>{resource.category}</span>
           </span>
 
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-slate-500">
+          <span className="border-border bg-surface-elevated text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
             <FileText className="size-3" />
             <span>{resource.fileSize}</span>
           </span>
 
           {resource.viewsCount && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-slate-500">
+            <span className="border-border bg-surface-elevated text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
               <Eye className="size-3" />
               <span>{resource.viewsCount.toLocaleString()}</span>
             </span>
           )}
         </div>
 
-        {/* Top Lavender Box with IMENA Crest */}
-        <div className="mb-5 flex size-20 items-center justify-center rounded-2xl bg-[#ede9fe] shadow-xs transition-transform duration-300 group-hover:scale-105">
+        {/* Document Icon / Emblem */}
+        <div className="border-border bg-surface-elevated group-hover:bg-brand/10 group-hover:border-brand/40 mb-4 flex size-14 items-center justify-center rounded-2xl border p-2 transition-colors sm:size-16">
           <Image
             src="/images/imena-crest.webp"
-            alt="IMENA Family Crest"
-            width={44}
-            height={44}
-            className="object-contain"
+            alt=""
+            width={38}
+            height={38}
+            className="h-auto w-auto object-contain transition-transform group-hover:scale-105"
           />
         </div>
 
-        {/* Resource Title */}
-        <h3 className="font-heading text-lg leading-snug font-bold text-slate-900 transition-colors duration-200 group-hover:text-[#4828b8] md:text-xl">
+        {/* Title */}
+        <h3 className="text-h4 text-heading group-hover:text-brand line-clamp-2 font-serif font-bold transition-colors">
           {resource.title}
         </h3>
 
-        {/* Resource Description */}
-        <p className="mt-3 line-clamp-3 max-w-md text-xs leading-relaxed text-slate-500 md:text-sm">
+        {/* Description */}
+        <p className="text-body text-muted mt-2 line-clamp-3 text-xs leading-relaxed sm:text-sm">
           {resource.description}
+        </p>
+
+        {/* Publication Date */}
+        <p className="text-muted mt-3 font-mono text-[11px]">
+          Published {resource.publishedDate}
         </p>
       </div>
 
-      {/* Bottom Actions Area (Equalized Across All Cards) */}
-      <div className="mt-8 flex w-full flex-col gap-3 pt-2">
-        {/* Primary View PDF Button with Brand Gradient */}
-        <button
-          type="button"
-          onClick={() => onView(resource)}
-          className="relative flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#4828b8] to-[#5b21b6] py-3.5 text-sm font-semibold text-white shadow-xs transition-all duration-200 hover:from-[#3e20a0] hover:to-[#4e1b9e] hover:shadow-md hover:shadow-[#4828b8]/20 active:scale-[0.99]"
-        >
-          <span>View PDF</span>
-        </button>
-
-        {/* Secondary Actions: Open and Download */}
-        <div className="flex w-full items-center gap-3">
+      {/* Bottom Action Buttons (Responsive & Compact on Mobile) */}
+      <div className="border-border/60 mt-6 flex w-full flex-col gap-2.5 border-t pt-4">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => onView(resource)}
-            className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white py-2.5 text-xs font-semibold text-slate-700 shadow-xs transition-all duration-200 hover:border-[#4828b8]/40 hover:bg-violet-50/50 hover:text-[#4828b8] active:scale-95"
+            className="bg-brand hover:bg-brand/90 focus-visible:outline-brand flex min-h-[42px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl text-xs font-semibold text-white shadow-xs transition-all"
           >
             <ExternalLink className="size-3.5" />
-            <span>Open</span>
+            <span>View PDF</span>
           </button>
 
           <button
             type="button"
             onClick={() => onDownload(resource)}
-            className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white py-2.5 text-xs font-semibold text-slate-700 shadow-xs transition-all duration-200 hover:border-[#4828b8]/40 hover:bg-violet-50/50 hover:text-[#4828b8] active:scale-95"
+            title="Download document"
+            className="border-border bg-surface-elevated text-heading hover:bg-surface-tint focus-visible:outline-brand flex size-[42px] shrink-0 cursor-pointer items-center justify-center rounded-xl border transition-colors"
           >
-            <Download className="size-3.5" />
-            <span>Download</span>
+            <Download className="size-4" />
           </button>
         </div>
       </div>

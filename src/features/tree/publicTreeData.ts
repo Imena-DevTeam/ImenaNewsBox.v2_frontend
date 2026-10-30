@@ -247,15 +247,16 @@ export interface TreeCardData {
 }
 
 /*
- * Coordinates in a 1000 x 680 SVG viewBox precisely mapped without overlapping:
+ * Coordinates in a 960 x 1020 SVG viewBox matching the elongated vertical
+ * multi-tier layout in Image Two:
  * - Root ancestor: Benon
  * - 6 generations: strictly Grandpere & Grandmere couples
  */
 export const TREE_ROOT_BENON = {
   id: "benon-root",
   cx: 190,
-  cy: 200,
-  r: 70,
+  cy: 250,
+  r: 68,
   name: "Benon",
   generation: "2019-2021" as PromotionYear,
   role: "Root Patriarch",
@@ -264,11 +265,11 @@ export const TREE_ROOT_BENON = {
 };
 
 export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
-  // Generation 2019-2021 (Pair below Benon)
+  // Generation 2019-2021 (Pair directly below Benon)
   {
     id: "gp-2019-sylvain",
-    cx: 240,
-    cy: 310,
+    cx: 225,
+    cy: 425,
     r: 34,
     name: "Sylvain",
     generation: "2019-2021",
@@ -278,8 +279,8 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2019-honette",
-    cx: 315,
-    cy: 310,
+    cx: 300,
+    cy: 425,
     r: 34,
     name: "Honette",
     generation: "2019-2021",
@@ -291,8 +292,8 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2021-2022 (Top Center pair)
   {
     id: "gp-2021-innocent",
-    cx: 425,
-    cy: 175,
+    cx: 420,
+    cy: 160,
     r: 34,
     name: "Innocent",
     generation: "2021-2022",
@@ -301,7 +302,7 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2021-jolie",
-    cx: 498,
+    cx: 495,
     cy: 175,
     r: 34,
     name: "Jolie",
@@ -311,11 +312,11 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
       "https://cdn.sanity.io/images/bge18m05/production/8b827c97469485123c912d22a3deda09dad90ffe-822x1080.jpg",
   },
 
-  // Generation 2022-2023 (Top Right pair)
+  // Generation 2022-2023 (Top Right pair: Patrick higher, Francine offset)
   {
     id: "gp-2022-patrick",
-    cx: 665,
-    cy: 155,
+    cx: 645,
+    cy: 105,
     r: 34,
     name: "Patrick",
     generation: "2022-2023",
@@ -325,8 +326,8 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2022-francine",
-    cx: 740,
-    cy: 165,
+    cx: 720,
+    cy: 130,
     r: 34,
     name: "Francine",
     generation: "2022-2023",
@@ -335,11 +336,11 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
       "https://cdn.sanity.io/images/bge18m05/production/51c7f0c9fa740e9c0bc029887c95f6e794b92069-728x1080.jpg",
   },
 
-  // Generation 2023-2024 (Mid Center pair)
+  // Generation 2023-2024 (Mid Center pair below middle cards)
   {
     id: "gp-2023-elua",
-    cx: 415,
-    cy: 345,
+    cx: 410,
+    cy: 555,
     r: 34,
     name: "Elua",
     generation: "2023-2024",
@@ -349,8 +350,8 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2023-joyeuse",
-    cx: 490,
-    cy: 345,
+    cx: 485,
+    cy: 550,
     r: 34,
     name: "Joyeuse",
     generation: "2023-2024",
@@ -362,8 +363,8 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2024-2025 (Mid Right pair)
   {
     id: "gp-2024-thierry",
-    cx: 705,
-    cy: 345,
+    cx: 680,
+    cy: 545,
     r: 34,
     name: "Thierry",
     generation: "2024-2025",
@@ -373,8 +374,8 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2024-liliane",
-    cx: 778,
-    cy: 345,
+    cx: 755,
+    cy: 555,
     r: 34,
     name: "Liliane",
     generation: "2024-2025",
@@ -383,12 +384,12 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
       "https://cdn.sanity.io/images/bge18m05/production/9983996c39ec338141c917b6ee54a78dd98bb3cf-480x1014.jpg",
   },
 
-  // Generation 2025-2026 (Lower Center pair)
+  // Generation 2025-2026 (Bottom Tier pair)
   {
     id: "gp-2025-pacifique",
-    cx: 370,
-    cy: 485,
-    r: 34,
+    cx: 350,
+    cy: 860,
+    r: 35,
     name: "Pacifique",
     generation: "2025-2026",
     role: "Grandpere",
@@ -397,9 +398,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2025-hyguette",
-    cx: 445,
-    cy: 485,
-    r: 34,
+    cx: 435,
+    cy: 865,
+    r: 35,
     name: "Hyguette",
     generation: "2025-2026",
     role: "Grandmere",
@@ -407,20 +408,19 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
 ];
 
-/* Rounded rectangle cards with meaningful labels */
+/* Rounded rectangle cards with meaningful labels strictly matching Image Two */
 export const TREE_CARDS: TreeCardData[] = [
-  // Card below Sylvain & Honette
-  { id: "c1", x: 160, y: 360, w: 215, h: 36, label: "2019 – 2021" },
-  // Card to the left of Innocent & Jolie
-  { id: "c2", x: 275, y: 210, w: 190, h: 34, label: "2021 – 2022" },
-  // Card to the right of Innocent & Jolie
-  { id: "c3", x: 500, y: 210, w: 190, h: 34, label: "IMENA Roots" },
-  // Card to the right of Patrick & Francine
-  { id: "c4", x: 710, y: 185, w: 215, h: 34, label: "2022 – 2023" },
-  // Card below Thierry & Liliane
-  { id: "c5", x: 705, y: 395, w: 230, h: 36, label: "2024 – 2025" },
-  // Card to the left of Pacifique & Hyguette
-  { id: "c6", x: 240, y: 430, w: 230, h: 36, label: "2023 – 2024" },
-  // Card to the right of Pacifique & Hyguette
-  { id: "c7", x: 500, y: 500, w: 230, h: 36, label: "2025 – 2026" },
+  // Card below Sylvain & Honette (2019-2021)
+  { id: "c1", x: 155, y: 475, w: 215, h: 38, label: "2019 – 2021" },
+  // Cards side by side under Innocent & Jolie (2021-2022 & IMENA Roots)
+  { id: "c2", x: 265, y: 280, w: 205, h: 38, label: "2021 – 2022" },
+  { id: "c3", x: 485, y: 280, w: 185, h: 38, label: "IMENA Roots" },
+  // Card to the right of Patrick & Francine (2022-2023)
+  { id: "c4", x: 700, y: 200, w: 205, h: 38, label: "2022 – 2023" },
+  // Card below Thierry & Liliane (2024-2025)
+  { id: "c5", x: 680, y: 625, w: 225, h: 40, label: "2024 – 2025" },
+  // Card below Elua & Joyeuse (2023-2024)
+  { id: "c6", x: 250, y: 635, w: 225, h: 40, label: "2023 – 2024" },
+  // Card below & to right of Pacifique & Hyguette (2025-2026)
+  { id: "c7", x: 480, y: 880, w: 225, h: 42, label: "2025 – 2026" },
 ];
