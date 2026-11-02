@@ -1,15 +1,15 @@
+import { SkeletonPage } from "@/components/ui/Skeleton";
+
 /**
  * The gallery's shape while its photographs are on their way. Every box
  * here is the same aspect-ratio token the real component uses, so nothing
  * moves when the pictures arrive.
  */
-const SHIMMER = "bg-member-field motion-safe:animate-pulse rounded-field";
+const SHIMMER = "skeleton rounded-field";
 
 export function GallerySkeleton() {
   return (
-    <div className="min-w-0" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Loading the family gallery</span>
-
+    <SkeletonPage label="Loading the family gallery" className="min-w-0">
       <div className="flex items-center justify-between gap-4">
         <div className={`${SHIMMER} h-14 w-64`} />
         <div className={`${SHIMMER} rounded-pill size-12`} />
@@ -60,6 +60,6 @@ export function GallerySkeleton() {
           </ul>
         </div>
       </div>
-    </div>
+    </SkeletonPage>
   );
 }
