@@ -888,3 +888,45 @@
     }
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Loading skeletons. A grey block with a soft band of light sweeping across
+   it, the way a page reads while its content is on the way. Every skeleton
+   on the page sweeps in step, so the page shimmers as one surface rather
+   than flickering box by box. Under reduced motion the band stays still and
+   the block simply rests in grey.
+--------------------------------------------------------------------------- */
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--color-member-field);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.55) 50%,
+      transparent 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &::after {
+      animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    }
+  }
+}
