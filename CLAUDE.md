@@ -477,3 +477,609 @@ Scope: what a person sees and does. Found by loading every route in a browser at
 2. For each fix, check `document.documentElement.scrollWidth <= innerWidth`.
 3. Run `pnpm typecheck`, `pnpm lint` and `pnpm test`.
 4. Do not commit or push unless asked.
+
+---
+
+## 10. Gap Analysis vs. "IMENA Frontend Project Structure" (PDF v1.0) & Implementation Roadmap
+
+Source: `IMENA-Frontend-Project-Structure.pdf` (v1.0, 15 Oct 2026, 15 pages). That PDF is the original plan. The codebase has moved on since then, so this section says **what exists, what is missing, and the order to build the missing parts**. It is written so any developer or AI agent can pick up a level and implement it without asking.
+
+### 10.0 Precedence rules (read first)
+
+When the PDF and the codebase disagree, follow this order:
+
+1. **The code wins for anything already built and shipped.** Do not rename routes, fonts or colours that exist.
+   - Routes: the public tree is `/family-tree`, the member tree is `/tree`, and the member gallery is `/gallery`. The PDF's `/member/gallery` and member-only `/family-tree` are **not** used.
+   - Fonts: Roboto (headings) and Nunito Sans (body) in the root layout. Member pages also load Poppins and Playfair, and auth pages load Bricolage, Instrument and Jost, each in its own layout. The PDF's single Lato font is **not** used.
+   - Colours: `src/styles/globals.css` `@theme` is the source of truth. `--color-primary` is `#0d1aba`; the PDF's violet `#5935DA` already exists as `--color-brand`, and the member and auth frames use it.
+   - Typography tokens: use the existing `text-display`, `text-h1`…`text-h4`, their `-m` mobile variants, `text-body-lg`, `text-body`, `text-body-sm`, `text-caption` and `text-ui`.
+2. **The PDF wins for anything not built yet**: the admin panel, subfamily pages, the services layer, shared UI primitives, types, the API client and role-based access.
+3. **The PDF's folder rules always apply**:
+   - `app/` holds thin pages only.
+   - A feature never imports from another feature. Compose features in the page file, the way `dashboard/page.tsx` does.
+   - `components/ui` has no business logic and makes no API calls.
+   - `store/` holds UI state only. Server data lives in TanStack Query.
+   - No hard-coded paths outside `constants/`.
+4. **The anti-"AI slop" rules in §2 apply to every new screen.** Without a Figma frame, build the plainest version that follows the existing member design language (white cards, `border-member-border`, `rounded-2xl`, `shadow-menu`, `bg-brand` primary actions) and do not invent decorative extras.
+5. Motion: import `{ m } from "motion/react"`, never `{ motion }`, because `LazyMotion strict` will crash.
+
+### 10.1 Status legend
+
+| Mark       | Meaning                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| ✅ DONE    | Built and matches the PDF's intent, sometimes under a different file name                   |
+| 🟡 PARTIAL | Exists but is missing something the PDF requires                                            |
+| ❌ MISSING | Not in the codebase. Build it at the level shown                                            |
+| ⏭️ COVERED | The PDF names a file that the code covers under another name. **Do not create a duplicate** |
+
+### 10.2 Page & route inventory (the PDF's 18 pages)
+
+| #   | Page              | PDF route                 | Actual route / file                                  | Status                                                                                 | Level |
+| --- | ----------------- | ------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------- | ----- |
+| 1   | Home              | `/`                       | `src/app/(public)/page.tsx`                          | ✅ DONE                                                                                | —     |
+| 2   | Our Story         | `/our-story`              | `src/app/(public)/our-story/page.tsx`                | ✅ DONE                                                                                | —     |
+| 3   | Public Gallery    | `/gallery` (guest)        | `/gallery` is **member-only** (`(member)/gallery`)   | 🟡 PARTIAL. No guest gallery. See open decision D1                                     | L8    |
+| 4   | Member Home       | `/dashboard`              | `src/app/(member)/dashboard/page.tsx`                | ✅ DONE                                                                                | —     |
+| 5   | Gallery (full)    | `/member/gallery`         | `/gallery` and `/gallery/[album]`                    | ✅ DONE (different URL, keep it)                                                       | —     |
+| 6   | Birthdays         | `/birthdays`              | `src/app/(member)/birthdays/page.tsx`                | ✅ DONE                                                                                | —     |
+| 7   | Family Tree       | `/family-tree` (member)   | `/family-tree` (public) and `/tree` (member)         | ✅ DONE (split, keep it)                                                               | —     |
+| 8   | Resources         | `/resources`              | `src/app/(member)/resources/page.tsx`                | ✅ DONE                                                                                | —     |
+| 9   | Blogs             | `/blogs`, `/blogs/[slug]` | both exist                                           | 🟡 PARTIAL. No comments; likes are stored on the device only                           | L6    |
+| 10  | Wihogora Family   | `/families/wihogora`      | —                                                    | ❌ MISSING                                                                             | L5    |
+| 11  | Light Family      | `/families/light`         | —                                                    | ❌ MISSING                                                                             | L5    |
+| 12  | Hope Family       | `/families/hope`          | —                                                    | ❌ MISSING                                                                             | L5    |
+| 13  | Login             | `/login`, `/admin/login`  | both exist under `(auth)`                            | ✅ DONE (the admin flow is a UI stub)                                                  | L3    |
+| 14  | Member Sign Up    | `/signup`, `/verify`      | `/signup` is in `(public)`; `/verify` is in `(auth)` | 🟡 PARTIAL. The form is inline in the page with no Zod schema and nothing is submitted | L3    |
+| 15  | Admin Dashboard   | `/admin`                  | —                                                    | ❌ MISSING                                                                             | L7    |
+| 16  | Manage Posts      | `/admin/posts`            | —                                                    | ❌ MISSING                                                                             | L7    |
+| 17  | Create Album      | `/admin/albums/new`       | —                                                    | ❌ MISSING                                                                             | L7    |
+| 18  | Add Family Member | `/admin/members/new`      | —                                                    | ❌ MISSING                                                                             | L7    |
+| —   | Auth.js handler   | `/api/auth/[...nextauth]` | —                                                    | ❌ MISSING (only once a backend exists)                                                | L3b   |
+| —   | Profile           | not in PDF                | `/profile`                                           | ✅ DONE (extra page)                                                                   | —     |
+
+### 10.3 File-level gap table
+
+#### `src/components/ui/`
+
+| PDF file           | Status                        | Notes                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------ | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button.tsx`       | ✅ DONE                       | Variants are `primary`, `outline`, `light` and `brand`; the PDF's `ghost` is missing. Add `ghost` (`bg-transparent text-text hover:bg-band`) and a `loading` prop (spinner and `aria-busy`, disables the button)                                                                                                                                          |
+| `SectionTitle.tsx` | ✅ DONE                       | —                                                                                                                                                                                                                                                                                                                                                         |
+| `Input.tsx`        | ⏭️ COVERED by `TextField.tsx` | Do not create `Input.tsx`; keep `TextField`                                                                                                                                                                                                                                                                                                               |
+| `Label.tsx`        | ❌ MISSING                    | L2                                                                                                                                                                                                                                                                                                                                                        |
+| `Textarea.tsx`     | ❌ MISSING                    | L2 (admin post editor, comments, add member)                                                                                                                                                                                                                                                                                                              |
+| `Select.tsx`       | ❌ MISSING                    | L2 (subfamily and promotion pickers; `signup/page.tsx` has an ad-hoc one to replace)                                                                                                                                                                                                                                                                      |
+| `Card.tsx`         | ❌ MISSING                    | L2                                                                                                                                                                                                                                                                                                                                                        |
+| `Badge.tsx`        | 🟡 PARTIAL                    | `SubfamilyBadge.tsx` exists. Add a generic `Badge` and leave `SubfamilyBadge` alone (it may wrap `Badge`)                                                                                                                                                                                                                                                 |
+| `Avatar.tsx`       | ❌ MISSING                    | L2. Many components use inline `<Image className="rounded-full">`; new code uses `Avatar`                                                                                                                                                                                                                                                                 |
+| `Modal.tsx`        | ❌ MISSING                    | L2. Pull the portal, z-index, Escape and backdrop logic out of `PdfViewerModal.tsx` and `WishDialog.tsx` into it                                                                                                                                                                                                                                          |
+| `Tabs.tsx`         | ❌ MISSING                    | L2                                                                                                                                                                                                                                                                                                                                                        |
+| `Dropdown.tsx`     | ❌ MISSING                    | L2 (the posts table row menu; the U8 resources "more" menu)                                                                                                                                                                                                                                                                                               |
+| `Skeleton.tsx`     | ✅ DONE                       | Exports `Skeleton`, `SkeletonText` and `SkeletonPage`. Uses the `skeleton` shimmer utility in `globals.css`, which stays still under reduced motion. Every member route, `/gallery/[album]` and `/family-tree` has a `loading.tsx` that renders a page-shaped skeleton from its feature (`*Skeleton.tsx`); `PageHeaderSkeleton` is in `components/layout` |
+| `Spinner.tsx`      | ❌ MISSING                    | L2                                                                                                                                                                                                                                                                                                                                                        |
+| `EmptyState.tsx`   | 🟡 PARTIAL                    | `empty-testimonial.tsx` is a showcase component. Add a plain `EmptyState`                                                                                                                                                                                                                                                                                 |
+
+#### `src/components/layout/`
+
+| PDF file                                                   | Status     | Notes                                                                                                                  |
+| ---------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Navbar.tsx`, `NavLink.tsx`, `Footer.tsx`, `Container.tsx` | ✅ DONE    | —                                                                                                                      |
+| `AppHeader.tsx`                                            | ⏭️ COVERED | Covered by `PageHeader.tsx` (title, bell, avatar), `MemberSidebar.tsx` (dock) and `MemberFooter.tsx`. Do not create it |
+| `AdminSidebar.tsx`                                         | ❌ MISSING | L7                                                                                                                     |
+
+#### `src/lib/`
+
+| PDF file          | Status     | Notes                                                                                                          |
+| ----------------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| `cn.ts`           | ✅ DONE    | —                                                                                                              |
+| `api-client.ts`   | ❌ MISSING | L1                                                                                                             |
+| `query-client.ts` | ❌ MISSING | L1 (`@tanstack/react-query` is installed but has no provider)                                                  |
+| `format-date.ts`  | ❌ MISSING | L1. Date helpers are scattered: `timeAgo` in `lib/notifications.ts` and `formatPhotoDate` in `gallery/data.ts` |
+| `auth.ts`         | ❌ MISSING | L3b (Auth.js). For now, `lib/session.ts` (an HMAC cookie) does this job                                        |
+
+#### `src/services/`
+
+These files are all ❌ MISSING (the folder is empty) and are built at L4: `posts.service.ts`, `members.service.ts`, `albums.service.ts`, `families.service.ts`, `birthdays.service.ts` and `resources.service.ts`.
+
+#### `src/hooks/`
+
+| PDF file                                                                                       | Status     | Notes                                       |
+| ---------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------- |
+| `useMediaQuery.ts`                                                                             | ❌ MISSING | L1                                          |
+| `useDebounce.ts`                                                                               | ❌ MISSING | L1. Resources and blog search should use it |
+| `useRole.ts`                                                                                   | ❌ MISSING | L3                                          |
+| (extra) `useNow`, `useReducedMotion`, `useDocumentVisible`, `useSearchQuery`, `useStoredValue` | ✅         | Keep                                        |
+
+#### Other folders
+
+| Folder           | PDF file                                                  | Status     | Notes                                                     |
+| ---------------- | --------------------------------------------------------- | ---------- | --------------------------------------------------------- |
+| `src/store/`     | `ui.store.ts`                                             | ❌ MISSING | L1. Zustand is installed but unused                       |
+| `src/types/`     | `member.ts`, `family.ts`, `post.ts`, `album.ts`, `api.ts` | ❌ MISSING | L1. The folder is empty; types live inside features today |
+| `src/constants/` | `routes.ts`, `nav.ts`                                     | ✅ DONE    | Extend both at L1                                         |
+| `src/constants/` | `roles.ts`                                                | ❌ MISSING | L1                                                        |
+
+#### `src/features/`
+
+| PDF component                                                                                                            | Status       | Actual file / action                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth `LoginForm`, `OtpInput`, `GoogleButton`                                                                             | ✅           | exist                                                                                                                                                             |
+| auth `RoleSwitch`                                                                                                        | ⏭️           | `AuthSwitch.tsx`                                                                                                                                                  |
+| auth `SignupForm`                                                                                                        | ❌ L3        | Move the form out of `src/app/(public)/signup/page.tsx` into `features/auth/components/SignupForm.tsx` and add `signupSchema` to `features/auth/schemas.ts`       |
+| auth `hooks/useResendTimer`                                                                                              | ⏭️           | `hooks/useCountdown.ts`                                                                                                                                           |
+| landing (all eight components)                                                                                           | ✅           | `FinalCta` is covered by `StoryCta.tsx`                                                                                                                           |
+| story `StoryIntro`, `Slogans`, `StatsStrip`                                                                              | ✅           | exist                                                                                                                                                             |
+| family-tree `TreeCanvas`, `RootNodeCard`, `SubfamilyBranch`, `ParentCard`, `ChildCard`, `BranchStats`, `utils/buildTree` | ⏭️           | The folder is called `features/tree/`. `TreeCanvas`, `MemberCard`, `HierarchyRoleCard`, `TreeHierarchyGrid` and `branch.ts` cover these. Do not rename the folder |
+| family-tree `api.ts`                                                                                                     | ❌ L4        | Replace it with the `members.service` and `families.service` hooks                                                                                                |
+| families `SubfamilyHeader`, `SloganCallout`                                                                              | ❌ L5        | `families/components/SubFamilyTrinity.tsx` already exists                                                                                                         |
+| gallery `AlbumGrid`, `Lightbox`                                                                                          | ✅           | exist                                                                                                                                                             |
+| gallery `PhotoGrid`                                                                                                      | ⏭️           | `AlbumView.tsx`                                                                                                                                                   |
+| blogs `PostCard`, `PostList`, `PostDetail`                                                                               | ⏭️           | `BlogCard`, `BlogsHome`, `ArticleDetailView`                                                                                                                      |
+| blogs `CommentList`, `CommentForm`, `LikeButton`                                                                         | ❌ L6        | —                                                                                                                                                                 |
+| blogs `hooks/usePosts`, `useComments`, `useLike`                                                                         | ❌ L4 and L6 | `blogs/hooks/` contains only a `.gitkeep`                                                                                                                         |
+| birthdays `BirthdayList`, `BirthdayCard`                                                                                 | ⏭️           | `FamilyCelebrationsCalendar`, `BirthdaysPanel`                                                                                                                    |
+| resources `ResourceList`, `ResourceItem`                                                                                 | ⏭️           | `ResourcesBrowser`, `ResourceCard`, `ResourceListItem`                                                                                                            |
+| dashboard `WelcomePanel`                                                                                                 | ⏭️           | `DashboardGreeting`, `DashboardHeader`                                                                                                                            |
+| dashboard `QuickLinks`, `UpdatesFeed`                                                                                    | ⏭️           | Not in the shipped dashboard design, and the dock covers quick links. **Do not add** unless a Figma frame shows them                                              |
+| admin `StatsOverview`, `PostEditor`, `PostsTable`, `AlbumForm`, `UploadDropzone`, `AddMemberForm`                        | ❌ L7        | The folder contains only a `.gitkeep`                                                                                                                             |
+
+### 10.4 Open decisions (ask the user; until answered, use the default)
+
+| ID  | Question                                                                                                                                                                      | Default until answered                                                                                                                                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | The PDF lists a **guest** Public Gallery at `/gallery`, but `/gallery` is a member page. Should guests get a curated public gallery?                                          | Leave it out. If approved, add `src/app/(public)/moments/page.tsx` (route `ROUTES.PUBLIC_GALLERY = "/moments"`) showing only albums flagged `isPublic`, and leave `/gallery` member-only |
+| D2  | Which subfamilies are canonical? The README and PDF say **Wihogora, Light, Hope**. `tree/types.ts` adds **Sanctuary**, and `tree/data.ts` uses **Mutako, Inyenyeri, Urumuri** | Use `wihogora`, `light` and `hope` in all new code (`SubfamilySlug`). Leave the existing tree data alone                                                                                 |
+| D3  | The backend API contract (paths and JSON shapes) is not published                                                                                                             | Use the contract in §10.5 L4 and keep every service behind mock mode                                                                                                                     |
+
+### 10.5 Implementation levels (build strictly in this order)
+
+Each level depends on the ones above it. Finish a level, run the gate (§10.7), then move on. Levels L0–L2 have no visible UI change.
+
+```
+L0  Tooling unblock ............................ do first
+L1  Foundation: types, constants, lib, hooks, store, providers
+L2  Shared UI primitives (components/ui)
+L3  Auth & roles (role-carrying session, admin guard, signup form)
+L4  Services layer + mock mode + TanStack Query hooks
+L5  Subfamily pages /families/[slug]
+L6  Blog interactions (likes via API, comments)
+L7  Admin panel (/admin, posts, albums/new, members/new)
+L8  Open-decision features (public gallery D1), §9 audit P2/P3 leftovers
+L9  Real data switch-over + remove sample notes (§9 U17)
+L10 End-to-end tests (tests/*.spec.ts)
+```
+
+---
+
+#### L0 — Tooling unblock
+
+- **Problem:** `vitest run` fails at startup with `Cannot find module '@rolldown/binding-wasm32-wasi'`. `node_modules` was installed on a different OS; the repo sits on a shared NTFS drive.
+- **Fix:** from the repo root, run `rm -rf node_modules && pnpm install`. If `pnpm` is not on PATH, run `corepack enable` or `npm i -g pnpm@12` first.
+- **Done when:** `pnpm test`, `pnpm lint`, `pnpm typecheck` and `pnpm format:check` all exit 0.
+
+---
+
+#### L1 — Foundation
+
+**1. `src/types/`** mirrors backend models. Use string URLs for images, not `StaticImageData`; mock adapters convert local imports with `.src`.
+
+```ts
+// src/types/api.ts
+export interface Paginated<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+export interface ApiErrorBody {
+  message: string;
+  code?: string;
+  fields?: Record<string, string>;
+}
+
+// src/types/family.ts
+export const SUBFAMILY_SLUGS = ["wihogora", "light", "hope"] as const;
+export type SubfamilySlug = (typeof SUBFAMILY_SLUGS)[number];
+export interface Family {
+  slug: SubfamilySlug;
+  name: string;
+  motto: string;
+  mottoMeaning: string;
+  holds: string;
+  leader: string;
+  memberCount: number;
+  imageUrl: string;
+}
+
+// src/types/member.ts
+import type { Role } from "@/constants/roles";
+import type { SubfamilySlug } from "./family";
+export interface Member {
+  id: string;
+  name: string;
+  email?: string;
+  role: Role;
+  subfamily: SubfamilySlug;
+  promotion: string; // "2025-2026"
+  roleLabel?: string; // "Grand Père", "Vice-Coordinator"
+  avatarUrl?: string;
+  birthday?: string; // ISO "YYYY-MM-DD"
+}
+
+// src/types/post.ts
+export type PostStatus = "draft" | "published";
+export interface PostAuthor {
+  id: string;
+  name: string;
+  roleLabel: string;
+  subfamily: SubfamilySlug;
+  avatarUrl?: string;
+}
+export interface Post {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  tag: string;
+  coverUrl?: string;
+  coverAlt: string;
+  body: string[]; // paragraphs
+  author: PostAuthor;
+  publishedAt: string;
+  readMinutes: number;
+  likes: number;
+  likedByMe: boolean;
+  commentsCount: number;
+  status: PostStatus;
+}
+export interface Comment {
+  id: string;
+  postId: string;
+  author: PostAuthor;
+  body: string;
+  createdAt: string;
+}
+
+// src/types/album.ts
+export interface Photo {
+  id: string;
+  url: string;
+  alt: string;
+  width: number;
+  height: number;
+  takenAt?: string;
+}
+export interface Album {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string;
+  coverUrl: string;
+  date: string;
+  photoCount: number;
+  photos?: Photo[];
+  isPublic?: boolean;
+}
+
+// src/types/index.ts  -> re-export everything above
+```
+
+**2. `src/constants/roles.ts`**
+
+```ts
+export const ROLES = { MEMBER: "member", ADMIN: "admin" } as const;
+export type Role = (typeof ROLES)[keyof typeof ROLES];
+```
+
+**3. `src/constants/routes.ts`**: add the following without changing existing keys:
+
+```ts
+FAMILIES: "/families",
+ADMIN: "/admin",
+ADMIN_POSTS: "/admin/posts",
+ADMIN_ALBUMS_NEW: "/admin/albums/new",
+ADMIN_MEMBERS_NEW: "/admin/members/new",
+```
+
+Also add a helper next to it: `export const familyRoute = (slug: SubfamilySlug) => \`${ROUTES.FAMILIES}/${slug}\`;`
+
+**4. `src/constants/nav.ts`**: add `ADMIN_NAV: NavItem[]` (Dashboard → `/admin`, Posts → `/admin/posts`, New album → `/admin/albums/new`, Add member → `/admin/members/new`, then "Back to member site" → `/dashboard`). Rename the footer label "Archive" to "Blogs" (§9 U11).
+
+**5. `src/lib/api-client.ts`**
+
+- `export class ApiError extends Error { status: number; body?: ApiErrorBody }`
+- `export const api = { get<T>(path, init?), post<T>(path, body?, init?), put<T>, patch<T>, delete<T> }`
+- Base URL: `process.env.NEXT_PUBLIC_API_URL`, with no trailing slash.
+- Headers: `Content-Type: application/json` and `Accept: application/json`. Send `credentials: "include"`.
+- On the server (`typeof window === "undefined"`), accept an optional `token` in `init` and send it as `Authorization: Bearer …`.
+- On a non-2xx response, parse the JSON body if possible and throw `ApiError`. A 204 response returns `undefined as T`.
+- `export const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true" || !process.env.NEXT_PUBLIC_API_URL;`
+- Add `NEXT_PUBLIC_USE_MOCKS=true` to `.env.example` and to the README env table.
+
+**6. `src/lib/query-client.ts`** and a provider
+
+- `makeQueryClient()` returns `new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 1, refetchOnWindowFocus: false } } })`.
+- `getQueryClient()` returns a new client on the server for each request and one singleton in the browser (the standard TanStack and Next App Router pattern).
+- Create `src/components/providers/QueryProvider.tsx` (`"use client"`). It wraps `QueryClientProvider` and renders `ReactQueryDevtools` only when `process.env.NODE_ENV === "development"`.
+- Mount it in `src/app/layout.tsx` inside `<MotionProvider>`.
+
+**7. `src/lib/format-date.ts`**
+
+- Exports `formatDate(iso, style: "long" | "short" = "long")`, which gives `"12 March 2026"` or `"12 Mar"`.
+- Exports `formatMonthDay(iso)`, which gives `{ month: "MAR", day: "30" }`.
+- Exports `timeAgo(iso, now?)`, moved from `lib/notifications.ts`; re-export it there so existing imports keep working.
+- Use `Intl.DateTimeFormat("en-GB", …)` with a fixed `timeZone: "Africa/Kigali"` so the server and client agree (this avoids the §9 U14 class of hydration bugs).
+- Add `format-date.test.ts`.
+
+**8. Hooks**
+
+- `useDebounce<T>(value: T, delay = 300): T`.
+- `useMediaQuery(query: string): boolean`. Build it on `useSyncExternalStore` with a server snapshot of `false`.
+- `useRole()` comes in L3.
+
+**9. `src/store/ui.store.ts`** (Zustand, UI state only)
+
+```ts
+interface Toast {
+  id: string;
+  message: string;
+  tone?: "success" | "error" | "info";
+}
+interface UiState {
+  toasts: Toast[];
+  pushToast(t: Omit<Toast, "id">): void;
+  dismissToast(id: string): void;
+}
+```
+
+- Add `src/components/ui/Toaster.tsx`. It renders `toasts` fixed at the bottom-right, `z-[110]`, auto-dismisses after 4s, uses `role="status"` and animates with `m.div`.
+- Mount it once in the root layout.
+- Replace the ad-hoc toast in the resources download flow with `pushToast`.
+
+**Gate:** `pnpm typecheck`, `pnpm lint` and `pnpm test` pass. There is no visual change except the toast.
+
+---
+
+#### L2 — Shared UI primitives (`src/components/ui/`)
+
+Rules for this level:
+
+- One component per file and PascalCase names.
+- Use `cn()`, tokens only, and no business logic.
+- Every interactive part is keyboard-reachable with a visible focus ring (`focus-visible:outline-brand`).
+- Hit areas are at least 44px tall on touch (§9 U7).
+- Co-locate a `*.test.tsx` for Modal, Tabs and Dropdown.
+
+| Component             | Props                                                                                            | Behaviour / style                                                                                                                                                                                                                                                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Label`               | `htmlFor`, `children`, `required?`                                                               | `mb-2 block text-body-sm font-medium`; `required` appends a muted `*` with `aria-hidden`                                                                                                                                                                                                                                                                                     |
+| `Textarea`            | Same API as `TextField` (`label`, `error`, `maxLength?`, `showCount?`)                           | Reuse TextField's border and error styling. With `showCount`, show `n/max` bottom-right in `text-caption text-muted`                                                                                                                                                                                                                                                         |
+| `Select`              | `label`, `error?`, `options: {value,label}[]`, `placeholder?`, plus native select props          | A native `<select>` styled like TextField, with a lucide `ChevronDown`. Must work with `react-hook-form` `register` (use `forwardRef`, or React 19 ref-as-prop)                                                                                                                                                                                                              |
+| `Card`                | `padding?: "sm" \| "md" \| "lg"`, `shadow?: boolean`, `as?`                                      | `bg-surface rounded-2xl border border-member-border`; `shadow` adds `shadow-menu`                                                                                                                                                                                                                                                                                            |
+| `Badge`               | `tone: "neutral" \| "brand" \| "success" \| "warning" \| "danger"`, `children`                   | A pill: `rounded-pill px-2.5 py-0.5 text-caption font-semibold`; minimum 12px (§9 U6)                                                                                                                                                                                                                                                                                        |
+| `Avatar`              | `src?`, `name`, `size: "sm"(32) \| "md"(40) \| "lg"(64)`, `shape?: "circle" \| "rounded"`        | `next/image` with both `width` and `height` set (§9 U13). Without `src`, show initials on `bg-member-tint text-brand`. `alt` is `Portrait of {name}`                                                                                                                                                                                                                         |
+| `Modal`               | `open`, `onClose`, `title`, `description?`, `size?: "sm" \| "md" \| "lg"`, `children`, `footer?` | Mount with `createPortal` into `document.body`, `z-[100]`, backdrop `bg-black/50 backdrop-blur-[2px]`. Close on Escape and backdrop click. Trap focus, return focus to the trigger on close, set `aria-modal` and `role="dialog"`, and lock scroll on `<html>` while open. Then migrate `WishDialog` and the PDF viewer shell onto it **only if the visuals stay identical** |
+| `Tabs`                | `items: {id,label,count?}[]`, `value`, `onChange`                                                | Follow the WAI-ARIA tabs pattern (`role="tablist"`/`"tab"`, arrow keys move focus). Style the active tab like the birthdays month pill (`bg-[#4338CA]` becomes the `bg-brand` token)                                                                                                                                                                                         |
+| `Dropdown`            | `trigger: ReactNode`, `items: {label, onSelect, icon?, danger?}[]`, `align?`                     | Use the menu-button pattern: `aria-haspopup="menu"`, Escape closes, a click outside closes, and arrow keys move between items                                                                                                                                                                                                                                                |
+| `Skeleton` (✅ built) | `className` (plus `SkeletonText {lines}` and `SkeletonPage {label}`)                             | The `skeleton` utility: a grey `member-field` block with a light band sweeping across. `aria-hidden`; `SkeletonPage` sets `role="status"` and `aria-busy`. New async UI must use these, not `animate-pulse`                                                                                                                                                                  |
+| `Spinner`             | `size?: "sm" \| "md"`, `label?: string`                                                          | A lucide `Loader2` with `animate-spin`; `label` renders `sr-only` text                                                                                                                                                                                                                                                                                                       |
+| `EmptyState`          | `icon?`, `title`, `description?`, `action?`                                                      | Centred and quiet, with no illustration unless one is passed in                                                                                                                                                                                                                                                                                                              |
+| `Button` (update)     | add `variant="ghost"` and `loading?: boolean`                                                    | `loading` shows `Spinner`, sets `aria-busy` and disables the button                                                                                                                                                                                                                                                                                                          |
+
+**Gate:** add unit tests for Modal (Escape closes it, focus returns), Tabs (arrow keys) and Dropdown (Escape and outside click). The full check passes.
+
+---
+
+#### L3 — Auth & roles
+
+**L3a: role in the existing session.** Do this now; it needs no backend.
+
+1. In `src/lib/session.ts`, add a token version `v2` with the payload `v2.<issuedAt>.<role>`.
+   - `createSessionToken(role: Role = "member", now?)`.
+   - `readSession(token): Promise<{ role: Role; issuedAt: number } | null>`, which replaces the boolean check (keep `verifySessionToken` as a thin wrapper).
+   - Reject `v1` tokens so everyone signs in again once. Update `session.test.ts`.
+2. **Admin login without a backend.** It must not let anyone become admin just by adding `?role=admin`.
+   - New server action `beginAdminLogin({ name, password })` in `src/app/actions/session.ts`. It validates with `adminLoginSchema`, then compares `password` with `process.env.ADMIN_DEV_PASSWORD` using a constant-time compare.
+   - In production with no `ADMIN_DEV_PASSWORD` it always fails (fail closed).
+   - On success it sets a signed, short-lived (5 min) `imena_admin_pending` cookie.
+   - `AdminLoginForm` calls this action and shows "Wrong name or password." on failure.
+   - `startMemberSession()` becomes `startSession()`. It grants `admin` **only** if a valid `imena_admin_pending` cookie is present, then deletes that cookie. Otherwise it grants `member`.
+   - In `VerifyForm`, after success, admins go to `ROUTES.ADMIN` and members go to `returnTo ?? ROUTES.DASHBOARD` (this replaces the TODO at line ~63).
+   - Add `ADMIN_DEV_PASSWORD=` to `.env.example`.
+3. **`src/middleware.ts`**
+   - Member paths keep the current behaviour. Add `/families` to `MEMBER_PREFIXES`.
+   - For `/admin` and `/admin/**` except `/admin/login`: with no session, redirect to `/admin/login?next=…`; with `role !== "admin"`, redirect to `/dashboard`.
+   - A signed-in user visiting `/login` or `/admin/login` is redirected to their home.
+4. **Server-side re-check**: create `src/lib/auth-guard.ts` (server only).
+   - `getSession()` reads `cookies()` and calls `readSession`.
+   - `requireRole(role)` calls `redirect()` when the check fails.
+   - Call `requireRole("admin")` in `src/app/admin/(panel)/layout.tsx`, as the PDF requires: "each protected layout repeats the check".
+5. **`useRole()`**: the root or member layout reads the role on the server and passes it to a small `SessionProvider` (React context, in `src/components/providers/`). `useRole()` reads that context.
+6. **`SignupForm`**
+   - Move the form from `src/app/(public)/signup/page.tsx` into `features/auth/components/SignupForm.tsx`, using `react-hook-form` and a new `signupSchema` (name, email, phone optional, promotion, branch, message optional, max 500).
+   - Use the L2 `Select` and `Textarea`, and keep the existing visual design exactly.
+   - Submit goes through `members.service.requestJoin()` (L4; it is a mock until then).
+
+**L3b: Auth.js.** Do this only when the backend and Google OAuth credentials exist.
+
+- Create `src/lib/auth.ts` with `NextAuth({ providers: [Credentials (name + OTP verified against the API), Google], session: { strategy: "jwt" }, callbacks: { jwt, session } })`. The callbacks copy `role` and `memberId` from the API response into the token.
+- Create `src/app/api/auth/[...nextauth]/route.ts`, which does `export const { GET, POST } = handlers`.
+- Swap `readSession` for `auth()` in the middleware and the guards. Delete the HMAC session only after this works end to end.
+
+**Gate:**
+
+- Unit tests cover: a forged role is rejected, a v1 token is rejected, an admin without the pending cookie gets `member`, and the middleware redirect matrix (signed-out / member / admin × `/dashboard` / `/admin` / `/admin/login`).
+
+---
+
+#### L4 — Services layer, mock mode, query hooks
+
+Pattern for every `src/services/<name>.service.ts`:
+
+```ts
+import { api, USE_MOCKS } from "@/lib/api-client";
+import type { Paginated, Post } from "@/types";
+import { mockPosts } from "./mocks/posts.mock";
+
+export const postsService = {
+  list: (p: { page?: number; category?: string; q?: string } = {}) =>
+    USE_MOCKS
+      ? mockPosts.list(p)
+      : api.get<Paginated<Post>>(`/posts?${new URLSearchParams(toParams(p))}`),
+  // ...
+};
+```
+
+- Mocks live in `src/services/mocks/*.mock.ts`. They **adapt the existing feature `data.ts` files** into the shared types, so the UI keeps showing the same sample content.
+- Mocks may import from feature `data.ts` files; this is the one allowed exception, and it is deleted at L9.
+- Mocks resolve after `await delay(250)` so loading states get exercised.
+- Mock writes keep an in-memory array for the browser session and return the created entity with `id: crypto.randomUUID()`.
+
+**Assumed REST contract** (this is decision D3; confirm it with the backend and change only the service files):
+
+| Service         | Method → endpoint                                                                                                                                                                                                                                                                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `posts`         | `list` → `GET /posts?page&category&q&status`<br>`bySlug` → `GET /posts/:slug`<br>`like` → `POST /posts/:id/like`<br>`unlike` → `DELETE /posts/:id/like`<br>`comments` → `GET /posts/:id/comments`<br>`addComment` → `POST /posts/:id/comments {body}`<br>`create` → `POST /posts`<br>`update` → `PATCH /posts/:id`<br>`remove` → `DELETE /posts/:id` |
+| `members`       | `me` → `GET /members/me`<br>`list` → `GET /members?page&q&subfamily&promotion`<br>`create` → `POST /members` (admin)<br>`requestJoin` → `POST /members/requests`                                                                                                                                                                                     |
+| `albums`        | `list` → `GET /albums?page`<br>`bySlug` → `GET /albums/:slug`<br>`create` → `POST /albums`<br>`signUpload` → `POST /uploads/sign {fileName, contentType}` returning `{uploadUrl, publicUrl}`                                                                                                                                                         |
+| `families`      | `list` → `GET /families`<br>`bySlug` → `GET /families/:slug`                                                                                                                                                                                                                                                                                         |
+| `birthdays`     | `byMonth` → `GET /birthdays?month=1..12`<br>`today` → `GET /birthdays/today`                                                                                                                                                                                                                                                                         |
+| `resources`     | `list` → `GET /resources?category&q&page`<br>`byId` → `GET /resources/:id`                                                                                                                                                                                                                                                                           |
+| `stats` (admin) | `overview` → `GET /admin/stats` returning `{members, posts, albums, birthdaysThisMonth}`                                                                                                                                                                                                                                                             |
+
+**Query hooks** live inside each feature's `hooks/` folder, never in `components/ui`.
+
+- Query keys are arrays that start with the resource name, for example `["posts", params]`, `["post", slug]`, `["comments", postId]` and `["families"]`.
+- Hooks to create:
+  - `features/blogs/hooks/usePosts.ts`, `usePost.ts`
+  - `features/families/hooks/useFamily.ts`
+  - `features/birthdays/hooks/useBirthdays.ts`
+  - `features/resources/hooks/useResources.ts`
+  - `features/gallery/hooks/useAlbums.ts`
+  - `features/admin/hooks/useAdminStats.ts`
+- **Do not switch the existing pages over to these hooks yet.** That is L9. New pages (L5–L7) use them from the start.
+
+**Gate:** add unit tests for `api-client` (an error is thrown as `ApiError`, a 204 returns `undefined`) and for one mock service. The full check passes.
+
+---
+
+#### L5 — Subfamily pages `/families/[slug]`
+
+- **Route:** `src/app/(member)/families/[slug]/page.tsx`
+  - `generateStaticParams` returns the three `SUBFAMILY_SLUGS`.
+  - An unknown slug calls `notFound()`.
+  - `generateMetadata` gives `title: "{Name} Family"`.
+- **Composition** (the page composes features; a feature never imports another feature):
+  1. `PageHeader` with `title={name.toUpperCase()}` and a badge with the branch icon (reuse `BRANCH_ICON` from `features/tree/branch.ts` through a prop, or duplicate the three icons in `features/families`).
+  2. `features/families/components/SubfamilyHeader.tsx` contains:
+     - A hero image (`rounded-3xl`, `aspect-[16/7]`, with `next/image` `priority`).
+     - The name, `holds`, the leader and the member count in a `Card` **beside** the image, not on top of the photo (this avoids the §9 U10 contrast problem).
+  3. `features/families/components/SloganCallout.tsx` shows:
+     - The Kinyarwanda motto in `font-member-display` (Playfair) italic at `text-h3`.
+     - The English meaning below it in `text-muted`.
+     - It sits centred with plenty of whitespace, with no borders and no quote icons.
+  4. Members of this branch: a grid of `Avatar` + name + role label, grouped by promotion and newest first. Use the `members.service.list({ subfamily })` hook.
+  5. Recent posts from this branch: up to three `BlogCard`s through `usePosts({ subfamily })`. If there are none, show an `EmptyState` with "No stories from {Name} yet."
+- **Links into it:** make each card in `SubFamilyTrinity.tsx` link to `familyRoute(slug)`. Add a "Families" group to `MEMBER_FOOTER_GROUPS`. **Do not add a dock icon**; the dock is already full.
+- **Gate:** all three slugs render; an unknown slug gives 404. There is no horizontal scroll at 360, 390, 768 or 1440px. The full check passes.
+
+---
+
+#### L6 — Blog interactions
+
+- **`features/blogs/components/LikeButton.tsx`**
+  - Props: `postId`, `initialLikes`, `initialLiked`.
+  - Uses `useLike()`, a `useMutation` with an **optimistic update** of the `["post", slug]` cache that rolls back on error and calls `pushToast({tone: "error"})`.
+  - Replace the `useStoredValue` like logic in `ArticleAuthorBar.tsx` with this button and keep the existing visual.
+- **`features/blogs/components/CommentList.tsx`**
+  - Uses `useComments(postId)`.
+  - Each comment shows `Avatar` (sm), name, `timeAgo` and the body. The list is oldest first.
+  - Show a `Skeleton` while loading and an `EmptyState` with "Be the first to leave a word." when there are none.
+- **`features/blogs/components/CommentForm.tsx`**
+  - A `Textarea` with a 500-character max and a counter, and a "Post comment" `Button` in the `brand` variant with a loading state.
+  - Uses `useAddComment()`: an optimistic append, which also bumps `commentsCount`.
+  - Zod schema `commentSchema`: body trimmed, between 1 and 500 characters.
+- **Placement:** in `ArticleDetailView.tsx`, under the article body, with an `h2` "Comments ({count})". Keep the article title as the page `h1` (§9 U15).
+- **Gate:** tests cover the optimistic like rollback and comment form validation.
+
+---
+
+#### L7 — Admin panel
+
+**Route structure.** It does not collide with the existing `(auth)/admin/login`:
+
+```
+src/app/admin/(panel)/layout.tsx          # requireRole("admin"), AdminSidebar + header
+src/app/admin/(panel)/page.tsx            # /admin
+src/app/admin/(panel)/posts/page.tsx      # /admin/posts
+src/app/admin/(panel)/albums/new/page.tsx # /admin/albums/new
+src/app/admin/(panel)/members/new/page.tsx# /admin/members/new
+```
+
+**`components/layout/AdminSidebar.tsx`**
+
+- A fixed left rail, `w-64` on desktop, that collapses into a top bar with a menu button below `md` (use `useMediaQuery`).
+- Items come from `ADMIN_NAV` with lucide icons: `LayoutDashboard`, `FileText`, `Images` and `UserPlus`.
+- The active item is styled `bg-member-tint text-brand font-semibold`.
+- At the bottom: "Back to member site" and "Sign out" (a server action calling `endMemberSession`, then redirect to `/admin/login`).
+- The layout uses the member fonts (Poppins and Playfair) like `(member)/layout.tsx`, and the content area is `max-w-page px-4 md:px-8 py-8`.
+
+**Features (`src/features/admin/`).** Each feature has `components/`, `hooks/` and `schemas.ts`.
+
+| Component                              | Page                                  | Spec                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `StatsOverview.tsx`                    | `/admin`                              | Four `Card`s in a `grid-cols-2 lg:grid-cols-4` grid: Members, Published posts, Albums, Birthdays this month. Each has a label in `text-body-sm text-muted` and a value in `text-h2` with `CountUp`. Data comes from `useAdminStats()`. Below the cards, a "Recent posts" list of the latest five, each linking to `/admin/posts`                                                                                                                                                                                                                                                                                                                      |
+| `PostsTable.tsx`                       | `/admin/posts`                        | `Tabs` for All, Published and Drafts with counts, and a search box using `TextField` + `useDebounce`.<br>Desktop shows a `<table>` with Title, Author, Category, Status (`Badge`), Date and Actions (`Dropdown`: Edit, Publish/Unpublish, Delete). Phones show a stacked list (§9 U8).<br>Delete asks for confirmation in a `Modal`. Mutations invalidate `["posts"]` and show a toast. The "New post" button opens `PostEditor`                                                                                                                                                                                                                      |
+| `PostEditor.tsx`                       | Modal (`size="lg"`) on `/admin/posts` | `react-hook-form` + `postSchema`, with fields: title (required, 5–120), category `Select` (the blog categories without "All"), tag, excerpt (`Textarea`, max 200), body (`Textarea`, paragraphs split on blank lines), cover image (`UploadDropzone` with single file) and cover alt (required when there is a cover).<br>Actions: "Save draft" (ghost) and "Publish" (brand). The same component handles edit when given a `post` prop. **Any field without an alt text cannot publish**                                                                                                                                                             |
+| `AlbumForm.tsx` + `UploadDropzone.tsx` | `/admin/albums/new`                   | `albumSchema`: title, description, date, `isPublic` checkbox, and at least one photo.<br>`UploadDropzone` takes `accept="image/*"`, `multiple` and `maxFiles=100`, with drag-and-drop **and** a "Choose files" button for keyboard users. Each file gets a thumbnail preview (`URL.createObjectURL`, revoked on unmount), a progress bar and a remove button, plus an alt-text input (required).<br>Upload flow: `albums.signUpload()` → `PUT` the file to `uploadUrl` with `XMLHttpRequest` (for progress events) → keep `publicUrl`. In mock mode, simulate progress.<br>On submit, `albums.create()` → toast → `router.push(\`/gallery/${slug}\`)` |
+| `AddMemberForm.tsx`                    | `/admin/members/new`                  | `memberSchema`: full name, email (optional but must be valid), phone (optional), subfamily `Select` (`SUBFAMILY_SLUGS`), promotion `Select` (`PROMOTION_YEARS` from the tree data, passed in as a prop from the page), role label `Select` (Grand Père, Grand Mère, Coordinator, Vice-Coordinator, Père/Mère + branch, Member), birthday (`type="date"`), photo (`UploadDropzone` with single file) and role (`member`/`admin` radio, default member).<br>On success: a toast "{name} was added to the family." and the form resets                                                                                                                   |
+
+**Gate:**
+
+- A member who opens `/admin` lands on `/dashboard`; a signed-out user lands on `/admin/login`.
+- Every form shows inline Zod errors and submits in mock mode. The tables work at 390px.
+- The full check passes.
+
+---
+
+#### L8 — Open-decision features and remaining audit items
+
+- **D1 public gallery:** build it only if the user approves (see §10.4).
+- **§9 P2/P3 items still open:** U3, U6–U14 and U16. U16 fix: compute the footer year at request time (or in a small client component using `useNow`) so it isn't frozen at build.
+
+---
+
+#### L9 — Real data switch-over
+
+Do this only once the backend is live (`NEXT_PUBLIC_USE_MOCKS=false`).
+
+1. Replace every direct `data.ts` import in pages and components with the L4 hooks, or with server-side `service` calls for public pages (`export const revalidate = 3600`, as the PDF requires).
+2. Replace `constants/member.ts` `MEMBER` with `members.service.me()`.
+3. Remove every "Sample…" note together (§9 U17). Today they are in `birthdays/data.ts`, `BirthdaysPanel.tsx`, `PopularArticles.tsx`, `AlbumView.tsx`, `ArticleDetailView.tsx`, `PersonDialog.tsx` and `BioDrawer.tsx`.
+4. Delete `src/services/mocks/` and the feature `data.ts` files that are no longer imported.
+
+---
+
+#### L10 — End-to-end tests (`tests/`, Playwright)
+
+The `tests/` folder is empty and Playwright is configured. Add these specs:
+
+| Spec                  | Covers                                                                                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public.spec.ts`      | Home, Our Story and Family Tree load. There is no horizontal scroll at 390px. "Explore the Tree" scrolls to `#promotion-section`                                                              |
+| `auth.spec.ts`        | Member login, then a 5-digit code, lands on `/dashboard`. A protected URL while signed out redirects to `/login?next=…` and returns there after verify. A wrong admin password shows an error |
+| `admin-guard.spec.ts` | A member is redirected away from `/admin`. An admin reaches all four admin pages                                                                                                              |
+| `member.spec.ts`      | Each dock link opens a page with an `h1`. The resources PDF viewer opens and closes with Escape. A birthday wish dialog opens. `/families/light` renders                                      |
+| `admin-forms.spec.ts` | Create a post draft, create an album with one image, and add a member (all in mock mode)                                                                                                      |
+
+### 10.6 Definition of done (every level)
+
+1. `pnpm typecheck`, `pnpm lint`, `pnpm format:check` and `pnpm test` exit 0. From L10 on, `pnpm test:e2e` passes too.
+2. There is no horizontal scroll at 360, 390, 768 or 1440px, and no new hydration warnings in the console.
+3. Every new image has `alt` and both `width` and `height` (or `fill` with `sizes`). Text is at least 12px and touch targets at least 44px.
+4. There are no new raw hex colours. Use tokens, and add a token to `globals.css` if one is missing.
+5. There are no `motion.*` imports (only `m.*`) and no cross-feature imports.
+6. Update this section's status marks (❌ → ✅) for whatever was finished.
+7. **Never `git commit` or `git push` unless the user explicitly asks.**
