@@ -23,7 +23,7 @@ const PROMOTIONS = [
 
 const BRANCHES = [
   "Sanctuary (Uruhisho)",
-  "Light (Umurinzi)",
+  "Light (Urumuri)",
   "Wihogora (Humura)",
   "Hope (Icyizere)",
   "Not yet allocated / Inquire",

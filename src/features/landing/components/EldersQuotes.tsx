@@ -1,20 +1,23 @@
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { cn } from "@/lib/cn";
 import { elder1, elder2, elder3, elder4 } from "@/lib/images";
 
-const QUOTE =
-  "Our history is our foundation. Let us remember where we came from while building a better future together.";
+interface Elder {
+  name: string;
+  image: StaticImageData;
+  Quote: string;
+}
 
 /* TODO: four different elders, each with their own words. All four names and
    the quote are placeholders repeated from the design. */
-const ELDERS = [
-  { name: "Rwamamara Mugisha Pacifique", image: elder2 },
-  { name: "Rwamamara Mugisha Pacifique", image: elder1 },
-  { name: "Rwamamara Mugisha Pacifique", image: elder4 },
-  { name: "Rwamamara Mugisha Pacifique", image: elder3 },
+const ELDERS: Elder[] = [
+  { name: "Rwamamara Mugisha Pacifique", image: elder2, Quote: "Our history is our foundation. Let us remember where we came from while building a better future together."},
+  { name: "Rwamamara Mugisha Pacifique", image: elder1, Quote: "Out of the ashes of our darkest chapter, a new generation has risen—one defined not by division, but by a shared promise that peace and progress belong to everyone."},
+  { name: "Rwamamara Mugisha Pacifique", image: elder4, Quote: "We cannot turn back the clock, nor can we erase the tragic history we have endured. But we can choose how we respond to it."},
+  { name: "Rwamamara Mugisha Pacifique", image: elder3, Quote: "True reconciliation is not about forgetting the past, but about choosing to live together with a shared commitment that such horror will never happen again."},
 ];
 
 export function EldersQuotes() {
@@ -54,7 +57,7 @@ export function EldersQuotes() {
                     {elder.name}
                   </figcaption>
                   <blockquote className="text-body text-text mt-4">
-                    “{QUOTE}”
+                    “{elder.Quote}”
                   </blockquote>
                 </figure>
               </Reveal>
