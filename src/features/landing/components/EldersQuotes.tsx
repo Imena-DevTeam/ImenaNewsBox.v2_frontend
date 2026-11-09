@@ -11,8 +11,6 @@ interface Elder {
   Quote: string;
 }
 
-/* TODO: four different elders, each with their own words. All four names and
-   the quote are placeholders repeated from the design. */
 const ELDERS: Elder[] = [
   {
     name: "SHEMA Frank",
