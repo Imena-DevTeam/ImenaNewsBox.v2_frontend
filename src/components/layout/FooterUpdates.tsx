@@ -26,7 +26,7 @@ export function FooterUpdates({ className }: { className?: string }) {
     >
       Family updates
       {unread > 0 ? (
-        <span className="bg-brand text-surface text-caption ml-2 inline-block min-w-5 rounded-full px-1.5 py-0.5 text-center tabular-nums">
+        <span className="bg-celebration-gold text-primary text-caption ml-2 inline-block min-w-5 rounded-full px-1.5 py-0.5 text-center tabular-nums">
           {unread}
           <span className="sr-only"> new</span>
         </span>
