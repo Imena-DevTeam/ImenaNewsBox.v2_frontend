@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { HouseHeartOrnament } from "@/components/ui/Ornaments";
+import { SunOrnament } from "@/components/ui/Ornaments";
 import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
@@ -7,23 +7,15 @@ import { SplitText } from "@/components/motion/SplitText";
 export function StoryHero() {
   return (
     <section className="section-y relative isolate overflow-hidden">
-      {/* One ornament each side, in the margins beside the title. They drop
-          in after the title and then rest, bobbing very slightly. */}
+      {/* The sun sits on the right edge of the band, as in the design. It
+          drops in after the title and then rests, bobbing very slightly. */}
       <Reveal
         onMount
         from="top"
         delay={1}
-        className="absolute top-40 left-3 hidden md:block"
+        className="absolute top-8 right-2 md:top-12 md:right-8"
       >
-        <HouseHeartOrnament className="motion-safe:animate-float-slow size-12 md:size-14" />
-      </Reveal>
-      <Reveal
-        onMount
-        from="bottom"
-        delay={1.15}
-        className="absolute right-3 bottom-4"
-      >
-        <HouseHeartOrnament className="motion-safe:animate-float-slow size-14 md:size-16" />
+        <SunOrnament className="motion-safe:animate-float-slow size-16 md:size-28" />
       </Reveal>
 
       <Container className="relative">

@@ -18,6 +18,7 @@
   /* --- Font families ----------------------------------------------------- */
   --font-sans: var(--font-nunito-sans), system-ui, sans-serif;
   --font-heading: var(--font-roboto), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
 
   /* --- Brand and surfaces ------------------------------------------------ */
   --color-primary: #0d1aba;
@@ -59,8 +60,13 @@
   --color-frame: #999d8f; /* the thick photo frame */
   --color-frame-accent: #87b2b5; /* the card outlined behind it */
   --color-placeholder: #d9d9d9; /* the quote cards */
-  --color-stat: #7b4a94; /* the third milestone badge on the timeline */
+  --color-stat: #7b4a94; /* the second milestone badge on the timeline */
   --color-slogan-card: #c9b8e6; /* the lavender slogan cards */
+  --color-story-ring: #6b4a30; /* the brown rim of the Our Story portrait */
+  --color-story-glow: #e8a33d; /* the warm light under that portrait */
+  --color-story-soft: #b9b2ea; /* the faded end of the Our Story sentence */
+  --color-milestone: #9c2fb0; /* the third milestone badge */
+  --color-milestone-soft: #e4e0fa; /* the last milestone badge */
 
   /* Auth screens (login, admin login, verify). Sampled from the Figma auth
      frames, which use a violet brand fill rather than --color-primary. Text
@@ -342,20 +348,20 @@
   --color-tree-role: #000569; /* the role and subfamily lines */
   --color-tree-quote: #454655; /* the quoted saying */
   --color-tree-mark: #006f9e; /* the small square beside the hero title */
-
-  /* --- Slogan cards ------------------------------------------------------- */
-  /* The four cards of the turning cross. The design calls for 346x419; these
-     are 5% off that, so 329x398. The ratio is what holds their shape, and a
-     uniform scale leaves it unchanged, so only the width moves.
-     They hold that size where there is room for three of them across; below
   --color-tree-chart: #eef7f4; /* the pale mint behind the lineage chart */
   --color-tree-portrait: #fbe7d8; /* the warm disc behind each portrait */
   --color-tree-line: #2b2b2b; /* the chart's connecting lines */
   --color-tree-label: #4a4a4a; /* names under the chart portraits */
+
+  /* --- Slogan cards ------------------------------------------------------- */
+  /* The four cards of the slogan cross. The design calls for 346x419; these
+     are 5% off that, so 329x398. The ratio is what holds their shape, and a
+     uniform scale leaves it unchanged, so only the width moves.
+     They hold that size where there is room for three of them across; below
      that the aspect ratio keeps their shape while they shrink. */
   --spacing-slogan-card: 329px;
   --aspect-slogan-card: 346 / 419;
-  /* Three cards plus the two 24px gaps between them. */
+  /* Three cards across, set edge to edge as in the design. */
   --container-slogan-cross: 1035px;
 
   /* --- Control heights ---------------------------------------------------- */
@@ -383,12 +389,6 @@
      so it never plays for someone who asked for reduced motion. */
   --animate-float: float 7s ease-in-out infinite;
   --animate-float-slow: float-slow 9s ease-in-out infinite;
-
-  /* The slogan cross. The wrapper turns, carrying the cards around the empty
-     centre; each card turns the other way at the same rate so its text stays
-     upright while it travels. */
-  --animate-orbit: orbit 45s linear infinite;
-  --animate-orbit-reverse: orbit-reverse 45s linear infinite;
 
   /* Dialogs. Keyframes rather than @starting-style transitions: an
      animation always runs when an element is displayed, where a transition
@@ -435,18 +435,6 @@
     }
     50% {
       transform: translateY(-0.625rem);
-    }
-  }
-
-  @keyframes orbit {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes orbit-reverse {
-    to {
-      transform: rotate(-360deg);
     }
   }
 }
@@ -641,19 +629,6 @@
 
   @media (prefers-reduced-motion: no-preference) {
     animation: foil-sheen 6s ease-in-out infinite;
-  }
-}
-
-/* Stops every animation inside while the pointer is over it or something
-   within it has focus. WCAG 2.2.2 asks that motion running longer than five
-   seconds can be paused, and moving text cannot be read otherwise. */
-@utility pause-on-hover {
-  &:hover,
-  &:focus-within {
-    &,
-    * {
-      animation-play-state: paused;
-    }
   }
 }
 

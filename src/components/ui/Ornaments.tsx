@@ -90,3 +90,18 @@ export function HeartsOrnament({ className }: OrnamentProps) {
     </svg>
   );
 }
+
+/* Two small four-pointed stars, the glints either side of OUR STORY. */
+export function SparkleOrnament({ className }: OrnamentProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className={cn("text-heading", className)}
+      fill="currentColor"
+    >
+      <path d="M9 4c.6 3.2 1.8 4.4 5 5-3.2.6-4.4 1.8-5 5-.6-3.2-1.8-4.4-5-5 3.2-.6 4.4-1.8 5-5Z" />
+      <path d="M18 13c.4 2 1 2.6 3 3-2 .4-2.6 1-3 3-.4-2-1-2.6-3-3 2-.4 2.6-1 3-3Z" />
+    </svg>
+  );
+}
