@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PublicLineageChart } from "@/features/tree/components/PublicLineageChart";
 import { PublicPromotionSection } from "@/features/tree/components/PublicPromotionSection";
 import { TreeHero } from "@/features/tree/components/TreeHero";
 import type { PromotionYear } from "@/features/tree/publicTreeData";
@@ -11,6 +12,10 @@ export function PublicFamilyTreeClient() {
   return (
     <div className="page-enter">
       <TreeHero activeYear={activeYear} onSelectYear={setActiveYear} />
+      <PublicLineageChart
+        activeYear={activeYear}
+        onYearChange={setActiveYear}
+      />
       <PublicPromotionSection
         activeYear={activeYear}
         onYearChange={setActiveYear}

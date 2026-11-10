@@ -23,22 +23,18 @@ beforeAll(() => {
 const current = PROMOTIONS.find((p) => p.year === DEFAULT_PROMOTION)!;
 
 describe("TreeHierarchyGrid", () => {
-  it("shows the ten roles of a promotion in tier order, branches under their own panel", () => {
+  it("draws the ten roles of a promotion in tier order, elders first", () => {
     render(<TreeHierarchyGrid promotion={current} onOpen={() => {}} />);
 
-    const titles = (level: number) =>
-      screen.getAllByRole("heading", { level }).map((h) => h.textContent);
+    const roles = screen
+      .getAllByRole("button", { name: /view the story of/i })
+      .map((b) => b.getAttribute("aria-label")!.split(", ").pop());
 
-    expect(titles(3)).toEqual([
+    expect(roles).toEqual([
       "Grand Père",
       "Grand Mère",
       "Coordinator",
       "Vice Coordinator",
-      "Light family",
-      "Wihogora family",
-      "Hope family",
-    ]);
-    expect(titles(4)).toEqual([
       "Père Light",
       "Mère Light",
       "Père Wihogora",
@@ -48,17 +44,23 @@ describe("TreeHierarchyGrid", () => {
     ]);
   });
 
-  it("lets a phone show one family at a time", () => {
-    render(<TreeHierarchyGrid promotion={current} onOpen={() => {}} />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Hope" }));
-
-    expect(screen.getByRole("region", { name: "Light family" })).toHaveClass(
-      "max-md:hidden",
+  it("opens a person when their card is chosen", () => {
+    const opened: string[] = [];
+    render(
+      <TreeHierarchyGrid
+        promotion={current}
+        onOpen={(person) => opened.push(person.id)}
+      />,
     );
-    expect(screen.getByRole("region", { name: "Hope family" })).not.toHaveClass(
-      "max-md:hidden",
+    const elder = current.members.find((p) => p.role === "grand_pere")!;
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `View the story of ${elder.name}, ${elder.roleLabel}`,
+      }),
     );
+
+    expect(opened).toEqual([elder.id]);
   });
 });
 

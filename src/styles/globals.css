@@ -348,6 +348,10 @@
      are 5% off that, so 329x398. The ratio is what holds their shape, and a
      uniform scale leaves it unchanged, so only the width moves.
      They hold that size where there is room for three of them across; below
+  --color-tree-chart: #eef7f4; /* the pale mint behind the lineage chart */
+  --color-tree-portrait: #fbe7d8; /* the warm disc behind each portrait */
+  --color-tree-line: #2b2b2b; /* the chart's connecting lines */
+  --color-tree-label: #4a4a4a; /* names under the chart portraits */
      that the aspect ratio keeps their shape while they shrink. */
   --spacing-slogan-card: 329px;
   --aspect-slogan-card: 346 / 419;
