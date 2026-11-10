@@ -1,40 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/cn";
-import { BRANCH_ICON, BRANCH_THEME } from "../branch";
-import type {
-  HierarchyRole,
-  PromotionRecord,
-  Subfamily,
-  TreePerson,
-} from "../types";
-import { HierarchyRoleCard } from "./HierarchyRoleCard";
-import { TreeConnectorLines } from "./TreeConnectorLines";
+import type { HierarchyRole, PromotionRecord, TreePerson } from "../types";
 
-type Branch = Exclude<Subfamily, "Sanctuary">;
-
-const BRANCHES: { branch: Branch; label: string; roles: HierarchyRole[] }[] = [
-  {
-    branch: "Light",
-    label: "Light family",
-    roles: ["pere_light", "mere_light"],
-  },
-  {
-    branch: "Wihogora",
-    label: "Wihogora family",
-    roles: ["pere_wihogora", "mere_wihogora"],
-  },
-  { branch: "Hope", label: "Hope family", roles: ["pere_hope", "mere_hope"] },
+/* The three families, each a father and a mother side by side. */
+const FAMILIES: [HierarchyRole, HierarchyRole][] = [
+  ["pere_light", "mere_light"],
+  ["pere_wihogora", "mere_wihogora"],
+  ["pere_hope", "mere_hope"],
 ];
 
+/* Sanity originals run to several thousand pixels and the image optimiser
+   gives up on them; ask the CDN for a small square crop from the top. */
+function portrait(src: TreePerson["image"]) {
+  return typeof src === "string" && src.startsWith("https://cdn.sanity.io/")
+    ? `${src}?w=320&h=320&fit=crop&crop=top`
+    : src;
+}
+
+/** A short vertical line from one tier down to the next. */
+function Drop() {
+  return (
+    <div aria-hidden className="border-tree-line mx-auto h-7 w-0 border-l-2" />
+  );
+}
+
 /**
- * A promotion as a tree, in three layers joined by lines: the two elders,
- * the coordinator and vice coordinator beneath them, and the three families
- * with a father and a mother each.
+ * One person: a round portrait on a warm disc, half resting on a small white
+ * card with their name under a hairline and their title beneath it. The whole
+ * card opens their story.
+ */
+function PersonNode({
+  person,
+  onOpen,
+}: {
+  person: TreePerson;
+  onOpen: (person: TreePerson) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(person)}
+      aria-label={`View the story of ${person.name}, ${person.roleLabel}`}
+      className="group focus-visible:outline-brand flex w-28 flex-col items-center rounded-md"
+    >
+      <span className="bg-tree-portrait ring-surface relative z-10 size-20 overflow-hidden rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] ring-4 transition-transform duration-200 group-hover:scale-105">
+        <Image
+          src={portrait(person.image)}
+          alt=""
+          fill
+          sizes="5rem"
+          className="object-cover object-top"
+        />
+      </span>
+      <span className="bg-surface -mt-10 flex w-full flex-1 flex-col items-center rounded-md px-2 pt-12 pb-3 shadow-[0_2px_10px_rgba(0,0,0,0.07)] transition-shadow duration-200 group-hover:shadow-[0_6px_18px_rgba(0,0,0,0.12)]">
+        <span className="text-caption text-tree-label w-full border-t border-black/10 pt-2 text-center leading-snug font-semibold">
+          {person.name}
+        </span>
+        <span className="text-caption text-muted mt-1 text-center font-normal">
+          {person.roleLabel}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** Two people who lead together, their cards set edge to edge like a couple. */
+function Pair({
+  people,
+  onOpen,
+}: {
+  people: (TreePerson | undefined)[];
+  onOpen: (person: TreePerson) => void;
+}) {
+  const present = people.filter((p): p is TreePerson => Boolean(p));
+  if (present.length === 0) return null;
+  return (
+    <div className="flex items-stretch justify-center">
+      {present.map((person) => (
+        <PersonNode key={person.id} person={person} onOpen={onOpen} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * A promotion drawn as a family tree chart: the two elders at the top, the
+ * coordinator and vice coordinator beneath them, then a bar that splits out
+ * to the three families, a father and a mother each.
  *
- * Below tablet width the lines drop away and everything stacks; a switch
- * lets a phone show one family at a time instead of all three in a row.
+ * The chart keeps its shape at every width; on a narrow screen it scrolls
+ * sideways inside its own panel rather than stacking.
  */
 export function TreeHierarchyGrid({
   promotion,
@@ -43,85 +101,52 @@ export function TreeHierarchyGrid({
   promotion: PromotionRecord;
   onOpen: (person: TreePerson) => void;
 }) {
-  const [shown, setShown] = useState<"All" | Branch>("All");
   const byRole = new Map(promotion.members.map((p) => [p.role, p]));
-  const card = (role: HierarchyRole, compact = false) => {
-    const person = byRole.get(role);
-    return person ? (
-      <HierarchyRoleCard person={person} onOpen={onOpen} compact={compact} />
-    ) : null;
-  };
+  const scroller = useRef<HTMLDivElement>(null);
+
+  /* When the chart is wider than the screen, open it on its middle so the
+     elders are in view rather than the first family. */
+  useEffect(() => {
+    const el = scroller.current;
+    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+  }, [promotion]);
 
   return (
-    <div>
-      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-        {card("grand_pere")}
-        {card("grand_mere")}
-      </div>
+    <div ref={scroller} className="bg-tree-chart overflow-x-auto rounded-3xl">
+      <div className="mx-auto w-max px-6 py-10 md:px-12 md:py-14">
+        <Pair
+          people={[byRole.get("grand_pere"), byRole.get("grand_mere")]}
+          onOpen={onOpen}
+        />
+        <Drop />
+        <Pair
+          people={[byRole.get("coordinator"), byRole.get("vice_coordinator")]}
+          onOpen={onOpen}
+        />
+        <Drop />
 
-      <TreeConnectorLines kind="leadership" />
-
-      <div className="mt-8 grid gap-6 md:mt-0 md:grid-cols-2 md:gap-8">
-        {card("coordinator")}
-        {card("vice_coordinator")}
-      </div>
-
-      <TreeConnectorLines kind="branches" />
-
-      <div
-        role="group"
-        aria-label="Show a family"
-        className="mt-10 flex flex-wrap justify-center gap-2 md:hidden"
-      >
-        {(["All", "Light", "Wihogora", "Hope"] as const).map((name) => (
-          <button
-            key={name}
-            type="button"
-            aria-pressed={shown === name}
-            onClick={() => setShown(name)}
-            className={cn(
-              "text-caption focus-visible:outline-brand rounded-full border px-4 py-2 transition-colors",
-              shown === name
-                ? "border-brand/40 bg-brand/10 text-brand font-bold"
-                : "border-member-border bg-member-field/60 text-member-rail-ink",
-            )}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-6 md:mt-10 lg:mt-0 lg:grid-cols-3 lg:gap-6">
-        {BRANCHES.map(({ branch, label, roles }) => {
-          const Icon = BRANCH_ICON[branch];
-          const theme = BRANCH_THEME[branch];
-          return (
-            <section
-              key={branch}
-              aria-label={label}
+        <ul className="flex justify-center">
+          {FAMILIES.map(([pere, mere]) => (
+            <li
+              key={pere}
               className={cn(
-                "rounded-3xl border p-4 md:p-6",
-                theme.panel,
-                shown !== "All" && shown !== branch && "max-md:hidden",
+                "relative px-5 pt-7 md:px-8",
+                /* the stub down to this family */
+                "before:border-tree-line before:absolute before:top-0 before:left-1/2 before:h-7 before:-translate-x-1/2 before:border-l-2",
+                /* its share of the bar that joins the families */
+                "after:border-tree-line after:absolute after:top-0 after:right-0 after:left-0 after:border-t-2",
+                /* the outer families turn down off the bar on a curve */
+                "first:before:hidden first:after:left-1/2 first:after:-ml-px first:after:h-7 first:after:rounded-tl-2xl first:after:border-l-2",
+                "last:before:hidden last:after:right-1/2 last:after:-mr-px last:after:h-7 last:after:rounded-tr-2xl last:after:border-r-2",
               )}
             >
-              <h3
-                className={cn(
-                  "text-h4-m md:text-h4 mb-5 flex items-center gap-2",
-                  theme.heading,
-                )}
-              >
-                <Icon aria-hidden className="size-5" />
-                {label}
-              </h3>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-                {roles.map((role) => (
-                  <div key={role}>{card(role, true)}</div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
+              <Pair
+                people={[byRole.get(pere), byRole.get(mere)]}
+                onOpen={onOpen}
+              />
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
