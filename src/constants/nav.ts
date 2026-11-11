@@ -27,6 +27,42 @@ export const MEMBER_NAV: NavItem[] = [
   { label: "Profile", href: ROUTES.PROFILE },
 ];
 
+/**
+ * The one extra place an admin sees in the rail. Admins read the site as
+ * everyone else does; this is the single door to the things only they can
+ * do, and what is behind it is ADMIN_TOOLS.
+ */
+export const ADMIN_NAV: NavItem[] = [{ label: "Admin", href: ROUTES.ADMIN }];
+
+/**
+ * The blogger's one extra place, on the same terms as the admin's.
+ *
+ * She signs in at the member login like everybody else; the register says
+ * she is the blogger, and this appears in her rail. An administrator sees it
+ * too — they answer for what the family publishes.
+ */
+export const STUDIO_NAV: NavItem[] = [{ label: "Studio", href: ROUTES.STUDIO }];
+
+/**
+ * The administrator's two pages: what needs doing, and the people register.
+ *
+ * Posts and albums were here until 11 Nov 2026. They are the social media
+ * manager's work, so they left the navigation; the pages themselves still
+ * exist and still carry this row, which simply marks nothing while you are
+ * on one of them.
+ */
+export const ADMIN_TABS: NavItem[] = [
+  { label: "Overview", href: ROUTES.ADMIN },
+  { label: "Members", href: ROUTES.ADMIN_MEMBERS },
+];
+
+/** The studio's three pages, the same row the admin area carries. */
+export const STUDIO_TABS: NavItem[] = [
+  { label: "Overview", href: ROUTES.STUDIO },
+  { label: "Posts", href: ROUTES.STUDIO_POSTS },
+  { label: "Albums", href: ROUTES.STUDIO_ALBUMS },
+];
+
 /** The member footer's link groups. "Archive" is the family blog. */
 export const MEMBER_FOOTER_GROUPS: { heading: string; items: NavItem[] }[] = [
   {

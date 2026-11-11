@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import {
-  Slogans,
-  StatsStrip,
-  StoryHero,
-  StoryIntro,
-  Timeline,
-} from "@/features/story/components";
+import { Slogans } from "@/features/story/components/Slogans";
+import { StatsStrip } from "@/features/story/components/StatsStrip";
+import { StoryHero } from "@/features/story/components/StoryHero";
+import { StoryIntro } from "@/features/story/components/StoryIntro";
+import { Timeline } from "@/features/story/components/Timeline";
 
 export const metadata: Metadata = {
   title: "Our Story",

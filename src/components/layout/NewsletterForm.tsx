@@ -24,7 +24,7 @@ export function NewsletterForm() {
           placeholder="Enter your email"
           aria-describedby={state.message ? "newsletter-status" : undefined}
           aria-invalid={state.status === "error" || undefined}
-          className="h-10 w-48 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm text-white transition-colors outline-none placeholder:text-white/60 focus:border-white/40 sm:w-56"
+          className="h-10 w-48 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm text-white transition-colors placeholder:text-white/60 focus:border-white/40 sm:w-56"
         />
         <button
           type="submit"

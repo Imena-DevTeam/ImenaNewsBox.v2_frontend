@@ -11,8 +11,12 @@ import {
   House,
   Image as ImageIcon,
   Network,
+  PenLine,
+  Shield,
 } from "lucide-react";
-import { MEMBER_NAV } from "@/constants/nav";
+import { ADMIN_NAV, MEMBER_NAV, STUDIO_NAV } from "@/constants/nav";
+import { ROUTES } from "@/constants/routes";
+import type { Role } from "@/lib/session";
 import { cn } from "@/lib/cn";
 
 const ICONS = {
@@ -23,6 +27,8 @@ const ICONS = {
   Resources: Files,
   Birthdays: Cake,
   Profile: CircleUserRound,
+  Studio: PenLine,
+  Admin: Shield,
 } as const;
 
 /**
@@ -41,13 +47,31 @@ const ICONS = {
  * rather than snapping, driven by a single --i custom property: its row on
  * desktop, its column on mobile. aria-current carries the same fact for
  * screen readers.
+ *
+ * An admin, and the family's blogger, read the site exactly as everyone
+ * else does. The only difference is an extra target at the end of the rail:
+ * the studio for her, the admin for them, and both for an administrator, who
+ * answers for what the family publishes. --n carries how many targets there
+ * are, so the mobile strip and the gliding pill both stay correct whether
+ * that is seven, eight or nine.
  */
-export function MemberSidebar() {
+export function MemberSidebar({ role }: { role?: Role | null }) {
   const pathname = usePathname();
 
-  const activeIndex = MEMBER_NAV.findIndex((item) =>
-    item.href === "/" ? pathname === "/" : pathname.startsWith(item.href),
-  );
+  const items = [
+    ...MEMBER_NAV,
+    ...(role === "admin" || role === "blogger" ? STUDIO_NAV : []),
+    ...(role === "admin" ? ADMIN_NAV : []),
+  ];
+
+  /* The longest matching href wins, so /admin/posts marks Admin rather than
+     whichever shorter prefix happens to come first. */
+  const activeIndex = items.reduce((best, item, index) => {
+    const matches =
+      item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+    if (!matches) return best;
+    return item.href.length > (items[best]?.href.length ?? 0) ? index : best;
+  }, -1 as number);
 
   return (
     <nav
@@ -62,8 +86,13 @@ export function MemberSidebar() {
       )}
     >
       <ul
-        className="md:short:gap-1 relative grid h-full grid-cols-7 items-center px-2 md:flex md:flex-col md:gap-2 md:px-2 md:py-2"
-        style={{ "--i": Math.max(activeIndex, 0) } as CSSProperties}
+        className="md:short:gap-1 relative grid h-full auto-cols-fr grid-flow-col items-center px-2 md:flex md:flex-col md:gap-2 md:px-2 md:py-2"
+        style={
+          {
+            "--i": Math.max(activeIndex, 0),
+            "--n": items.length,
+          } as CSSProperties
+        }
       >
         {/* The gliding pill. One element, moved by transform, so the change
             of page reads as motion instead of two colours swapping. */}
@@ -72,8 +101,8 @@ export function MemberSidebar() {
             aria-hidden
             className={cn(
               "bg-member-active/70 ease-spring pointer-events-none absolute rounded-full transition-transform duration-500 motion-reduce:transition-none",
-              /* Mobile: one seventh of the strip, stepping across. */
-              "top-2 bottom-2 left-2 w-[calc((100%-1rem)/7)] translate-x-[calc(var(--i)*100%)]",
+              /* Mobile: one slot of the strip, stepping across. */
+              "top-2 bottom-2 left-2 w-[calc((100%-1rem)/var(--n))] translate-x-[calc(var(--i)*100%)]",
               /* Desktop: a 48px circle stepping down in 56px rows. */
               "md:top-2 md:bottom-auto md:left-2 md:size-12 md:translate-x-0 md:translate-y-[calc(var(--i)*3.5rem)]",
               /* Short screens: a 36px circle stepping down in 40px rows. */
@@ -82,8 +111,10 @@ export function MemberSidebar() {
           />
         ) : null}
 
-        {MEMBER_NAV.map((item, index) => {
+        {items.map((item, index) => {
           const active = index === activeIndex;
+          const extra =
+            item.href === ROUTES.ADMIN || item.href === ROUTES.STUDIO;
           const Icon = ICONS[item.label as keyof typeof ICONS] ?? House;
 
           return (
@@ -97,7 +128,10 @@ export function MemberSidebar() {
                   "transition-transform duration-150 active:scale-90",
                   active
                     ? "text-member-ink"
-                    : "text-member-rail-ink/70 hover:text-member-ink",
+                    : extra
+                      ? /* The targets not everybody has. */
+                        "text-brand hover:text-brand-hover"
+                      : "text-member-rail-ink/70 hover:text-member-ink",
                 )}
               >
                 <Icon

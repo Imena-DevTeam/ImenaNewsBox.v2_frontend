@@ -16,15 +16,25 @@ describe("userLoginSchema", () => {
 describe("adminLoginSchema", () => {
   it("rejects a password under 8 characters", () => {
     const result = adminLoginSchema.safeParse({
-      name: "Imena",
+      email: "admin@imenafamily.rw",
       password: "short",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  /* The family name identifies seventy-three people, so it cannot identify
+     an administrator. The register signs people in by address. */
+  it("rejects a family name in place of an address", () => {
+    const result = adminLoginSchema.safeParse({
+      email: "Imena",
+      password: "correct-horse",
     });
     expect(result.success).toBe(false);
   });
 
   it("accepts a full credential pair", () => {
     const result = adminLoginSchema.safeParse({
-      name: "Imena",
+      email: "admin@imenafamily.rw",
       password: "correct-horse",
     });
     expect(result.success).toBe(true);

@@ -29,10 +29,11 @@
   /* Section headings. Sampled from the Figma export, which uses a violet
      accent the typography document does not list. */
   --color-heading: #5a36da;
-  /* The faded second line of the hero title. Display sizes only — at 1.6:1
-     against the background it is a decorative tint, not a readable colour, so
-     it must never carry body copy. */
-  --color-display-soft: #c8c7f0;
+  /* The faded second line of the hero title. Display sizes only: 3.25:1 on
+     the page background, which clears the 3:1 that 18pt-and-larger text needs
+     but not the 4.5:1 body copy needs. The design's #c8c7f0 reached only
+     1.62:1 and could not be read at any size. */
+  --color-display-soft: #8886d6;
   /* The deep corner of the footer wash. */
   --color-footer: #090940;
 
@@ -613,50 +614,6 @@
   }
 }
 
-/* The birthday card's foil: a soft diagonal sheen drifting across a
-   gradient, like light on wrapping paper. Still for reduced motion. */
-@keyframes foil-sheen {
-  from {
-    background-position: 160% 0;
-  }
-  to {
-    background-position: -60% 0;
-  }
-}
-
-@utility foil-sheen {
-  background-image: linear-gradient(
-    115deg,
-    transparent 35%,
-    rgb(255 255 255 / 0.16) 47%,
-    rgb(242 193 78 / 0.18) 52%,
-    transparent 64%
-  );
-  background-size: 250% 100%;
-  background-position: 50% 0;
-
-  @media (prefers-reduced-motion: no-preference) {
-    animation: foil-sheen 6s ease-in-out infinite;
-  }
-}
-
-/* Stops every animation inside while the pointer is over it or something
-   within it has focus. WCAG 2.2.2 asks that motion running longer than five
-   seconds can be paused, and moving text cannot be read otherwise. */
-@utility pause-on-hover {
-  &:hover,
-  &:focus-within {
-    &,
-    * {
-      animation-play-state: paused;
-    }
-  }
-}
-
-/* The carousel's slow breathe: the active photograph settles from a slight
-   zoom onto true size for the length a slide is on screen, so the hero
-   feels alive without any of the controls moving. Guarded like every
-   other animation, and the small offset keeps the edges inside the frame. */
 @keyframes hero-zoom {
   from {
     transform: scale(1.045);
@@ -835,15 +792,6 @@
   }
 }
 
-/* The family tree canvas: a lit lineage line glows gold around its violet
-   stroke. A class on an @xyflow/react edge, so a plain rule rather than a
-   utility. */
-@layer components {
-  .lineage-lit path {
-    filter: drop-shadow(0 0 6px rgb(242 193 78 / 0.85));
-  }
-}
-
 /* The short accent bar under a section title. */
 @utility accent-bar {
   display: block;
@@ -928,5 +876,263 @@
     &::after {
       animation: skeleton-shimmer 1.6s ease-in-out infinite;
     }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The working areas: the admin register and the blogger's studio.
+
+   These two areas are used differently from the rest of the site. Somebody
+   reading the family blog moves from page to page; somebody working moves
+   between the tabs of one tool, over and over, and the entrance that suits
+   the first reads as a reload in the second.
+--------------------------------------------------------------------------- */
+
+/* Tab to tab inside one area is a smaller move than changing page, so it
+   gets a smaller entrance: a short fade and a few pixels, no blur.
+   route-enter's 450ms blur-and-rise is right for arriving at the gallery and
+   wrong for Overview -> Members. */
+@keyframes section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility section-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: section-enter 180ms var(--ease-out-soft) both;
+  }
+}
+
+/* A dialog closing. Opening has had dialog-pop since the first dialog; the
+   close was the half that was missing, because close() takes the element out
+   of the top layer on the same frame. The components hold the dialog open
+   for the length of this animation and close it when it ends. */
+@keyframes dialog-drop {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The dim behind a dialog arrived at full strength, and left at it.
+
+   Plain rules rather than utilities, and unlayered, for two reasons:
+   ::backdrop is not a child so no class can reach it, and a utility already
+   on the element — open:animate-dialog-pop, which is still there while it
+   closes — would otherwise win on layer order. useModalDialog writes the
+   attribute; the reduced-motion floor at the end of this file flattens both. */
+dialog[open]::backdrop {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: backdrop-in 200ms var(--ease-out-soft) both;
+  }
+}
+
+dialog[open][data-closing] {
+  animation: dialog-drop 160ms var(--ease-out-soft) both;
+
+  &::backdrop {
+    animation: backdrop-in 160ms var(--ease-out-soft) reverse both;
+  }
+}
+
+/* A row that has just changed. The eye comes back from a dialog to a table
+   of seventy-three rows and needs telling which one moved — especially for
+   an email change, where the only visible difference is one address.
+
+   Colour, not movement, so it still plays for reduced motion: somebody who
+   turned motion down still needs to know which record they edited. */
+@keyframes row-flash {
+  from {
+    background-color: var(--color-member-tint);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+@utility row-flash {
+  animation: row-flash 1100ms var(--ease-out-soft) both;
+}
+
+/* A row on its way out. Opacity and a short slide rather than height: the
+   height of a <tr> is set by the table's layout algorithm and animating it
+   collapses the whole column rhythm with it. */
+@keyframes row-leave {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+  }
+}
+
+@utility row-leave {
+  pointer-events: none;
+  animation: row-leave 200ms var(--ease-out-soft) both;
+}
+
+/* A list arriving in order rather than all at once, driven by an --i index
+   the same way the tab indicator is. Cap the index around eight where it is
+   set: past that the last item reads as slow rather than as alive. */
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility row-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: row-in 240ms var(--ease-out-soft) both;
+    animation-delay: calc(var(--i, 0) * 30ms);
+  }
+}
+
+/* The same arrival for things with a picture in them — album cards, chosen
+   photographs — which can take a little scale without looking wobbly. */
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility tile-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: tile-in 280ms var(--ease-out-soft) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+}
+
+/* The writing surface turning into the reading face. This is the one
+   orchestrated moment in the studio: she is checking her own work, and the
+   swap should read as the page turning over rather than as a cut. */
+@keyframes preview-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility preview-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: preview-enter 320ms var(--ease-out-soft) both;
+  }
+}
+
+@keyframes writing-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility writing-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: writing-enter 220ms var(--ease-out-soft) both;
+  }
+}
+
+/* A number stepping to a new value: it dips and comes back rather than
+   swapping underneath the eye. Used where a change in the figure means
+   something — the reading time crossing a minute. */
+@keyframes tick {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  40% {
+    opacity: 0.35;
+    transform: translateY(-0.2rem);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility tick {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: tick 320ms var(--ease-out-soft) both;
+  }
+}
+
+/* Something that has just become possible — the Publish button the moment a
+   cover photograph arrives. One pulse of the brand ring, then nothing. */
+@keyframes ready-pulse {
+  from {
+    box-shadow: 0 0 0 0 var(--color-brand);
+  }
+  to {
+    box-shadow: 0 0 0 0.375rem rgb(89 53 218 / 0);
+  }
+}
+
+@utility ready-pulse {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ready-pulse 600ms var(--ease-out-soft) both;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The floor under all of it.
+
+   Every animation in this file gates itself on prefers-reduced-motion, which
+   is the right way round — but it is one forgotten @media away from failing,
+   and a transition-duration on a utility class is not gated at all. This is
+   the backstop: unlayered, so it beats anything in a layer, and last, so it
+   beats anything unlayered above it.
+
+   It is deliberately not `animation: none`: a keyframe animation with `both`
+   holds the element at its first frame, so cancelling one outright can leave
+   something at opacity 0. Running it in a hundredth of a millisecond lands
+   on the last frame instead, which is where the element belongs.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  *::backdrop {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }

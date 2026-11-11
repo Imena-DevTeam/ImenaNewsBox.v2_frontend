@@ -213,7 +213,7 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
                   value={tempQuote}
                   onChange={(e) => setTempQuote(e.target.value)}
                   rows={3}
-                  className="mt-1.5 w-full rounded-xl border border-neutral-300 p-3 text-sm focus:border-purple-600 focus:outline-hidden"
+                  className="mt-1.5 w-full rounded-xl border border-neutral-300 p-3 text-sm focus:border-purple-600"
                   placeholder="Enter your family motto..."
                 />
               </div>

@@ -5,14 +5,15 @@ import {
   SESSION_COOKIE,
   SESSION_MAX_AGE,
   createSessionToken,
+  type Role,
 } from "@/lib/session";
 
 /**
  * Only async functions may be exported from a "use server" module, so the
  * cookie's name, lifetime and signing live in @/lib/session.
  */
-export async function startMemberSession(): Promise<void> {
-  const token = await createSessionToken();
+export async function startMemberSession(role: Role = "member"): Promise<void> {
+  const token = await createSessionToken(role);
   if (!token) {
     throw new Error(
       "AUTH_SECRET is not set, so no member session can be issued. Generate one with `npx auth secret`.",
