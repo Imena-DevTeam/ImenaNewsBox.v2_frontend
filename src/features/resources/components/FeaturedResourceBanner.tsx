@@ -68,7 +68,9 @@ export function FeaturedResourceBanner({
 
             {/* File Meta */}
             <div className="text-muted flex items-center gap-3 pt-1 text-xs">
-              <span className="font-mono text-[11px]">{resource.fileName}</span>
+              <span className="text-caption font-mono">
+                {resource.fileName}
+              </span>
               <span>&bull;</span>
               <span>{resource.fileSize}</span>
               <span>&bull;</span>

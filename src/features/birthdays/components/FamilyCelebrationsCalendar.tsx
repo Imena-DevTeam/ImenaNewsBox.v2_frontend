@@ -325,7 +325,7 @@ export function FamilyCelebrationsCalendar() {
                   Bigwi
                 </h3>
                 {wishedIds.has("spotlight-bigwi") && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-600">
+                  <span className="text-caption inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-bold text-rose-600">
                     <Check className="size-3" /> Wished
                   </span>
                 )}
@@ -425,7 +425,7 @@ export function FamilyCelebrationsCalendar() {
                 <div className="flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white p-2.5 shadow-sm transition-shadow hover:shadow-md sm:p-3">
                   {/* Date Block */}
                   <div className="flex min-w-[44px] shrink-0 flex-col items-center justify-center rounded-xl bg-neutral-100/90 px-2 py-1.5 text-center">
-                    <span className="text-[10px] leading-none font-bold tracking-wider text-neutral-400 uppercase">
+                    <span className="text-caption leading-none font-bold tracking-wider text-neutral-400 uppercase">
                       {celebrant.month}
                     </span>
                     <span className="text-base leading-tight font-extrabold text-neutral-900">
@@ -455,7 +455,7 @@ export function FamilyCelebrationsCalendar() {
                       <SubfamilyBadge subfamily={celebrant.subfamily} />
                       <span className="text-xs text-neutral-300">&bull;</span>
                     </div>
-                    <p className="mt-0.5 truncate text-[11px] text-neutral-400">
+                    <p className="text-caption mt-0.5 truncate text-neutral-400">
                       {celebrant.role}
                     </p>
                   </div>
@@ -568,7 +568,7 @@ export function FamilyCelebrationsCalendar() {
                     value={suggestName}
                     onChange={(e) => setSuggestName(e.target.value)}
                     placeholder="e.g. Christian Mugisha"
-                    className="mt-1.5 w-full rounded-xl border border-neutral-300 p-2.5 text-sm focus:border-purple-600 focus:outline-hidden"
+                    className="mt-1.5 w-full rounded-xl border border-neutral-300 p-2.5 text-sm focus:border-purple-600"
                   />
                 </div>
                 <div>
@@ -578,7 +578,7 @@ export function FamilyCelebrationsCalendar() {
                   <input
                     type="text"
                     defaultValue={`${selectedMonth} `}
-                    className="mt-1.5 w-full rounded-xl border border-neutral-300 p-2.5 text-sm focus:border-purple-600 focus:outline-hidden"
+                    className="mt-1.5 w-full rounded-xl border border-neutral-300 p-2.5 text-sm focus:border-purple-600"
                   />
                 </div>
                 <div className="flex justify-end gap-3 pt-2">

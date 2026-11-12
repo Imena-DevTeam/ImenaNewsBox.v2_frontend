@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { VerifyForm } from "@/features/auth/components/VerifyForm";
 import { ROUTES } from "@/constants/routes";
-import { RETURN_PARAM } from "@/lib/session";
+import { RETURN_PARAM, type Role } from "@/lib/session";
 
 /**
  * Reads the address and the role out of the query string.
@@ -27,9 +27,13 @@ export function VerifyPanel() {
       ? requested
       : undefined;
 
-  /* Back goes to whichever login sent you here. */
-  const back =
-    params.get("role") === "admin" ? ROUTES.ADMIN_LOGIN : ROUTES.LOGIN;
+  /* Which login sent you here, and as whom. It decides both where "back"
+     goes and which kind of session the code issues. The blogger comes
+     through the member login, so hers goes back there. */
+  const asked = params.get("role");
+  const role: Role =
+    asked === "admin" ? "admin" : asked === "blogger" ? "blogger" : "member";
+  const back = role === "admin" ? ROUTES.ADMIN_LOGIN : ROUTES.LOGIN;
 
   return (
     <>
@@ -50,7 +54,7 @@ export function VerifyPanel() {
       </Link>
 
       <div className="pb-auth-lg flex flex-1 items-center">
-        <VerifyForm email={email} returnTo={returnTo} />
+        <VerifyForm email={email} returnTo={returnTo} role={role} />
       </div>
     </>
   );

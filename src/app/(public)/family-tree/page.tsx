@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PublicFamilyTreeClient } from "@/features/tree/components";
+import { PublicFamilyTreeClient } from "@/features/tree/components/PublicFamilyTreeClient";
 
 export const metadata: Metadata = {
   title: "Family Tree",

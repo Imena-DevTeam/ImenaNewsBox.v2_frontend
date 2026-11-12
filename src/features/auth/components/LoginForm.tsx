@@ -6,13 +6,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
 import { RETURN_PARAM } from "@/lib/session";
+import { roleForName } from "../roles";
 import { userLoginSchema, type UserLoginValues } from "../schemas";
 import { AuthButton } from "./AuthButton";
 import { AuthSwitch } from "./AuthSwitch";
 import { GoogleButton } from "./GoogleButton";
 import { OrDivider } from "./OrDivider";
 
-/** Family-member login: a family name, then an emailed one-time password. */
+/**
+ * The family's one login: a name, then an emailed one-time password.
+ *
+ * The name decides what you land with. The register holds one blogger, and
+ * typing her name signs her in as one, which puts the studio in her rail —
+ * see features/auth/roles.ts. Everybody else lands as a member. Nothing here
+ * grants an administrator anything: that door asks for a password.
+ */
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -28,13 +36,17 @@ export function LoginForm() {
   // TODO: swap for the real auth call; the API will supply the address the
   // one-time password was sent to, which /verify renders.
   /* Carry on to wherever the member was headed when the gate stopped them. */
-  const onSubmit = handleSubmit(() => {
+  const onSubmit = handleSubmit((values) => {
+    const query = new URLSearchParams();
+
+    const role = roleForName(values.name);
+    if (role !== "member") query.set("role", role);
+
     const next = params.get(RETURN_PARAM);
-    router.push(
-      next
-        ? `${ROUTES.VERIFY}?${RETURN_PARAM}=${encodeURIComponent(next)}`
-        : ROUTES.VERIFY,
-    );
+    if (next) query.set(RETURN_PARAM, next);
+
+    const search = query.toString();
+    router.push(search ? `${ROUTES.VERIFY}?${search}` : ROUTES.VERIFY);
   });
 
   return (

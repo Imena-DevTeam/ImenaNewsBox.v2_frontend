@@ -131,7 +131,7 @@ function PublicMemberFlipCard({
 }: PublicMemberFlipCardProps) {
   return (
     <div
-      className="group focus-visible:ring-primary relative min-h-[300px] w-full cursor-pointer rounded-3xl [perspective:1400px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
+      className="group focus-visible:ring-primary relative min-h-[300px] w-full cursor-pointer rounded-3xl [perspective:1400px] focus-visible:ring-2 focus-visible:ring-offset-4"
       tabIndex={0}
       role="button"
       aria-label={`${member.name}, ${member.role}. Click to flip and view preceding generation`}

@@ -133,7 +133,7 @@ function PdfViewerDialog({
               <p className="truncate text-xs font-bold text-white sm:text-sm">
                 imena_archive
               </p>
-              <p className="truncate text-[11px] text-neutral-300">
+              <p className="text-caption truncate text-neutral-300">
                 Shared in{" "}
                 <span className="font-semibold text-white">
                   #family-records
@@ -170,7 +170,7 @@ function PdfViewerDialog({
             aria-label="Document pages"
             className="flex w-36 shrink-0 flex-col gap-4 border-r border-white/10 bg-[#303030] p-4 sm:w-44"
           >
-            <p className="text-[11px] font-semibold tracking-wider text-neutral-400 uppercase">
+            <p className="text-caption font-semibold tracking-wider text-neutral-400 uppercase">
               Pages (2)
             </p>
 
@@ -179,7 +179,7 @@ function PdfViewerDialog({
               onClick={() => setPage(1)}
               aria-current={page === 1 ? "page" : undefined}
               className={cn(
-                "group relative cursor-pointer overflow-hidden rounded-lg bg-white p-2 text-left shadow-md transition-all focus:outline-none",
+                "group relative cursor-pointer overflow-hidden rounded-lg bg-white p-2 text-left shadow-md transition-all",
                 page === 1
                   ? "ring-2 ring-red-500 ring-offset-2 ring-offset-[#303030]"
                   : "opacity-75 hover:opacity-100",
@@ -197,7 +197,7 @@ function PdfViewerDialog({
                   <div className="h-0.5 w-2/3 bg-neutral-200" />
                 </div>
               </div>
-              <span className="mt-1 block text-center text-[10px] font-medium text-neutral-300">
+              <span className="text-caption mt-1 block text-center font-medium text-neutral-300">
                 Page 1
               </span>
             </button>
@@ -207,7 +207,7 @@ function PdfViewerDialog({
               onClick={() => setPage(2)}
               aria-current={page === 2 ? "page" : undefined}
               className={cn(
-                "group relative cursor-pointer overflow-hidden rounded-lg bg-white p-2 text-left shadow-md transition-all focus:outline-none",
+                "group relative cursor-pointer overflow-hidden rounded-lg bg-white p-2 text-left shadow-md transition-all",
                 page === 2
                   ? "ring-2 ring-red-500 ring-offset-2 ring-offset-[#303030]"
                   : "opacity-75 hover:opacity-100",
@@ -223,7 +223,7 @@ function PdfViewerDialog({
                   <div className="h-0.5 w-1/2 bg-neutral-200" />
                 </div>
               </div>
-              <span className="mt-1 block text-center text-[10px] font-medium text-neutral-300">
+              <span className="text-caption mt-1 block text-center font-medium text-neutral-300">
                 Page 2
               </span>
             </button>
@@ -321,7 +321,7 @@ function DocumentPageOne({ resource }: { resource: ResourceItem }) {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-4 text-xs text-neutral-600">
         <div>
           <span className="font-semibold text-neutral-900">Reference:</span>{" "}
-          <span className="font-mono text-[11px]">{resource.fileName}</span>
+          <span className="text-caption font-mono">{resource.fileName}</span>
         </div>
         <div>
           <span className="font-semibold text-neutral-900">File Size:</span>{" "}
@@ -371,7 +371,7 @@ function DocumentPageOne({ resource }: { resource: ResourceItem }) {
         </section>
       </div>
 
-      <div className="mt-8 flex items-center justify-between border-t pt-4 text-[11px] text-neutral-400">
+      <div className="text-caption mt-8 flex items-center justify-between border-t pt-4 text-neutral-400">
         <span>IMENA Family Times &bull; Foundation Archives</span>
         <span>Page 1 of 2</span>
       </div>
@@ -441,17 +441,17 @@ function DocumentPageTwo({ resource }: { resource: ResourceItem }) {
             <p className="text-xs font-semibold text-neutral-900">
               IMENA Family Foundation
             </p>
-            <p className="text-[11px] text-neutral-500">
+            <p className="text-caption text-neutral-500">
               Kigali &bull; Huye &bull; Diaspora
             </p>
           </div>
-          <div className="rounded-md border-2 border-neutral-900 px-3.5 py-1 text-center font-mono text-[10px] font-bold tracking-wider text-neutral-900 uppercase">
+          <div className="text-caption rounded-md border-2 border-neutral-900 px-3.5 py-1 text-center font-mono font-bold tracking-wider text-neutral-900 uppercase">
             Official Seal &bull; Certified
           </div>
         </div>
       </div>
 
-      <div className="mt-8 flex items-center justify-between border-t pt-4 text-[11px] text-neutral-400">
+      <div className="text-caption mt-8 flex items-center justify-between border-t pt-4 text-neutral-400">
         <span>IMENA Family Times &bull; Foundation Archives</span>
         <span>Page 2 of 2</span>
       </div>

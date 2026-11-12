@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { startMemberSession } from "@/app/actions/session";
 import { ROUTES } from "@/constants/routes";
+import type { Role } from "@/lib/session";
 import { useCountdown } from "../hooks/useCountdown";
 import { OTP_LENGTH, verifySchema } from "../schemas";
 import { AuthHeading } from "./AuthHeading";
@@ -29,9 +30,11 @@ async function verifyCode(code: string) {
 export function VerifyForm({
   email,
   returnTo,
+  role = "member",
 }: {
   email?: string;
   returnTo?: string;
+  role?: Role;
 }) {
   const router = useRouter();
   const [code, setCode] = useState("");
@@ -57,12 +60,15 @@ export function VerifyForm({
       setStatus("verified");
 
       /* The gate the middleware reads. Until the auth API exists this is the
-         whole of the session; see @/lib/session. */
-      await startMemberSession();
+         whole of the session; see @/lib/session. The code itself still does
+         not prove anything — which login you came through is all that sets
+         the role. */
+      await startMemberSession(role);
 
-      // TODO: once roles exist, send each one to its own home (the member
-      // dashboard, the admin panel). `replace` keeps the code step out of
-      // history, and returnTo carries whoever was bounced here back.
+      /* Everyone lands on the same dashboard, admins included: the admin
+         door is in the rail, not a separate home. `replace` keeps the code
+         step out of history, and returnTo carries whoever was bounced here
+         back to where they were going. */
       router.replace(returnTo ?? ROUTES.DASHBOARD);
     } catch {
       setStatus("idle");

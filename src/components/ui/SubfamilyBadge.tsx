@@ -38,7 +38,7 @@ export function SubfamilyBadge({
     <span
       className={cn(
         "inline-flex items-center rounded-full border font-bold tracking-wider",
-        size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-3 py-0.5 text-xs",
+        size === "sm" ? "text-caption px-2 py-0.5" : "px-3 py-0.5 text-xs",
         uppercase && "uppercase",
         style,
         className,

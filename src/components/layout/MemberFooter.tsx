@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { endMemberSession } from "@/app/actions/session";
-import { MEMBER } from "@/constants/member";
 import { MEMBER_FOOTER_GROUPS } from "@/constants/nav";
+import { SignedInName } from "./SignedInName";
 import { ROUTES } from "@/constants/routes";
 import {
   FAMILY_FOUNDED,
@@ -73,7 +73,7 @@ export function MemberFooter() {
             <ul className="mt-5 space-y-3.5">
               <li>
                 <Link href={ROUTES.PROFILE} className={LINK}>
-                  {MEMBER.name}, {MEMBER.subfamily} family
+                  <SignedInName />
                 </Link>
               </li>
               <li>
