@@ -88,7 +88,7 @@ export function ResourceCard({
         </p>
 
         {/* Publication Date */}
-        <p className="text-muted mt-3 font-mono text-[11px]">
+        <p className="text-muted text-caption mt-3 font-mono">
           Published {resource.publishedDate}
         </p>
       </div>

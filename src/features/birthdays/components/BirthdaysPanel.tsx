@@ -91,7 +91,7 @@ export function BirthdaysPanel({ className }: { className?: string }) {
           </div>
 
           <div className="flex flex-col items-center justify-center rounded-xl bg-[#4338CA] px-2.5 py-1 text-white shadow-2xs">
-            <span className="text-[9px] font-bold tracking-wider uppercase opacity-90">
+            <span className="text-caption font-bold tracking-wider uppercase opacity-90">
               MAR
             </span>
             <span className="text-xs leading-none font-extrabold">28</span>
@@ -167,7 +167,7 @@ export function BirthdaysPanel({ className }: { className?: string }) {
               <div className="flex min-w-0 items-center gap-3">
                 {/* Date Ticket Badge */}
                 <div className="flex min-w-[44px] flex-col items-center justify-center rounded-xl bg-[#EEF2FF] px-2.5 py-1.5">
-                  <span className="text-[10px] font-bold tracking-wider text-[#4F46E5] uppercase">
+                  <span className="text-caption font-bold tracking-wider text-[#4F46E5] uppercase">
                     {birthday.month}
                   </span>
                   <span className="mt-0.5 text-sm leading-none font-extrabold text-[#1E1B4B]">
@@ -194,7 +194,7 @@ export function BirthdaysPanel({ className }: { className?: string }) {
                     </span>
                     <span
                       className={cn(
-                        "rounded-full px-2.5 py-0.5 text-[10px] font-semibold",
+                        "text-caption rounded-full px-2.5 py-0.5 font-semibold",
                         isLight
                           ? "bg-[#F3E8FF] text-[#7E22CE]"
                           : "bg-[#EEF2FF] text-[#4F46E5]",

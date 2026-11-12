@@ -117,7 +117,7 @@ function FlipTile({
           onToggle();
         }
       }}
-      className="focus-visible:ring-primary cursor-pointer rounded-2xl [perspective:1400px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
+      className="focus-visible:ring-primary cursor-pointer rounded-2xl [perspective:1400px] focus-visible:ring-2 focus-visible:ring-offset-4"
     >
       <div
         className="relative h-full transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] [transform-style:preserve-3d]"

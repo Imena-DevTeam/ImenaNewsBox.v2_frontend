@@ -10,9 +10,8 @@ import { TRINITY } from "../data";
  * member-count badge — solid enough to read as a card you can open, not a
  * pale placeholder.
  *
- * They all lead to the family tree for now — that page is the one place the
- * branches are drawn — and are labelled individually so screen readers hear
- * which card is which.
+ * Each card opens that branch's own page, and is labelled individually so
+ * screen readers hear which card is which.
  */
 export function SubFamilyTrinity() {
   return (
@@ -42,9 +41,9 @@ export function SubFamilyTrinity() {
         {TRINITY.map((family) => (
           <li key={family.name}>
             <Link
-              href={ROUTES.TREE}
+              href={`${ROUTES.FAMILIES}/${family.slug}`}
               className="shadow-member lift group relative flex aspect-4/3 items-end overflow-hidden rounded-lg"
-              aria-label={`${family.name} subfamily, ${family.members} members, led by ${family.leader} — explore the family tree`}
+              aria-label={`${family.name} subfamily, ${family.members} members, led by ${family.leader}`}
             >
               <Image
                 src={family.image}

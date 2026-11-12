@@ -13,10 +13,15 @@ import { useEffect, useRef, useState } from "react";
 export function CountUp({
   value,
   suffix = "",
+  durationMs = 1200,
   className,
 }: {
   value: number;
   suffix?: string;
+  /** The public pages climb slowly, as part of arriving at a section. The
+      admin and studio counts strips are read, not admired, and pass
+      something shorter. */
+  durationMs?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -35,7 +40,7 @@ export function CountUp({
         if (!entries[0]?.isIntersecting) return;
         observer.disconnect();
 
-        const duration = 1200;
+        const duration = durationMs;
         const start = performance.now();
 
         const tick = (now: number) => {
@@ -57,7 +62,7 @@ export function CountUp({
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [value]);
+  }, [value, durationMs]);
 
   return (
     <span ref={ref} className={className}>

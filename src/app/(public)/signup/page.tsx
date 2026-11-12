@@ -108,7 +108,7 @@ export default function JoinasaMemberPage() {
                       name="fullName"
                       required
                       placeholder="e.g. Christian Aganze"
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all outline-none"
+                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
                     />
                   </div>
 
@@ -125,7 +125,7 @@ export default function JoinasaMemberPage() {
                       type="email"
                       required
                       placeholder="you@domain.com"
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all outline-none"
+                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
                     />
                   </div>
                 </div>
@@ -142,7 +142,7 @@ export default function JoinasaMemberPage() {
                       id="promotion"
                       name="promotion"
                       required
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all outline-none"
+                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
                     >
                       <option value="">Select your cohort...</option>
                       {PROMOTIONS.map((p) => (
@@ -164,7 +164,7 @@ export default function JoinasaMemberPage() {
                       id="subfamily"
                       name="subfamily"
                       required
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all outline-none"
+                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
                     >
                       <option value="">Select branch...</option>
                       {BRANCHES.map((b) => (
@@ -188,7 +188,7 @@ export default function JoinasaMemberPage() {
                     name="message"
                     rows={3}
                     placeholder="Mention your university chapter (e.g. UR Huye, UR Nyarugenge) or your elders."
-                    className="border-border bg-surface-elevated text-heading focus:border-brand resize-none rounded-xl border px-3.5 py-2.5 text-sm transition-all outline-none"
+                    className="border-border bg-surface-elevated text-heading focus:border-brand resize-none rounded-xl border px-3.5 py-2.5 text-sm transition-all"
                   />
                 </div>
 

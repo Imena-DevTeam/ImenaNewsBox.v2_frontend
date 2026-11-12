@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CalendarDays, Heart, MessageCircle } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/cn";
-import type { BlogPagePost } from "../data";
+import { formatPostDate, type BlogPagePost } from "../data";
 
 export function BlogCard({ post }: { post: BlogPagePost }) {
   return (
@@ -22,7 +22,7 @@ export function BlogCard({ post }: { post: BlogPagePost }) {
           />
           <span className="text-caption text-surface absolute bottom-3 left-3 flex items-center gap-1 drop-shadow-sm">
             <CalendarDays aria-hidden className="size-3" />
-            {post.date}
+            {formatPostDate(post.publishedOn)}
           </span>
         </div>
 

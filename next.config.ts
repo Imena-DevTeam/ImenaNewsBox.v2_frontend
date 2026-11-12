@@ -18,13 +18,9 @@ const nextConfig: NextConfig = {
     staleTimes: { static: 600, dynamic: 30 },
 
     /* Barrel packages that Next does not rewrite by default. Without this,
-       importing one icon compiles and ships the whole set (Hugeicons alone
-       is thousands of modules), which is most of a cold dev compile. */
-    optimizePackageImports: [
-      "@hugeicons/core-free-icons",
-      "@hugeicons/react",
-      "motion",
-    ],
+       importing one export compiles the whole package, which is most of a
+       cold dev compile. */
+    optimizePackageImports: ["motion"],
   },
 
   images: {

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, Download, LayoutGrid, List, Search, X } from "lucide-react";
-import { EmptyTestimonial } from "@/components/ui/empty-testimonial";
+import { EmptyTestimonial } from "@/components/ui/EmptyTestimonial";
 import { RESOURCES_DATA } from "../data";
 import type { ResourceCategory, ResourceItem } from "../types";
 import { CategoryFilter } from "./CategoryFilter";
@@ -165,7 +165,7 @@ export function ResourcesBrowser() {
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search documents..."
-              className="border-border bg-surface text-heading placeholder:text-muted focus:border-brand focus:ring-brand/20 min-h-[42px] w-full rounded-full border py-2 pr-9 pl-9 text-xs font-medium shadow-xs transition-colors focus:ring-2 focus:outline-hidden"
+              className="border-border bg-surface text-heading placeholder:text-muted focus:border-brand focus:ring-brand/20 min-h-[42px] w-full rounded-full border py-2 pr-9 pl-9 text-xs font-medium shadow-xs transition-colors focus:ring-2"
             />
             {searchQuery ? (
               <button
@@ -177,7 +177,7 @@ export function ResourcesBrowser() {
                 <X className="size-3.5" />
               </button>
             ) : (
-              <kbd className="border-border bg-surface-elevated text-muted pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 flex h-5 items-center rounded border px-1.5 font-mono text-[11px] font-medium">
+              <kbd className="border-border bg-surface-elevated text-muted text-caption pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 flex h-5 items-center rounded border px-1.5 font-mono font-medium">
                 /
               </kbd>
             )}

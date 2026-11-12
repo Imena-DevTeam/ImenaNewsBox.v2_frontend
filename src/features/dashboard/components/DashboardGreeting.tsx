@@ -1,7 +1,7 @@
 "use client";
 
 import { BellRing } from "lucide-react";
-import { MEMBER } from "@/constants/member";
+import { useSignedIn } from "@/components/layout/SignedIn";
 import { OPEN_UPDATES_EVENT } from "@/components/layout/NotificationBell";
 import { NOTIFICATIONS } from "@/lib/notifications";
 import { useNow } from "@/hooks/useNow";
@@ -20,6 +20,8 @@ function greetingFor(hour: number): string {
  * counting this week's family updates that opens the updates drawer.
  */
 export function DashboardGreeting() {
+  const person = useSignedIn();
+
   /* To the minute, so the clock and the greeting turn over on time. */
   const nowMs = useNow(60_000);
   const now = nowMs === null ? null : new Date(nowMs);
@@ -44,7 +46,7 @@ export function DashboardGreeting() {
     <div className="min-w-0">
       <h1 className="text-welcome-m lg:text-welcome leading-none whitespace-nowrap max-sm:text-xl">
         {hour === null ? "Muraho" : greetingFor(hour)},{" "}
-        <span className="text-brand">{MEMBER.name}</span>
+        <span className="text-brand">{person.name}</span>
       </h1>
 
       <div className="text-caption text-muted mt-3 flex flex-wrap items-center gap-2">
