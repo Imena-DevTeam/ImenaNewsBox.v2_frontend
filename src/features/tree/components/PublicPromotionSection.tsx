@@ -1,12 +1,10 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import { useState } from "react";
-import { Container } from "@/components/layout/Container";
-import { Grow } from "@/components/motion/Grow";
-import { Parallax } from "@/components/motion/Parallax";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
+import { HeartsOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 import {
   PROMOTIONS_DATA,
@@ -15,181 +13,137 @@ import {
   type PromotionYear,
   type PublicPromotionMember,
 } from "@/features/tree/publicTreeData";
+import { PROMOTIONS } from "../promotions";
 
-interface PublicMemberFlipCardProps {
-  member: PublicPromotionMember;
-  predecessor: { member: PublicPromotionMember; yearLabel: string } | null;
-  isFlipped: boolean;
-  onToggleFlip: () => void;
-  staggerDelayMs?: number;
+interface TileProps {
+  name: string;
+  role: string;
+  clan?: string;
+  quote?: string;
+  image?: StaticImageData | string | null;
 }
 
-function MemberCardContent({
-  member,
-  yearTag,
-  isBack = false,
-}: {
-  member: PublicPromotionMember;
-  yearTag?: string;
-  isBack?: boolean;
-}) {
+/* One member, as the design draws them: the portrait inset on the left; the
+   name, two small stacked pills and the saying on the right. */
+function MemberTile({ name, role, clan, quote, image }: TileProps) {
   return (
-    <article
-      style={{
-        backfaceVisibility: "hidden",
-        WebkitBackfaceVisibility: "hidden",
-      }}
-      className={cn(
-        "relative flex h-full w-full flex-col items-center gap-6 sm:flex-row sm:items-stretch",
-        "rounded-3xl border border-[#e8edf7] bg-white p-5 sm:p-6 md:p-7",
-        "shadow-[0_4px_24px_rgba(13,26,186,0.04)] hover:shadow-[0_20px_45px_rgba(13,26,186,0.08)]",
-        "transition-shadow duration-300 select-none",
-        isBack && "border-[#dbeafe] shadow-[0_6px_28px_rgba(13,26,186,0.06)]",
-      )}
-    >
-      {/* Subtle Flip Micro-Indicator */}
-      <div className="group-hover:text-primary absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-slate-100/70 text-slate-400 opacity-60 transition-all duration-300 group-hover:bg-blue-50 group-hover:opacity-100 sm:top-5 sm:right-5">
-        <svg
-          className="size-4 transition-transform duration-500 group-hover:rotate-180"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-          <path d="M16 21h5v-5" />
-        </svg>
-      </div>
-
-      {/* Left Column: Portrait */}
-      <div className="relative aspect-[4/5] w-full shrink-0 overflow-hidden rounded-2xl bg-[#eaeff5] ring-1 ring-black/5 sm:w-44 md:w-52">
-        {member.imageUrl ? (
+    <article className="bg-tree-card border-tree-outline flex h-full gap-4 rounded-2xl border-2 p-2.5 sm:gap-6 xl:h-[380px] xl:gap-[46px] xl:rounded-[17px] xl:p-[11px]">
+      <div className="bg-tree-box relative aspect-[243/358] w-28 shrink-0 self-start overflow-hidden rounded-lg sm:w-40 xl:w-[243px] xl:self-stretch">
+        {image ? (
           <Image
-            src={member.imageUrl}
-            alt={member.name}
+            src={image}
+            alt={name}
             fill
-            sizes="(max-width: 640px) 100vw, 220px"
+            sizes="(min-width: 1280px) 243px, 10rem"
             className="object-cover object-top"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-[#eaeff5]">
-            <svg
-              className="h-28 w-24 text-[#475569] opacity-90"
-              viewBox="0 0 100 120"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <circle cx="50" cy="38" r="22" fill="currentColor" />
-              <path d="M14 110 C 14 74, 86 74, 86 110 Z" fill="currentColor" />
-            </svg>
-          </div>
+          <svg
+            viewBox="0 0 100 120"
+            aria-hidden
+            className="fill-tree-silhouette absolute inset-x-0 bottom-0 mx-auto w-3/4"
+          >
+            <circle cx="50" cy="40" r="22" />
+            <path d="M12 120c0-34 76-34 76 0Z" />
+          </svg>
         )}
       </div>
 
-      {/* Right Column: Details */}
-      <div className="flex w-full flex-1 flex-col justify-center py-1 text-left sm:py-2">
-        {/* Name in bold uppercase/caps matching the design */}
-        <h4 className="font-heading text-2xl leading-tight font-black tracking-tight text-slate-900 uppercase md:text-[26px]">
-          {member.name}
+      <div className="flex min-w-0 flex-col justify-center py-2 pr-3 xl:pr-6">
+        <h4 className="text-h4-m md:text-h4 xl:text-tree-name text-tree-ink">
+          {name}
         </h4>
 
-        {/* Badges */}
-        <div className="mt-3.5 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full border border-[#dbeafe] bg-[#ebf3fe] px-3.5 py-1 text-xs font-semibold text-[#1d4ed8]">
-            {member.role}
-            {yearTag ? ` • ${yearTag}` : ""}
+        <div className="mt-3 flex flex-col items-start gap-2 xl:mt-[20px] xl:gap-[14px]">
+          <span className="border-tree-badge-edge text-caption text-tree-badge-ink rounded-lg border bg-white/60 px-3 py-1.5 font-bold">
+            {role}
           </span>
-
-          {member.familyName && (
-            <span className="inline-flex items-center rounded-full border border-[#bfdbfe] bg-white px-3.5 py-1 text-xs font-medium text-[#1d4ed8]">
-              {member.familyName}
+          {clan ? (
+            <span className="border-tree-badge-edge text-caption text-tree-badge-ink rounded-lg border bg-white/60 px-3 py-1.5 font-bold">
+              {clan}
             </span>
-          )}
+          ) : null}
         </div>
 
-        {/* Saying / Quote with authentic typographical styling */}
-        {member.saying && (
-          <p className="mt-4 text-sm leading-relaxed font-normal text-slate-600 italic md:text-base">
-            &ldquo;{member.saying}&rdquo;
-          </p>
-        )}
+        {/* The saying sits beside a soft violet bar with rounded ends, as in
+            the design. */}
+        {quote ? (
+          <blockquote className="mt-4 flex gap-2.5 xl:mt-[25px]">
+            <span
+              aria-hidden
+              className="bg-tree-quote-bar rounded-pill w-[3px] shrink-0"
+            />
+            <p className="text-body-sm text-tree-copy">&ldquo;{quote}&rdquo;</p>
+          </blockquote>
+        ) : null}
       </div>
     </article>
   );
 }
 
-function PublicMemberFlipCard({
-  member,
-  predecessor,
-  isFlipped,
-  onToggleFlip,
-  staggerDelayMs = 0,
-}: PublicMemberFlipCardProps) {
+const fromPublic = (m: PublicPromotionMember): TileProps => ({
+  name: m.name,
+  role: m.role,
+  clan: m.familyName,
+  quote: m.saying,
+  image: m.imageUrl,
+});
+
+/* A grandparent card that turns over to show who held the role in the
+   promotion before. */
+function FlipTile({
+  front,
+  back,
+  flipped,
+  onToggle,
+  delayMs,
+}: {
+  front: TileProps;
+  back: TileProps;
+  flipped: boolean;
+  onToggle: () => void;
+  delayMs: number;
+}) {
   return (
     <div
-      className="group focus-visible:ring-primary relative min-h-[300px] w-full cursor-pointer rounded-3xl [perspective:1400px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
-      tabIndex={0}
       role="button"
-      aria-label={`${member.name}, ${member.role}. Click to flip and view preceding generation`}
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label={`${front.name}, ${front.role}. Show the ${front.role} before them`}
+      onClick={onToggle}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onToggleFlip();
+          onToggle();
         }
       }}
-      onClick={onToggleFlip}
+      className="focus-visible:ring-primary cursor-pointer rounded-2xl [perspective:1400px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-4"
     >
       <div
-        className="relative h-full w-full rounded-3xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] [transform-style:preserve-3d]"
+        className="relative h-full transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] [transform-style:preserve-3d]"
         style={{
-          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          transitionDelay: `${staggerDelayMs}ms`,
+          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          transitionDelay: `${delayMs}ms`,
         }}
       >
-        {/* FRONT FACE: Current Generation Member */}
-        <div className="h-full w-full">
-          <MemberCardContent member={member} />
+        <div className="h-full [backface-visibility:hidden]">
+          <MemberTile {...front} />
         </div>
-
-        {/* BACK FACE: Preceding Generation Member */}
-        <div
-          className="absolute inset-0 h-full w-full [transform:rotateY(180deg)]"
-          style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-          }}
-        >
-          {predecessor ? (
-            <MemberCardContent
-              member={predecessor.member}
-              yearTag={predecessor.yearLabel}
-              isBack
-            />
-          ) : (
-            <MemberCardContent
-              member={{
-                id: "founder-root",
-                name: "Benon",
-                singleName: "Benon",
-                role: member.role,
-                familyName: "Founder Patriarch",
-                imageUrl: null,
-                saying:
-                  "Umuryango ukura ku mizi yawo (Our strength comes from our roots)",
-              }}
-              yearTag="Founder Lineage"
-              isBack
-            />
-          )}
+        <div className="absolute inset-0 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+          <MemberTile {...back} />
         </div>
       </div>
     </div>
   );
 }
+
+const ROOT_TILE: TileProps = {
+  name: "Benon",
+  role: "Founder",
+  clan: "IMENA Family",
+  quote: "Umuryango ukura ku mizi yawo",
+  image: null,
+};
 
 export function PublicPromotionSection({
   activeYear = "2025-2026",
@@ -199,184 +153,142 @@ export function PublicPromotionSection({
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const currentYear = activeYear;
-  const currentIndex = PROMOTION_YEARS.indexOf(currentYear);
-  const precedingYear =
-    currentIndex > 0 ? PROMOTION_YEARS[currentIndex - 1] : "Root (Benon)";
+  const index = PROMOTION_YEARS.indexOf(activeYear);
+  const precedingYear = index > 0 ? PROMOTION_YEARS[index - 1] : null;
 
-  const currentGroup = PROMOTIONS_DATA[currentYear]?.[0];
-  const members = currentGroup?.members ?? [];
+  const members = PROMOTIONS_DATA[activeYear]?.[0]?.members ?? [];
   const grandpere = members.find((m) => m.role === "Grandpere");
   const grandmere = members.find((m) => m.role === "Grandmere");
-
-  const grandperePredecessor = getPrecedingGenerationMember(
-    currentYear,
-    "Grandpere",
-  );
-  const grandmerePredecessor = getPrecedingGenerationMember(
-    currentYear,
-    "Grandmere",
-  );
-
-  const toggleFlip = () => {
-    setIsFlipped((f) => !f);
+  const before = (role: "Grandpere" | "Grandmere") => {
+    const prev = getPrecedingGenerationMember(activeYear, role);
+    return prev ? fromPublic(prev.member) : ROOT_TILE;
   };
 
+  /* The coordinating pair comes from the full promotion records. */
+  const record = PROMOTIONS.find((p) => p.year === activeYear);
+  const leads = [
+    record?.members.find((m) => m.role === "coordinator"),
+    record?.members.find((m) => m.role === "vice_coordinator"),
+  ].filter((m) => m !== undefined);
+  const leadsHeading =
+    leads.length > 1 ? "Coordinator & Vice Coordinator" : "Coordinator";
+
+  const rowHeading =
+    "text-h4-m md:text-h3 xl:text-tree-row text-text text-center font-heading";
+  const cardGrid =
+    "mx-auto mt-6 grid max-w-[1099px] gap-6 lg:grid-cols-2 xl:mt-[46px] xl:grid-cols-[526px_526px] xl:justify-center xl:gap-[47px]";
+
   return (
-    <section
-      id="promotion-section"
-      className="relative scroll-mt-24 pt-12 pb-24 md:pt-16 md:pb-32"
-    >
-      {/* Decorative Ornaments with parallax drift matching landing page */}
-      <Parallax
-        distance={-25}
-        className="pointer-events-none absolute -top-6 left-4 hidden opacity-40 select-none md:block lg:left-12"
+    <>
+      <section
+        id="promotion-section"
+        className="relative scroll-mt-24 pt-16 pb-20 md:pt-24 xl:pt-[138px] xl:pb-[238px]"
       >
-        <Reveal from="left" delay={0.15} distance={24}>
-          <Image
-            src="/images/hearts.svg"
-            alt=""
-            width={80}
-            height={72}
-            className="object-contain"
-          />
-        </Reveal>
-      </Parallax>
-
-      <Parallax
-        distance={35}
-        className="pointer-events-none absolute top-1/3 right-4 hidden opacity-35 select-none md:block lg:right-12"
-      >
-        <Reveal from="right" delay={0.25} distance={24}>
-          <Image
-            src="/images/house.svg"
-            alt=""
-            width={100}
-            height={104}
-            className="object-contain"
-          />
-        </Reveal>
-      </Parallax>
-
-      <Container className="relative">
-        {/* ==============================================================
-            SECTION HEADER with IMENA Crest matching design
-        ============================================================== */}
-        <div className="text-center">
-          {/* Centered Crest */}
-          <Reveal from="top" distance={20} duration={0.6}>
-            <div className="mx-auto mb-4 flex justify-center">
-              <Image
-                src="/images/imena-crest.webp"
-                alt="IMENA Family Crest"
-                width={70}
-                height={70}
-                className="object-contain drop-shadow-xs"
-                priority
-              />
-            </div>
-          </Reveal>
+        <div className="relative mx-auto max-w-[1440px] px-4 md:px-8">
+          <HeartsOrnament className="motion-safe:animate-float-slow absolute top-[242px] right-[48px] hidden w-[104px] xl:block" />
 
           <SplitText
             lines={[
-              [
-                "AERG IMENA Family ",
-                { text: "Tree", className: "text-primary" },
-              ],
+              ["IMENA Family ", { text: "Tree", className: "text-heading" }],
             ]}
-            className="text-h1-m md:text-h1 font-black text-black"
+            className="text-h1-m md:text-display xl:text-story-hero text-center"
           />
 
           <Reveal from="bottom" blur delay={0.2} distance={20}>
-            <p className="text-body-lg text-muted mx-auto mt-3 max-w-2xl">
+            <p className="text-body-lg md:text-h3 xl:text-tree-intro text-text mx-auto mt-6 max-w-[940px] text-center font-normal tracking-tight xl:mt-[69px]">
               Discover the connections and relationships within our extended
               family. Each level represents a generation, and each circle
-              represents a family member.
+              represents{" "}
+              <span className="whitespace-nowrap">a family member.</span>
             </p>
           </Reveal>
-        </div>
 
-        {/* ==============================================================
-            CLEAN DESIGN-MATCHING YEAR DISPLAY (Smooth Cross-Fade)
-        ============================================================== */}
-        <Reveal from="bottom" delay={0.3} distance={20}>
-          <div className="mt-8 flex flex-col items-center">
-            {/* Minimalist Year Pill with Cross-Fade */}
-            <div className="relative h-10 w-44">
-              {/* Current Year */}
-              <div
+          {/* The promotion's year cross-fades to the one before when the
+              grandparent cards turn over. */}
+          <p className="text-h3-m md:text-h2 xl:text-tree-promo text-text mt-12 text-center font-normal xl:mt-[92px]">
+            The{" "}
+            <span className="text-heading inline-grid">
+              <span
+                aria-hidden={isFlipped && precedingYear !== null}
                 className={cn(
-                  "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
-                  isFlipped
-                    ? "pointer-events-none -translate-y-2 opacity-0"
-                    : "translate-y-0 opacity-100",
+                  "transition-opacity duration-500 [grid-area:1/1]",
+                  isFlipped && precedingYear ? "opacity-0" : "opacity-100",
                 )}
               >
-                <span className="bg-primary rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
-                  {currentYear}
-                </span>
-              </div>
-
-              {/* Preceding Year */}
-              <div
+                {activeYear}
+              </span>
+              <span
+                aria-hidden={!(isFlipped && precedingYear !== null)}
                 className={cn(
-                  "absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out",
-                  isFlipped
-                    ? "translate-y-0 opacity-100"
-                    : "pointer-events-none translate-y-2 opacity-0",
+                  "transition-opacity duration-500 [grid-area:1/1]",
+                  isFlipped && precedingYear ? "opacity-100" : "opacity-0",
                 )}
               >
-                <span className="bg-heading rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
-                  {precedingYear}
-                </span>
-              </div>
-            </div>
+                {precedingYear ?? activeYear}
+              </span>
+            </span>{" "}
+            Promotion
+          </p>
 
-            {/* Section Subhead strictly matching media_1793188908046.png */}
-            <h3 className="mt-6 text-xl font-bold tracking-tight text-black sm:text-2xl">
-              Grandpere &amp; Grandmere
-            </h3>
+          <h3 className={cn(rowHeading, "mt-14 xl:mt-[132px]")}>
+            Grandpere &amp; Grandmere
+          </h3>
+          <div className={cardGrid}>
+            {grandpere ? (
+              <Reveal from="left" distance={30} duration={0.65} delay={0.1}>
+                <FlipTile
+                  front={fromPublic(grandpere)}
+                  back={before("Grandpere")}
+                  flipped={isFlipped}
+                  onToggle={() => setIsFlipped((f) => !f)}
+                  delayMs={0}
+                />
+              </Reveal>
+            ) : null}
+            {grandmere ? (
+              <Reveal from="right" distance={30} duration={0.65} delay={0.2}>
+                <FlipTile
+                  front={fromPublic(grandmere)}
+                  back={before("Grandmere")}
+                  flipped={isFlipped}
+                  onToggle={() => setIsFlipped((f) => !f)}
+                  delayMs={75}
+                />
+              </Reveal>
+            ) : null}
           </div>
-        </Reveal>
 
-        {/* ==============================================================
-            PREMIUM GRANDPERE & GRANDMERE 3D FLIP CARDS
-        ============================================================== */}
-        <div className="mx-auto mt-8 grid max-w-5xl gap-6 md:grid-cols-2">
-          {grandpere && (
-            <Reveal from="left" distance={30} duration={0.65} delay={0.1}>
-              <PublicMemberFlipCard
-                member={grandpere}
-                predecessor={grandperePredecessor}
-                isFlipped={isFlipped}
-                onToggleFlip={toggleFlip}
-                staggerDelayMs={0}
-              />
-            </Reveal>
-          )}
-
-          {grandmere && (
-            <Reveal from="right" distance={30} duration={0.65} delay={0.2}>
-              <PublicMemberFlipCard
-                member={grandmere}
-                predecessor={grandmerePredecessor}
-                isFlipped={isFlipped}
-                onToggleFlip={toggleFlip}
-                staggerDelayMs={75}
-              />
-            </Reveal>
-          )}
+          {leads.length > 0 ? (
+            <>
+              <h3 className={cn(rowHeading, "mt-14 xl:mt-[69px]")}>
+                {leadsHeading}
+              </h3>
+              <div className={cardGrid}>
+                {leads.map((m, i) => (
+                  <Reveal
+                    key={m.id}
+                    from={i === 0 ? "left" : "right"}
+                    distance={30}
+                    duration={0.65}
+                    delay={0.1 + i * 0.1}
+                  >
+                    <MemberTile
+                      name={m.name}
+                      role={m.roleLabel}
+                      clan={m.subfamily}
+                      quote={m.quote}
+                      image={m.image}
+                    />
+                  </Reveal>
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
+      </section>
 
-        {/* Divider with graceful Grow animation */}
-        <Grow
-          axis="x"
-          delay={0.3}
-          className="mx-auto mt-20 max-w-5xl origin-center"
-        >
-          <hr className="border-border border-t" />
-        </Grow>
-      </Container>
-    </section>
+      {/* The full-width rule above the footer, with rounded ends. */}
+      <span aria-hidden className="bg-border rounded-pill block h-0.5" />
+    </>
   );
 }

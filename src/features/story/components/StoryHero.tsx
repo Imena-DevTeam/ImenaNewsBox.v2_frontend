@@ -1,38 +1,26 @@
-import { Container } from "@/components/layout/Container";
 import { SunOrnament } from "@/components/ui/Ornaments";
 import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
+import { StoryContainer } from "./StoryContainer";
 
 export function StoryHero() {
   return (
-    <section className="section-y relative isolate overflow-hidden">
-      {/* The sun sits on the right edge of the band, as in the design. It
-          drops in after the title and then rests, bobbing very slightly. */}
-      <Reveal
-        onMount
-        from="top"
-        delay={1}
-        className="absolute top-8 right-2 md:top-12 md:right-8"
-      >
-        <SunOrnament className="motion-safe:animate-float-slow size-16 md:size-28" />
-      </Reveal>
-
-      <Container className="relative">
-        {/* The band is sized by the title rather than by a fixed height, so it
-            still sits behind it when the title wraps to another line. It is
-            far wider than the viewport, so the angle never exposes a corner.
-            It is laid down first, sweeping out from the centre, and the title
-            is written onto it. */}
-        <div className="relative mx-auto max-w-3xl py-12 text-center md:py-16">
+    <section className="relative isolate overflow-hidden pt-4 pb-10 xl:pt-[21px] xl:pb-[55px]">
+      <StoryContainer className="relative">
+        {/* The band sits behind the title, rising slightly to the right. It
+            is far wider than the viewport, so the angle never exposes a
+            corner. It sweeps out from the centre and the title is written
+            onto it. */}
+        <div className="relative flex items-center justify-center py-14 md:py-20 xl:h-[354px] xl:py-0 xl:pt-[24px]">
           <div
             aria-hidden
-            className="absolute inset-y-0 left-1/2 -z-10 w-[150vw] -translate-x-1/2 -rotate-2"
+            className="absolute inset-y-0 left-1/2 -z-10 w-[150vw] -translate-x-1/2 -rotate-[3.3deg]"
           >
             <Grow
               onMount
               duration={1.1}
-              className="bg-band size-full origin-center"
+              className="bg-story-band size-full origin-center"
             />
           </div>
 
@@ -41,7 +29,7 @@ export function StoryHero() {
             onMount
             delay={0.35}
             stagger={0.09}
-            className="text-display-m md:text-display relative"
+            className="text-display-m md:text-display xl:text-story-hero text-center"
             lines={[
               ["IMENA FAMILY"],
               [
@@ -51,7 +39,18 @@ export function StoryHero() {
             ]}
           />
         </div>
-      </Container>
+
+        {/* The sun on the right edge of the band. It drops in after the
+            title and then rests, bobbing very slightly. */}
+        <Reveal
+          onMount
+          from="top"
+          delay={1}
+          className="absolute -top-2 right-3 md:right-8 xl:top-[11px] xl:right-[38px]"
+        >
+          <SunOrnament className="motion-safe:animate-float-slow size-14 md:size-24 xl:size-[165px]" />
+        </Reveal>
+      </StoryContainer>
     </section>
   );
 }

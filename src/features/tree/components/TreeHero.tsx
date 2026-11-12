@@ -1,7 +1,7 @@
-import { Container } from "@/components/layout/Container";
-import { Parallax } from "@/components/motion/Parallax";
+import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
+import { SunOrnament } from "@/components/ui/Ornaments";
 import { PublicTreeIllustration } from "@/features/tree/components/PublicTreeIllustration";
 import type { PromotionYear } from "@/features/tree/publicTreeData";
 
@@ -10,50 +10,43 @@ interface TreeHeroProps {
   onSelectYear?: (year: PromotionYear) => void;
 }
 
+/* The design is laid out at 1440px. From xl up the hero places each piece
+   where the design does; below that it falls back to a simple stack. */
 export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
   return (
-    <section className="relative isolate overflow-hidden pt-8 pb-14 md:pt-12 md:pb-20">
-      {/* Decorative rings from the landing page design */}
-      <Parallax
-        distance={35}
-        className="pointer-events-none absolute -top-36 -left-36 lg:-top-48 lg:-left-36"
-      >
-        <Reveal onMount from="none" duration={1.6} delay={0}>
-          <span
-            aria-hidden
-            className="border-primary/5 block size-[32rem] rounded-full border-[3rem] lg:size-[42rem] lg:border-[3.5rem]"
+    <section className="relative isolate overflow-hidden">
+      <div className="relative mx-auto max-w-[1440px] px-4 pt-10 pb-20 md:px-8 md:pb-28 xl:h-[634px] xl:p-0">
+        {/* The pale band behind the title, rising slightly to the right, as
+            on Our Story. It sweeps out from the centre on load. */}
+        <div
+          aria-hidden
+          className="absolute top-4 bottom-14 left-1/2 -z-10 w-[150vw] -translate-x-1/2 -rotate-[3.4deg] md:bottom-20 xl:top-[40px] xl:bottom-auto xl:h-[372px]"
+        >
+          <Grow
+            onMount
+            duration={1.1}
+            className="bg-story-band size-full origin-center"
           />
-        </Reveal>
-      </Parallax>
-      <Parallax
-        distance={-35}
-        className="pointer-events-none absolute top-20 -right-24 lg:top-24 lg:-right-36"
-      >
-        <Reveal onMount from="none" duration={1.6} delay={0.2}>
-          <span
-            aria-hidden
-            className="border-primary/5 block size-[28rem] rounded-full border-[2.75rem] lg:size-[36rem] lg:border-[3.5rem]"
-          />
-        </Reveal>
-      </Parallax>
+        </div>
 
-      <Container className="relative">
-        {/* A pair of marks above the title, as in the design. */}
+        {/* A black dot and a violet square above the title. */}
         <Reveal onMount from="left" distance={20} duration={0.6} delay={0.05}>
-          <div aria-hidden className="mb-8 flex items-center gap-1.5 md:mb-10">
-            <span className="bg-text rounded-pill size-7 md:size-8" />
-            <span className="bg-heading size-7 md:size-8" />
+          <div
+            aria-hidden
+            className="flex items-center gap-1 pt-6 xl:absolute xl:top-[150px] xl:left-[86px] xl:pt-0"
+          >
+            <span className="rounded-pill size-7 bg-black xl:size-[37px]" />
+            <span className="bg-heading size-7 xl:size-[37px]" />
           </div>
         </Reveal>
 
-        {/* Title matching exact 3-line layout from design */}
         <SplitText
           as="h1"
           onMount
           by="char"
           delay={0.15}
           stagger={0.02}
-          className="text-display-m md:text-display max-w-2xl font-bold tracking-tight"
+          className="text-h2-m sm:text-display-m md:text-display xl:text-story-hero mt-8 xl:absolute xl:top-[186px] xl:left-[300px] xl:mt-0"
           lines={[
             ["Family is a huge part of"],
             ["who we are, so does its"],
@@ -61,34 +54,47 @@ export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
           ]}
         />
 
-        {/* Offset accent mark on the right edge */}
-        <Reveal onMount from="right" distance={30} duration={0.8} delay={0.3}>
-          <div
-            aria-hidden
-            className="absolute top-12 right-6 hidden md:block lg:right-12"
-          >
-            <span className="bg-display-soft absolute top-0 right-0 size-7" />
-            <span className="bg-primary absolute top-6 right-6 size-7" />
+        {/* Two small squares where the band meets the right edge: a pale
+            one, and the teal one tucked below and to its left. */}
+        <Reveal
+          onMount
+          from="right"
+          distance={30}
+          duration={0.8}
+          delay={0.3}
+          className="absolute right-6 bottom-8 md:right-12 md:bottom-12 xl:top-[360px] xl:right-[135px] xl:bottom-auto"
+        >
+          <div aria-hidden className="relative size-12 xl:size-[74px]">
+            <span className="bg-story-ornament absolute top-0 right-0 size-6 rounded-sm xl:size-[37px]" />
+            <span className="bg-tree-mark absolute right-6 bottom-0 size-6 xl:right-[36px] xl:size-[38px]" />
           </div>
         </Reveal>
 
-        {/* The organic illustrated family tree with circles and connecting branches */}
+        {/* The sun, just under the band on the left. */}
         <Reveal
           onMount
-          from="bottom"
-          distance={32}
-          duration={0.9}
-          delay={0.4}
-          blur
+          from="top"
+          delay={0.9}
+          className="absolute bottom-0 left-3 hidden md:block xl:top-[459px] xl:bottom-auto xl:left-[36px]"
         >
-          <div className="mt-12 md:mt-16">
-            <PublicTreeIllustration
-              activeYear={activeYear}
-              onSelectYear={onSelectYear}
-            />
-          </div>
+          <SunOrnament className="motion-safe:animate-float-slow size-24 xl:size-[172px]" />
         </Reveal>
-      </Container>
+      </div>
+
+      {/* The tree spans the page, as in the design. */}
+      <Reveal
+        onMount
+        from="bottom"
+        distance={32}
+        duration={0.9}
+        delay={0.4}
+        className="px-4 md:px-8 xl:px-0"
+      >
+        <PublicTreeIllustration
+          activeYear={activeYear}
+          onSelectYear={onSelectYear}
+        />
+      </Reveal>
     </section>
   );
 }
