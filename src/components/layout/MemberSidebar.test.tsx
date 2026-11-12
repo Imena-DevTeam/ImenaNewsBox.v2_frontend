@@ -52,11 +52,18 @@ describe("MemberSidebar", () => {
     expect(names).toEqual(LABELS);
   });
 
-  it("names every destination in a tooltip as well", () => {
+  /* The label that slides out on hover is decoration: it repeats the link's
+     own aria-label, so it is aria-hidden rather than a tooltip. A
+     role="tooltip" with nothing pointing at it only made a screen reader
+     read every destination twice. */
+  it("shows every destination's label on the rail as well", () => {
     render(<MemberSidebar />);
 
-    expect(
-      screen.getAllByRole("tooltip").map((tip) => tip.textContent),
-    ).toEqual(LABELS);
+    const shown = screen
+      .getAllByRole("link")
+      .map((link) => link.textContent?.trim());
+
+    expect(shown).toEqual(LABELS);
+    expect(screen.queryAllByRole("tooltip")).toHaveLength(0);
   });
 });

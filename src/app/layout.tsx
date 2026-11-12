@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, Roboto } from "next/font/google";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import "@/styles/globals.css";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -39,7 +40,12 @@ export default function RootLayout({
         </noscript>
       </head>
       <body className="min-h-dvh antialiased">
-        <MotionProvider>{children}</MotionProvider>
+        {/* The query cache wraps everything, so any client component can
+            read from the backend without a provider of its own. Motion stays
+            inside it: it is about how things arrive, not what they are. */}
+        <QueryProvider>
+          <MotionProvider>{children}</MotionProvider>
+        </QueryProvider>
       </body>
     </html>
   );

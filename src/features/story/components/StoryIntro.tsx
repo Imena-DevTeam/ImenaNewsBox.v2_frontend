@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { MaskReveal } from "@/components/motion/MaskReveal";
@@ -7,6 +5,13 @@ import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
 import { storyIntro } from "@/lib/images";
 
+/**
+ * The opening of Our Story: a photograph and the words beside it.
+ *
+ * A server component. It carried "use client" and needed nothing from the
+ * client — MaskReveal, Reveal and SplitText are the islands here, and a
+ * parent does not have to be one to render one.
+ */
 export function StoryIntro() {
   return (
     <section className="overflow-x-clip">

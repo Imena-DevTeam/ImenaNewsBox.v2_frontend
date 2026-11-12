@@ -6,19 +6,17 @@ export const userLoginSchema = z.object({
 });
 
 /**
- * Admin login: the address in the register, plus a password.
+ * Admin login: the family name, plus a password.
  *
- * It asked for the family name until 11 Nov 2026, which is the one credential
- * that cannot identify an administrator: seventy-three people share it. The
- * register makes an email address the thing a person signs in with, and this
- * is the door that has to agree with it.
+ * It asked for an email address between 11 and 12 Nov 2026, on the reasoning
+ * that a name seventy-three people share cannot identify one administrator.
+ * The design asks for a name on both doors and the design wins — but the
+ * objection was real, so the name is not waved through: `checkAdminCredential`
+ * looks it up in the register and the person it finds has to hold the
+ * administrator role. **The password is what makes it a credential.**
  */
 export const adminLoginSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, "Your email address is needed")
-    .email("That does not look like an email address"),
+  name: z.string().trim().min(1, "Family name is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 

@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { FOOTER_NAV } from "@/constants/nav";
 import { CONTACT_EMAIL_HREF } from "@/constants/site";
+import { CurrentYear } from "@/components/ui/CurrentYear";
 
 export function Footer() {
   return (
@@ -99,7 +100,7 @@ export function Footer() {
           {/* Bottom Section: Centered Copyright */}
           <div className="mt-12 text-center sm:mt-14">
             <p className="text-xs text-white/50">
-              &copy; {new Date().getFullYear()} IMENA Family.
+              &copy; <CurrentYear /> IMENA Family.
             </p>
           </div>
         </div>

@@ -120,7 +120,7 @@ function PdfViewerDialog({
         {/* Slack-style Dark Header Bar */}
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[#353535] px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3 pr-4">
-            <div className="border-border bg-surface-elevated flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border p-1">
+            <div className="border-border bg-surface flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border p-1">
               <Image
                 src="/images/imena-crest.webp"
                 alt=""

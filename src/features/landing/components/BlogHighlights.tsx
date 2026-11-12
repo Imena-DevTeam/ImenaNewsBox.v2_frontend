@@ -84,9 +84,15 @@ export function BlogHighlights() {
                     href={`${ROUTES.BLOGS}/${post.slug}`}
                     className="group/link text-ui text-primary transition-base mt-7 inline-flex items-center gap-3 hover:gap-4"
                   >
-                    <span className="link-underline">Read More</span>
+                    <span className="link-underline">Read more</span>
                     <ArrowRight className="transition-base size-5 motion-safe:group-hover/link:translate-x-0.5" />
                   </Link>
+
+                  {/* The stories are behind the family's door. Saying so
+                      here turns the redirect into an expected step. */}
+                  <p className="text-caption text-muted mt-3">
+                    Family members only — you will be asked to sign in.
+                  </p>
                 </Reveal>
               </li>
             );

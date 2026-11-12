@@ -8,6 +8,7 @@ import { SubfamilyBadge } from "@/components/ui/SubfamilyBadge";
 import { Reveal } from "@/components/motion/Reveal";
 import { useStoredValue } from "@/hooks/useStoredValue";
 import { WishDialog, type WishTarget } from "./WishDialog";
+import { useModalDialog } from "@/components/ui/useModalDialog";
 
 interface CelebrantCard {
   id: string;
@@ -193,6 +194,7 @@ export function FamilyCelebrationsCalendar() {
     (WishTarget & { id?: string }) | null
   >(null);
   const [suggestModalOpen, setSuggestModalOpen] = useState(false);
+  const suggestDialog = useModalDialog(suggestModalOpen);
   const [suggestName, setSuggestName] = useState("");
   const [suggestSuccess, setSuggestSuccess] = useState(false);
 
@@ -509,24 +511,36 @@ export function FamilyCelebrationsCalendar() {
         }}
       />
 
-      {/* Suggest Birthday to Coordinator Modal Dialog */}
-      {suggestModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
-            onClick={() => setSuggestModalOpen(false)}
-          />
-          <div className="animate-in fade-in zoom-in-95 relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b pb-3">
-              <h3 className="text-base font-bold text-neutral-900">
-                Inform Subfamily Coordinator
+      {/* A native <dialog>, like the nine others in this codebase. It was a
+          fixed overlay, which looks the same and gives none of what this
+          gives: Escape, focus trapped inside it, the page behind it inert,
+          and focus returning to the button that opened it. */}
+      <dialog
+        ref={suggestDialog}
+        onClose={() => setSuggestModalOpen(false)}
+        onCancel={() => setSuggestModalOpen(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setSuggestModalOpen(false);
+        }}
+        aria-labelledby="suggest-birthday-title"
+        className="bg-surface open:animate-dialog-pop m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl p-0 shadow-2xl backdrop:bg-black/40 motion-reduce:animate-none"
+      >
+        {suggestModalOpen ? (
+          <div className="p-6">
+            <div className="border-member-border flex items-center justify-between border-b pb-3">
+              <h3
+                id="suggest-birthday-title"
+                className="text-member-ink text-base font-bold"
+              >
+                Inform the subfamily coordinator
               </h3>
               <button
                 type="button"
                 onClick={() => setSuggestModalOpen(false)}
-                className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+                aria-label="Close"
+                className="text-muted hover:bg-member-tint hover:text-member-ink rounded-lg p-1"
               >
-                <X className="size-5" />
+                <X aria-hidden className="size-5" />
               </button>
             </div>
 
@@ -535,16 +549,14 @@ export function FamilyCelebrationsCalendar() {
                 <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                   <Check className="size-6" />
                 </div>
-                <h4 className="font-bold text-neutral-900">
-                  Notice Submitted!
-                </h4>
-                <p className="mt-1 text-xs text-neutral-500">
+                <h4 className="text-member-ink font-bold">Notice sent</h4>
+                <p className="text-muted mt-1 text-xs">
                   Your coordinator has received the note for {selectedMonth}.
                 </p>
                 <button
                   type="button"
                   onClick={() => setSuggestModalOpen(false)}
-                  className="mt-4 rounded-full bg-[#3B2883] px-6 py-2 text-xs font-semibold text-white shadow-sm"
+                  className="bg-brand hover:bg-brand-hover text-surface mt-4 rounded-full px-6 py-2 text-xs font-semibold shadow-sm"
                 >
                   Done
                 </button>
@@ -559,49 +571,57 @@ export function FamilyCelebrationsCalendar() {
                 className="mt-4 space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-700">
-                    Celebrant Full Name
+                  <label
+                    htmlFor="suggest-name"
+                    className="text-member-ink block text-xs font-semibold"
+                  >
+                    Celebrant&rsquo;s full name
                   </label>
                   <input
+                    id="suggest-name"
                     type="text"
                     required
                     value={suggestName}
                     onChange={(e) => setSuggestName(e.target.value)}
                     placeholder="e.g. Christian Mugisha"
-                    className="mt-1.5 w-full rounded-xl border border-neutral-300 p-2.5 text-sm focus:border-purple-600"
+                    className="focus:border-brand border-field-border mt-1.5 w-full rounded-xl border p-2.5 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-700">
-                    Month &amp; Day
+                  <label
+                    htmlFor="suggest-when"
+                    className="text-member-ink block text-xs font-semibold"
+                  >
+                    Month and day
                   </label>
                   <input
+                    id="suggest-when"
                     type="text"
                     defaultValue={`${selectedMonth} `}
-                    className="mt-1.5 w-full rounded-xl border border-neutral-300 p-2.5 text-sm focus:border-purple-600"
+                    className="focus:border-brand border-field-border mt-1.5 w-full rounded-xl border p-2.5 text-sm"
                   />
                 </div>
                 <div className="flex justify-end gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setSuggestModalOpen(false)}
-                    className="rounded-full px-5 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100"
+                    className="text-muted hover:bg-member-tint rounded-full px-5 py-2 text-xs font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center gap-1.5 rounded-full bg-[#3B2883] px-6 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#311f70]"
+                    className="bg-brand hover:bg-brand-hover text-surface flex items-center gap-1.5 rounded-full px-6 py-2 text-xs font-semibold shadow-sm"
                   >
-                    <Send className="size-3.5" />
-                    Send Note
+                    <Send aria-hidden className="size-3.5" />
+                    Send note
                   </button>
                 </div>
               </form>
             )}
           </div>
-        </div>
-      )}
+        ) : null}
+      </dialog>
     </div>
   );
 }

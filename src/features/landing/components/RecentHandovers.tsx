@@ -88,9 +88,16 @@ export function RecentHandovers() {
                     <span className="text-primary">{BODY}</span>
                   </p>
 
+                  {/* The gallery is the family's, not the public's, so
+                      the sign-in this leads to is announced rather than
+                      sprung: a guest pressing it was bounced to the login
+                      with no idea why. */}
                   <ButtonLink href={ROUTES.GALLERY} size="sm" className="mt-5">
-                    View Album
+                    View album
                   </ButtonLink>
+                  <p className="text-caption text-muted mt-2.5">
+                    Family members only — you will be asked to sign in.
+                  </p>
                 </div>
               </TiltCard>
             </StaggerItem>

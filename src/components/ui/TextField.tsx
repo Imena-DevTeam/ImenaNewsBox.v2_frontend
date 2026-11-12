@@ -12,8 +12,13 @@ type TextFieldProps = Omit<ComponentProps<"input">, "id"> & {
 
 /**
  * Labelled input — a 48px rounded white field with an optional leading icon.
- * Focus only darkens the border; an error turns it red. Password fields get a
- * show/hide toggle.
+ * An error turns the border red. Password fields get a show/hide toggle.
+ *
+ * Focus darkens the border **and** keeps the outline globals.css gives every
+ * focusable thing. The outline was turned off here, leaving a 1px border
+ * going from one grey to a slightly darker grey as the only sign of where
+ * the keyboard was — on the fields that matter most, and nowhere near
+ * enough to see.
  */
 export function TextField({
   label,
@@ -48,15 +53,13 @@ export function TextField({
           </span>
         ) : null}
 
-        {/* The wrapper's border is the focus ring here, so the global
-            outline is turned off for the input alone. */}
         <input
           id={id}
           type={isPassword && revealed ? "text" : type}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            "rounded-field text-text placeholder:text-field-placeholder h-12 w-full min-w-0 bg-transparent px-4 text-base focus-visible:outline-none",
+            "rounded-field text-text placeholder:text-field-placeholder h-12 w-full min-w-0 bg-transparent px-4 text-base",
             className,
           )}
           {...props}

@@ -41,7 +41,12 @@ const ICONS = {
  * slide out to the right on hover and keyboard focus, keeping the footprint
  * small while every destination stays named.
  *
- * Mobile — the same seven targets as a floating dock along the bottom edge.
+ * Mobile — the same targets as a floating dock along the bottom edge. Each
+ * one fills its own column rather than being a fixed 44px circle: with nine
+ * targets, which is what an administrator sees, 44px circles in a dock
+ * capped at 384px overflowed their columns and sat on top of one another.
+ * Filling the column keeps every hit area separate and as wide as there is
+ * room for, and the row stays one line whoever is signed in.
  *
  * The open page is marked by one pill that glides between items on a spring
  * rather than snapping, driven by a single --i custom property: its row on
@@ -118,13 +123,16 @@ export function MemberSidebar({ role }: { role?: Role | null }) {
           const Icon = ICONS[item.label as keyof typeof ICONS] ?? House;
 
           return (
-            <li key={item.href} className="relative flex justify-center">
+            <li
+              key={item.href}
+              className="relative flex min-w-0 justify-center"
+            >
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 aria-label={item.label}
                 className={cn(
-                  "group focus-visible:outline-brand md:short:size-9 relative grid size-11 place-items-center rounded-full md:size-12",
+                  "group focus-visible:outline-brand md:short:size-9 relative grid h-11 w-full place-items-center rounded-full md:size-12",
                   "transition-transform duration-150 active:scale-90",
                   active
                     ? "text-member-ink"
@@ -142,9 +150,11 @@ export function MemberSidebar({ role }: { role?: Role | null }) {
 
                 {/* The label, sliding in from the right with a pointer.
                     Desktop only: on the bottom dock a label would cover the
-                    page, and aria-label already names each link. */}
+                    page, and aria-label already names each link — which is
+                    also why this is aria-hidden rather than a tooltip. A
+                    role="tooltip" with nothing describing it is noise. */}
                 <span
-                  role="tooltip"
+                  aria-hidden
                   className={cn(
                     "bg-member-ink text-surface text-caption shadow-menu pointer-events-none absolute top-1/2 left-full ml-4 hidden -translate-y-1/2 rounded-lg px-3 py-1.5 whitespace-nowrap md:block",
                     "translate-x-2 opacity-0 transition-[opacity,transform] duration-200 ease-out",

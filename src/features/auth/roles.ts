@@ -12,7 +12,8 @@ import type { Role } from "@/lib/session";
  *
  * A match is on the whole name or on either part of it, case-insensitively,
  * because nobody signing in types "Ngabe Uwase" when "Ngabe" is what they
- * are called.
+ * are called. `matchesName` is that rule, shared with the administrators'
+ * door so the two never disagree about what a typed name means.
  *
  * Only `blogger` is granted this way. An administrator still comes through
  * `/admin/login`, which asks for a password: the register is readable by
@@ -22,15 +23,22 @@ import type { Role } from "@/lib/session";
  * credential — any five digits still pass verifyCode(), and this grants no
  * more than the one-time password already does.
  */
+export function matchesName(fullName: string, typed: string): boolean {
+  const wanted = typed.trim().toLowerCase();
+  if (!wanted) return false;
+
+  const full = fullName.toLowerCase();
+  return full === wanted || full.split(/\s+/).includes(wanted);
+}
+
 export function roleForName(name: string): Role {
-  const typed = name.trim().toLowerCase();
+  const typed = name.trim();
   if (!typed) return "member";
 
-  const found = FAMILY_REGISTER.find((person) => {
-    if (person.role !== "blogger") return false;
-    const full = person.fullName.toLowerCase();
-    return full === typed || full.split(/\s+/).includes(typed);
-  });
+  const found = FAMILY_REGISTER.find(
+    (person) =>
+      person.role === "blogger" && matchesName(person.fullName, typed),
+  );
 
   return found ? "blogger" : "member";
 }

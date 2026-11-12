@@ -1,28 +1,26 @@
-"use client";
-
 import Image from "next/image";
-import { NotebookPen, PartyPopper } from "lucide-react";
-import { useMemo, useState } from "react";
-import { BlogCard } from "./BlogCard";
-import { BLOG_CATEGORIES, BLOG_PAGE_POSTS, type BlogCategory } from "../data";
-import { dashboardFamilyGathering } from "@/lib/images";
-import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/Button";
+import { PartyPopper } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FamilyTagline } from "@/components/layout/FamilyTagline";
+import { dashboardFamilyGathering } from "@/lib/images";
+import { BlogFeed } from "./BlogFeed";
 
 const HERO_TITLE = "A HEART WARMING FAMILY REUNION";
 
+/**
+ * The family's stories.
+ *
+ * A **server component**. It was a client one for a single `useState`
+ * holding which category is open — and that one piece of state pulled the
+ * hero photograph, two headings, three decorative poppers and the tagline
+ * into the browser bundle with it, to render markup that is the same for
+ * everybody on every visit.
+ *
+ * What genuinely needs the browser is the category row and the grid under
+ * it, and that is `BlogFeed`. Everything here is rendered once, on the
+ * server, and arrives as HTML.
+ */
 export function BlogsHome() {
-  const [category, setCategory] = useState<BlogCategory>("All");
-  const posts = useMemo(
-    () =>
-      category === "All"
-        ? BLOG_PAGE_POSTS
-        : BLOG_PAGE_POSTS.filter((post) => post.category === category),
-    [category],
-  );
-
   return (
     <div className="min-w-0 space-y-12 md:space-y-16">
       <PageHeader title="Blogs" subtitle="Stories From Our Family" />
@@ -75,6 +73,7 @@ export function BlogsHome() {
             strokeWidth={1.2}
           />
         </div>
+
         <div className="text-center">
           <h2
             id="recent-posts"
@@ -88,74 +87,7 @@ export function BlogsHome() {
           />
         </div>
 
-        <div className="mt-6 px-4 lg:px-10">
-          <div
-            role="group"
-            aria-labelledby="blog-categories"
-            className="flex flex-wrap items-center gap-2"
-          >
-            <span
-              id="blog-categories"
-              className="text-member-ink text-body-sm mr-1 font-semibold"
-            >
-              Categories:
-            </span>
-            {BLOG_CATEGORIES.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setCategory(item)}
-                aria-pressed={category === item}
-                className={cn(
-                  "rounded-pill text-caption transition-fast px-3 py-1.5",
-                  category === item
-                    ? "bg-brand text-surface"
-                    : "bg-member-tint text-member-ink hover:bg-brand/20",
-                )}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {posts.length === 0 ? (
-          <div className="border-member-border bg-member-tint mx-4 mt-8 rounded-lg border px-6 py-14 text-center lg:mx-10">
-            <span className="bg-surface text-brand shadow-menu rounded-pill mx-auto grid size-14 place-items-center">
-              <NotebookPen aria-hidden className="size-6" />
-            </span>
-            <p className="text-h4-m md:text-h4 text-member-ink mt-5">
-              No {category.toLowerCase()} stories yet
-            </p>
-            <p className="text-body-sm text-muted mx-auto mt-2 max-w-sm">
-              Nobody has written one up so far. The rest of the family&rsquo;s
-              stories are a click away.
-            </p>
-            <Button
-              variant="brand"
-              size="sm"
-              className="mt-6"
-              onClick={() => setCategory("All")}
-            >
-              View all stories
-            </Button>
-          </div>
-        ) : (
-          /* A short result is centred rather than left hanging in the first
-             columns of a three-column grid. */
-          <div
-            className={cn(
-              "mx-auto mt-8 grid gap-6 px-4 sm:grid-cols-2 lg:px-10",
-              posts.length >= 3 && "lg:grid-cols-3",
-              posts.length === 2 && "max-w-4xl",
-              posts.length === 1 && "max-w-md sm:grid-cols-1",
-            )}
-          >
-            {posts.map((post) => (
-              <BlogCard key={post.slug} post={post} />
-            ))}
-          </div>
-        )}
+        <BlogFeed />
       </section>
 
       <FamilyTagline className="mt-4" />

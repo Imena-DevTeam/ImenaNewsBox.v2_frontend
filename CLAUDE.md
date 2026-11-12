@@ -534,13 +534,14 @@ Two real defects, not a repaint.
    will carry on to.
 2. **It asked for the family name**, which is the one credential that cannot
    identify an administrator: seventy-three people share it. `adminLoginSchema`
-   takes an email address, which is what the register says a person signs in
-   with.
+   took an email address instead — **reverted on 12 Nov 2026**, see §19. The
+   field is a name again and the lookup moved into the server: the password
+   is what makes it a credential.
 
 > [!IMPORTANT]
-> The credential change is a **departure from the design**, which shows
-> "Enter family name" on both doors. It is one field and one schema to put
-> back if the design wins.
+> The credential change was a **departure from the design**, which shows
+> "Enter family name" on both doors. It was put back on 12 Nov 2026 — the
+> design won. See §19; the objection behind the departure survived it.
 
 ### The states
 
@@ -993,3 +994,407 @@ written down instead.
 **`tests/` still does not exist**, while `playwright.config.ts` points at it
 and `test:e2e` runs `--pass-with-no-tests`. CI therefore has a green
 end-to-end job that tests nothing, which is worse than not having one.
+
+---
+
+## 17. The audit, and what it closed, 12 Nov 2026
+
+A read of the whole application for bugs, mistakes and UI/UX. Four decisions
+were the user's and were asked for before anything was touched; two approved
+removals were made and two that were not approved were left alone.
+
+### The hole under everything
+
+**Anyone could become an administrator by typing a URL.** `/verify?role=admin`
+and any five digits. The pieces:
+
+- `VerifyPanel` read the role out of the **query string**;
+- `verifyCode()` returns `code.length === 5`, so any five digits pass;
+- `startMemberSession(role)` took the role as an **argument** and signed
+  whatever it was handed.
+
+The HMAC was sound throughout. It was faithfully signing a lie. And
+`AdminLoginForm`'s `handleSubmit(() => ...)` **ignored its own values**, so
+the password was validated for shape and then thrown away — nothing had ever
+read it.
+
+> [!CAUTION]
+> `startMemberSession` is a **server action**, so it has a public endpoint.
+> Removing `?role=` from the URL would not have been enough on its own: a
+> role passed in by a caller is decided by the caller, wherever it is passed
+> from.
+
+**What replaced it.** The role is decided on the server at the login step and
+carried in a signed, httpOnly cookie:
+
+| File                     | Its job                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `lib/signing.ts`         | the HMAC, lifted out of `session.ts` so a second cookie cannot get a weaker version of the first one's |
+| `lib/pending.ts`         | the login in progress: `p1.<role>.<issued>.<sig>`, ten minutes                                         |
+| `features/auth/admin.ts` | the address is an administrator's in the register **and** the password matches `ADMIN_PASSWORD`        |
+| `actions/session.ts`     | `beginMemberLogin`, `beginAdminLogin`, and `startMemberSession()` — **no arguments**                   |
+
+`startMemberSession` reads the pending cookie and nothing else, spends it,
+and throws without one; the verify screen then offers the way back to the
+login. `?role=` is ignored everywhere. `?from=admin` survives as a
+breadcrumb that chooses a back link and decides nothing.
+
+`ADMIN_PASSWORD` fails closed in production and falls back to a known value
+in development, the same shape as `AUTH_SECRET`. **16 new tests** hold the
+boundary: a forged token, a token whose role was edited while keeping its
+signature, an expired one, one issued in the future, a member who learned the
+password, the blogger, an address nobody has, and a missing password.
+
+### The dock that broke for the two people who need it
+
+`MemberSidebar`'s mobile dock is capped at `max-w-sm` with fixed 44px
+circles. On a 360px phone that is 328px of room:
+
+| Role          | Targets | Column | Result          |
+| ------------- | ------- | ------ | --------------- |
+| Member        | 7       | 44.6px | fits            |
+| Blogger       | 8       | 39px   | overflows       |
+| Administrator | 9       | 34.7px | **overlapping** |
+
+The gliding pill divided by `--n` and shrank correctly; the links did not.
+Each target now fills its own column — `h-11 w-full`, `md:size-12` — so the
+hit areas stay separate whoever is signed in, and are as wide as there is
+room for rather than wider.
+
+### Two modals that only looked like modals
+
+`ProfileView`'s "edit motto" and `FamilyCelebrationsCalendar`'s "inform the
+coordinator" were `fixed inset-0` overlays: no Escape, no focus trap, the
+page behind them still reachable by Tab, and focus lost on close. Both are
+native `<dialog>`s on `useModalDialog` now, like the other nine. Their raw
+hex buttons (`#5B21B6`, `#3B2883`) became the brand violet on the way past.
+
+### The focus ring, put back
+
+`globals.css` gives everything focusable a 2px outline — and `TextField`,
+`OtpInput` and `CommandPalette` each turned it off, leaving a 1px border
+going from grey to slightly darker grey as the only sign of where the
+keyboard was. On the one-time password that border was the only thing saying
+which of five boxes you were in.
+
+### The rest
+
+| Was                                                    | Now                                                                         |
+| ------------------------------------------------------ | --------------------------------------------------------------------------- |
+| "Continue with Google" did nothing                     | disabled, and says Google sign-in is not connected                          |
+| landing CTAs bounced guests to a login                 | they say "Family members only — you will be asked to sign in"               |
+| `text-primary-foreground`, `bg-surface-elevated`       | real tokens; both named nothing and compiled to nothing                     |
+| a default tweet about `uselayouts.com` and `@0xUrvish` | no fallback address at all                                                  |
+| `Button` with no default `type`                        | `type="button"`, so a forgotten prop no longer submits a form               |
+| OTP arrows moved the caret and the focus               | `preventDefault`, one box per press                                         |
+| gallery dates in en-GB                                 | en-US, like every other date                                                |
+| `focus:border-purple-600`                              | `focus:border-brand` — the bought purple was not ours                       |
+| "Log out" beside "Sign out of this device"             | one name for one action                                                     |
+| smooth scroll on pagination                            | asks `motionWanted()` first; a scroll in JS is out of the CSS floor's reach |
+| the copyright year frozen at build time                | `CurrentYear`, corrected on hydration                                       |
+
+### Left alone on purpose
+
+- **The emoji** (`📂 💖 ✓ ♥`) and the **dead `const Page`** in
+  `EmptyTestimonial` — offered and not approved.
+- **The 149 off-palette classes** across ten files. A refactor with real
+  visual risk and no way to check it without running the app; see §16.
+- **`tests/`**, which still does not exist while `playwright.config.ts`
+  points at it and `test:e2e` passes with no tests.
+
+### Gate
+
+Typecheck, lint and format clean. **197 tests over 27 files**, up from 179.
+`pnpm build` compiles. `/admin/login` fell from 12.7 kB to 3.12 kB, because
+the thing it was carrying was the role logic that should never have been in
+the browser.
+
+### Still true
+
+Nothing saves. `verifyCode()` still accepts any five digits — the one-time
+password is not real, and the TODO above it says so. What changed is that it
+no longer decides **what you are**: a fake code now gets you exactly the role
+the server decided at the login step, and no more.
+
+---
+
+## 18. Server and client, audited, 12 Nov 2026
+
+Asked for as "all the things are client rendered, there is no server side
+rendering thing". **That turned out not to be the case**, and the first job
+was to establish what is actually true before changing anything.
+
+### What the build says
+
+Every route is rendered on the server. Next's own classification:
+
+| Mark | Meaning                             | Routes                                                                            |
+| ---- | ----------------------------------- | --------------------------------------------------------------------------------- |
+| `○`  | prerendered to static HTML at build | `/`, `/our-story`, `/family-tree`, `/login`, `/verify`, `/signup`, `/admin/login` |
+| `●`  | prerendered per parameter           | `/blogs/[slug]` (10), `/families/[slug]` (3), `/gallery/[album]` (6)              |
+| `ƒ`  | rendered on the server per request  | every other member route                                                          |
+
+**Exactly one page in the project is a client component** — `/signup` — and
+even that is server-rendered first and hydrated after. 88 of 208 components
+carry `"use client"`, which is 42%, and a classification of every one of them
+by what it actually uses found only **two** that needed nothing from the
+browser at all.
+
+So the directive discipline was good. What was wrong was **where the
+boundaries sat**.
+
+> [!NOTE]
+> Member routes are `ƒ` rather than `○` because `(member)/layout.tsx` reads
+> `cookies()` to learn the role. That is not a defect to fix: the frame
+> genuinely differs per person — a member, the blogger and an administrator
+> see different rails — so the page cannot be one cached file. The three `●`
+> groups are the pages that declare `generateStaticParams`.
+
+### The two that needed nothing
+
+- **`StoryIntro`** carried `"use client"` and used no hook, no handler and no
+  browser API. Its children — `MaskReveal`, `Reveal`, `SplitText` — are the
+  islands, and **a parent does not have to be one to render one**. Deleting
+  that single line took `/our-story` from **7.69 kB to 2.88 kB**, and its
+  first load from 237 kB to 232 kB.
+- **`PostPreview`**, same story. Removing it is correct hygiene and changes
+  nothing measurable today, because `PostEditor` imports it directly and
+  `PostEditor` is a client component — a client parent makes a client child
+  whatever the child says. Worth recording so nobody reads the saving into it
+  that `StoryIntro` earned.
+
+### One filter, one whole page
+
+`BlogsHome` was a 200-line client component for **one `useState`** holding
+which category is open. That single piece of state pulled the hero
+photograph, two headings, three decorative poppers and the family tagline
+into the browser bundle, to render markup that is identical for everybody on
+every visit.
+
+It is a server component now. `BlogFeed` is the island: the category row, the
+grid, and the empty state — everything the state actually touches.
+
+> [!IMPORTANT]
+> **`BlogFeed` reads the posts from the module rather than taking them as a
+> prop.** `BlogCard` already imports from the same module, so handing the
+> list down from the server would serialise it into the RSC payload _and_
+> keep it in the bundle — the same data shipped twice. Passing data across
+> the boundary is not free, and a module both sides already import is not
+> data that needs passing.
+
+**The honest measurement:** first load fell from 219 kB to 218 kB. One
+kilobyte. The split is right — static markup belongs on the server — but the
+saving is in the noise, and the five kilobytes from deleting one line on
+`/our-story` is the better lesson about where the wins are.
+
+### What must stay client, and why
+
+| Component                                                                | Why                                                                                                                                       |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `MembersTable`, `PostEditor`, `AlbumsBoard`, `PostsArchive`, `AlbumForm` | working tools: filters, dialogs, drafts, uploads                                                                                          |
+| `ResourcesBrowser`, `FamilyCelebrationsCalendar`, `TreeBrowser`          | search, paging, selection, modals                                                                                                         |
+| `ProfileView`                                                            | the motto comes from `localStorage` through `useStoredValue`, and the card renders it — the card legitimately depends on per-device state |
+| `MemberSidebar`, `SectionTabs`, `NavLink`, `template.tsx`                | `usePathname`: which page is open is a browser fact                                                                                       |
+| `PageHeader`, `DashboardHeader`, `SignedInName`                          | `useSignedIn` context                                                                                                                     |
+| `components/motion/*`, `SectionTitle`, `SuccessBadge`                    | Motion drives them                                                                                                                        |
+| every `error.tsx`                                                        | the App Router requires it                                                                                                                |
+| `CountUp`, `CurrentYear`, `useModalDialog`                               | `IntersectionObserver`, hydration, `showModal()`                                                                                          |
+
+### A boundary that closed itself
+
+`features/auth/roles.ts` imports the whole family register, and `LoginForm`
+imported `roleForName` — so **73 names and addresses were in the bundle of
+the public login page**. The auth fix in §17 moved that lookup into a server
+action for a different reason, and the register went with it. `roles.ts` is
+now imported by `actions/session.ts` and nothing else.
+
+It still ships to the browser on `/admin/members`, where `MembersTable`,
+`MemberPanel` and `CommandPalette` import it directly. That is admin-only and
+the table is a client CRUD over a fixture, so it is correct for now — but
+when the API lands the table should take its rows as props from the server
+rather than importing the module.
+
+### Gate
+
+Typecheck, lint and format clean. **197 tests over 27 files**, unchanged —
+nothing here changed behaviour. `pnpm build` compiles.
+
+### Still true
+
+Nothing saves. And the thing that would make the biggest difference to what
+the server renders is still missing: with no API, every page renders the same
+module-level fixtures, so there is nothing yet for a server component to
+fetch that a client one could not have imported.
+
+---
+
+## 19. The administrators' door, back to a name, 12 Nov 2026
+
+> I noticed that on the admin login it only required family name and
+> password, then you changed it to email and password. Change that back.
+
+Correct, and the design agrees. `/admin/login` asked for a name until 11 Nov,
+when §12 swapped it for an email address on this reasoning: a family name is
+shared by seventy-three people, so it cannot identify one administrator. That
+note ended "one field and one schema to put back if the design wins". It won.
+
+### What went back
+
+|              | Was (11–12 Nov)                | Now                                                                      |
+| ------------ | ------------------------------ | ------------------------------------------------------------------------ |
+| field        | Email address, `type="email"`  | **Name**, "Enter family name"                                            |
+| schema       | `email` + `.email()`           | `name` + `.min(1)`                                                       |
+| check        | address matches a register row | **name** matches a register row                                          |
+| refusal      | "That address and password…"   | "That name and password…"                                                |
+| autocomplete | `email`                        | `username`, so a password manager still pairs it with the password field |
+
+### The objection survived the revert
+
+The reason for the email address was real, and dropping the field did not
+make it go away — so it is answered a different way. `checkAdminCredential`
+takes the name and **looks it up in the register**: the person it finds has
+to hold the administrator role and be active, and only then is the password
+compared. Knowing the password is not enough, and neither is typing a name.
+
+> [!IMPORTANT]
+> **The password is what makes this a credential, not the name.** `/login`
+> takes a name with no password at all, and the register is readable by
+> anyone who can see the site. The lookup only stops the door opening for a
+> name that is not an administrator's — it adds nothing on its own.
+
+`matchesName()` moved out of `roleForName` into a shared export, so both
+doors agree about what a typed name means: the whole name, or either part of
+it, case-insensitively. "Aganze" opens the administrators' door with the
+password; "Aganze Imena" does the same.
+
+Everything §17 built is untouched. The role is still decided on the server,
+still carried in the signed pending cookie, and `startMemberSession()` still
+takes no arguments.
+
+### Gate
+
+Typecheck, lint and format clean. **199 tests over 27 files**, up from 197:
+the admin suite swapped address cases for name cases and gained two — either
+part of the name opens it, and an empty name does not.
+
+---
+
+## 20. The integration layer, 12 Nov 2026
+
+The backend is finished, so the frontend needs somewhere for it to land.
+This is that: the transport, the types, the services and the cache. **No
+page calls it yet** — connecting a screen is the next step and is deliberately
+separate, because the layer can be reviewed against the real API before
+anything depends on it.
+
+### What was built
+
+| File                                              | Its job                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------- |
+| `lib/env.ts`                                      | every `process.env` read, parsed once, failing with the variable's name   |
+| `types/api.ts`                                    | `Paginated`, `ApiFailure`, `ApiError`, `ListQuery` — the transport shapes |
+| `types/media.ts`                                  | `ImageSource`, `RemoteImage` — see the mismatch below                     |
+| `types/member.ts`, `post.ts`, `album.ts`          | the domain, as the wire carries it                                        |
+| `lib/api-client.ts`                               | the one `fetch`: base URL, auth, timeout, one failure shape               |
+| `lib/api-auth.ts`                                 | the credential, server-only — **the seam the backend lands on**           |
+| `services/endpoints.ts`                           | every path, in one file                                                   |
+| `services/{members,posts,albums}.service.ts`      | typed calls, no paths inline                                              |
+| `lib/query-client.ts` + `providers/QueryProvider` | the cache, mounted in the root layout                                     |
+
+### The rule the layer is built on
+
+A service returns the body **typed**, or throws an `ApiError`. Nothing above
+it ever sees a `Response`, checks `res.ok`, or guesses what the body looks
+like when something went wrong.
+
+`ApiError` carries `status`, `code` and `fields`, so a form can place
+per-field messages and the query client can decide what is worth retrying.
+**Status 0 means the request never reached the server** — offline, DNS, or
+the timeout — which is a different problem from a 400 and reads differently
+to the person waiting.
+
+> [!CAUTION]
+> **The paths in `endpoints.ts` are this frontend's assumption.** They were
+> written from the Frontend Project Structure PDF §10 because the API
+> specification was not to hand. They are all in one file precisely so that
+> correcting them against the real contract is one edit — the services, the
+> types and the components above them do not change.
+
+### The mismatch that will cost the most
+
+Every image in this project is a `StaticImageData`: a local file imported at
+build time, carrying its own width, height and blur placeholder. **The API
+will send a URL string**, which carries none of them.
+
+|                      | `StaticImageData` | remote URL                                   |
+| -------------------- | ----------------- | -------------------------------------------- |
+| `width`/`height`     | inferred          | **required**, or `fill`                      |
+| `placeholder="blur"` | works             | needs `blurDataURL`                          |
+| host                 | n/a               | must be in `next.config.ts` `remotePatterns` |
+
+`types/media.ts` names both shapes, and the wire types use `RemoteImage`
+rather than pretending otherwise. Every component that renders a photograph
+will need to accept `ImageSource` and supply dimensions. That is the single
+largest piece of the connection work, and it is worth doing before the
+fixtures are swapped rather than during.
+
+### Two of my own bugs, caught by the tests
+
+Worth recording, because both are the kind that only surface under a real
+backend:
+
+- **`publicEnv` was parsed at module load**, freezing whatever the
+  environment held at import time. Wrong in a test that sets it afterwards,
+  and wrong in any runtime that fills the environment after the bundle is
+  evaluated. It is a function now.
+- **A missing `NEXT_PUBLIC_API_URL` was reported as a network failure**,
+  because the URL was built inside the `try` that catches `fetch`. Somebody
+  with an unfilled `.env` would have been told to check their connection.
+  The URL is built before the `try`.
+
+### The auth seam
+
+`lib/api-auth.ts` reads the session cookie and returns the token every
+service sends. Today that cookie holds a token **this frontend signed**,
+which the backend has never seen and will not accept.
+
+When the backend's auth is connected, the login step stores the backend's
+token instead and `apiToken()` returns that — and nothing else changes,
+because every service already takes its token from there.
+
+> [!IMPORTANT]
+> `api-client.ts` wires up **two** credential mechanisms:
+> `credentials: "include"` for a backend that sets its own cookie, and
+> `Authorization: Bearer` for one that returns a token. Which is right
+> depends on the API. When that is known, **delete the other** rather than
+> leaving a second way in.
+
+### Also closed
+
+The gap reported in the client/server audit: **server actions now validate
+their own inputs** with the same zod schemas the forms use.
+`beginMemberLogin` and `beginAdminLogin` parse before they act, because a
+server action is a public endpoint and the form's validation is a courtesy
+to whoever is typing, not a guarantee about what arrives.
+
+### Gate
+
+Typecheck, lint and format clean. **209 tests over 28 files**, up from 199 —
+ten of them hold the api-client's promise: the URL it builds, the query
+entries it drops, the token it sends, the error it makes out of a refusal,
+out of HTML, out of a dead connection, and out of an unset variable.
+
+`pnpm build` compiles. **First Load JS rose from 218 kB to 227 kB**: that is
+TanStack Query in the root layout, and it is the price of the cache.
+
+### What is not done
+
+- **No page calls a service.** Every screen still reads its fixture.
+- **Three services exist** — members, posts, albums. Families, birthdays and
+  resources are not written, and should be written against the real contract
+  rather than guessed at.
+- **Uploads.** `UploadDropzone` holds `File` objects and nothing sends them;
+  `endpoints.uploads.sign` is a placeholder for the signed-URL flow the
+  structure document describes.
+- **`store/`** is still empty. Nothing has needed global client state yet,
+  and `zustand` stays installed for when something does.

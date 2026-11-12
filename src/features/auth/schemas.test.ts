@@ -16,25 +16,26 @@ describe("userLoginSchema", () => {
 describe("adminLoginSchema", () => {
   it("rejects a password under 8 characters", () => {
     const result = adminLoginSchema.safeParse({
-      email: "admin@imenafamily.rw",
+      name: "Aganze",
       password: "short",
     });
     expect(result.success).toBe(false);
   });
 
-  /* The family name identifies seventy-three people, so it cannot identify
-     an administrator. The register signs people in by address. */
-  it("rejects a family name in place of an address", () => {
+  it("rejects a blank name", () => {
     const result = adminLoginSchema.safeParse({
-      email: "Imena",
+      name: "   ",
       password: "correct-horse",
     });
     expect(result.success).toBe(false);
   });
 
+  /* The design asks for a name on both doors. The shape is all this schema
+     checks — whether the name belongs to an administrator is
+     checkAdminCredential's job, on the server. */
   it("accepts a full credential pair", () => {
     const result = adminLoginSchema.safeParse({
-      email: "admin@imenafamily.rw",
+      name: "Aganze",
       password: "correct-horse",
     });
     expect(result.success).toBe(true);

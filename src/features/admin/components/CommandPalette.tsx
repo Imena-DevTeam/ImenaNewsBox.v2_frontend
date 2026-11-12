@@ -153,7 +153,7 @@ export function CommandPalette() {
                 go(matches[cursor]);
               }
             }}
-            className="text-body h-12 w-full bg-transparent outline-none"
+            className="text-body h-12 w-full bg-transparent"
           />
         </div>
 

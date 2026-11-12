@@ -44,8 +44,16 @@ export function OtpInput({
       setDigit(index - 1, "");
       focus(index - 1);
     }
-    if (event.key === "ArrowLeft" && index > 0) focus(index - 1);
-    if (event.key === "ArrowRight" && index < OTP_LENGTH - 1) focus(index + 1);
+    /* preventDefault, or the caret moves inside the box as well as the
+       focus moving out of it, and two arrow presses are needed per step. */
+    if (event.key === "ArrowLeft" && index > 0) {
+      event.preventDefault();
+      focus(index - 1);
+    }
+    if (event.key === "ArrowRight" && index < OTP_LENGTH - 1) {
+      event.preventDefault();
+      focus(index + 1);
+    }
   };
 
   const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
@@ -84,7 +92,10 @@ export function OtpInput({
           onPaste={handlePaste}
           className={cn(
             "font-auth-display bg-surface text-text h-16 w-14 rounded-2xl border text-center text-3xl font-bold",
-            "transition-fast focus-visible:outline-none disabled:opacity-80",
+            /* The outline is the only thing that says which of the five
+               boxes the keyboard is in. It was turned off, leaving a 1px
+               border going from grey to slightly darker grey. */
+            "transition-fast disabled:opacity-50",
             invalid
               ? "border-danger"
               : "border-field-border focus:border-muted",
