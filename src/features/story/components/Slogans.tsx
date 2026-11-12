@@ -1,18 +1,18 @@
 import { Users } from "lucide-react";
-import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
+import { SplitText } from "@/components/motion/SplitText";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
-import { SectionTitle } from "@/components/ui/SectionTitle";
-import { HeartsOrnament, HouseHeartOrnament } from "@/components/ui/Ornaments";
-import { cn } from "@/lib/cn";
+import { HeartsOrnament, HouseOrnament } from "@/components/ui/Ornaments";
+import { StoryContainer } from "./StoryContainer";
 
 /* The four slogans, placed at the top, left, right and bottom of the cross.
-   The middle cell holds the hearts. */
+   The middle cell holds the hearts. The top card stands a little clear of
+   the side cards; the bottom card meets them. */
 const SLOGANS = [
   {
     title: "IMENA FAMILY",
     slogan: "Kubw’umurava n’ikizere imbere hacu heza ntituzazima",
-    placement: "md:col-start-2 md:row-start-1",
+    placement: "md:col-start-2 md:row-start-1 md:mb-2 xl:mb-[18px]",
   },
   {
     title: "WIHOGORA",
@@ -34,68 +34,70 @@ const SLOGANS = [
 
 export function Slogans() {
   return (
-    <section className="relative overflow-x-clip py-16 md:py-24">
-      {/* The ornaments scattered around the cross: hearts to the right of the
-          top card and beside the bottom one, a house in the lower right. */}
-      <HeartsOrnament className="motion-safe:animate-float-slow absolute top-[30%] right-[6%] hidden w-14 md:block" />
-      <HeartsOrnament className="motion-safe:animate-float-slow absolute bottom-[14%] left-[3%] hidden w-14 md:block" />
-      <HouseHeartOrnament className="motion-safe:animate-float-slow absolute right-[12%] bottom-[8%] hidden size-20 rotate-[-15deg] md:block" />
-
-      <Container>
-        <SectionTitle title="OUR SLOGANS" />
+    <section className="relative overflow-x-clip pb-16 md:pb-24 xl:pb-[140px]">
+      <StoryContainer>
+        <SplitText
+          as="h2"
+          lines={[["OUR SLOGANS"]]}
+          className="text-h2-m md:text-h2 xl:text-story-title text-heading text-center"
+        />
 
         <Reveal blur delay={0.3} distance={16}>
-          <p className="text-h3-m md:text-h3 mt-6">Passionately Spoken</p>
+          <p className="text-h3-m md:text-h3 xl:text-story-sub text-text mt-6 xl:mt-[30px]">
+            Passionately Spoken
+          </p>
         </Reveal>
 
-        {/* The cards assemble one after another, top first, then the hearts
-            land in the middle. The arms of the cross sit almost edge to edge,
-            as in the design. */}
-        <Stagger
-          as="ul"
-          stagger={0.12}
-          delay={0.2}
-          className={cn(
-            "mx-auto mt-10 grid max-w-sm grid-cols-1 gap-4 md:mt-4",
-            "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3 md:gap-x-0 md:gap-y-2",
-          )}
-        >
-          {SLOGANS.map((item) => (
-            <StaggerItem
-              key={item.title}
-              as="li"
-              from="none"
-              scale={0.85}
-              className={item.placement}
-            >
-              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-md p-6 md:p-8">
-                <span
-                  aria-hidden
-                  className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-9 items-center justify-center md:top-8 md:left-8"
-                >
-                  <Users className="size-4" />
-                </span>
+        <div className="relative mt-10 md:mt-6 xl:mt-[18px]">
+          {/* The ornaments around the cross: hearts off the top right, hearts
+              low on the left, and a tilted house in the lower right. */}
+          <HeartsOrnament className="motion-safe:animate-float-slow absolute top-[69px] -right-[15px] hidden w-[110px] xl:block" />
+          <HeartsOrnament className="motion-safe:animate-float-slow absolute top-[1180px] left-px hidden w-[104px] xl:block" />
+          <HouseOrnament className="motion-safe:animate-float-slow absolute top-[1272px] right-[67px] hidden size-[155px] -rotate-[18deg] xl:block" />
 
-                <figcaption className="text-h4-m md:text-h4 font-heading text-text mt-10 md:mt-0">
-                  {item.title}
-                </figcaption>
+          {/* The cards assemble one after another, top first, then the
+              hearts land in the middle. */}
+          <Stagger
+            as="ul"
+            stagger={0.12}
+            delay={0.2}
+            className="mx-auto grid max-w-sm grid-cols-1 gap-4 md:max-w-[1149px] md:grid-cols-3 md:gap-0"
+          >
+            {SLOGANS.map((item) => (
+              <StaggerItem
+                key={item.title}
+                as="li"
+                from="none"
+                scale={0.85}
+                className={item.placement}
+              >
+                <figure className="bg-slogan-card md:aspect-slogan-card relative h-full rounded-[20px] p-6 pt-24 shadow-[0_2px_8px_rgb(26_26_41/0.08)] md:px-[7%] md:pt-[50%]">
+                  <span
+                    aria-hidden
+                    className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-11 items-center justify-center md:top-[7%] md:left-[7%] xl:size-[52px]"
+                  >
+                    <Users className="size-5" />
+                  </span>
 
-                {/* text-text, not the usual muted grey: on the lavender card
-                    #6b6b6b reaches only 2.9:1. */}
-                <blockquote className="text-body-sm text-text mt-3 tracking-wider">
-                  {item.slogan}
-                </blockquote>
-              </figure>
-            </StaggerItem>
-          ))}
+                  <figcaption className="text-h4-m md:text-h4 xl:text-slogan-title font-heading text-story-ink">
+                    {item.title}
+                  </figcaption>
 
-          <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
-            <StaggerItem from="none" scale={0.4}>
-              <HeartsOrnament className="w-16" />
-            </StaggerItem>
-          </li>
-        </Stagger>
-      </Container>
+                  <blockquote className="text-body-sm xl:text-slogan text-slogan-ink mt-3 tracking-wider xl:mt-[14px] xl:max-w-[300px] xl:tracking-[0.03em]">
+                    {item.slogan}
+                  </blockquote>
+                </figure>
+              </StaggerItem>
+            ))}
+
+            <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
+              <StaggerItem from="none" scale={0.4}>
+                <HeartsOrnament className="w-16 xl:w-[110px]" />
+              </StaggerItem>
+            </li>
+          </Stagger>
+        </div>
+      </StoryContainer>
     </section>
   );
 }

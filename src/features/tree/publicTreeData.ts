@@ -244,19 +244,23 @@ export interface TreeCardData {
   w: number;
   h: number;
   label: string;
+  /** The couple the card names, under the label. */
+  caption: string;
+  /** The promotion a click on the card opens. */
+  generation: PromotionYear;
 }
 
 /*
- * Coordinates in a 960 x 1020 SVG viewBox matching the elongated vertical
- * multi-tier layout in Image Two:
+ * Coordinates in a 1440 x 1560 SVG viewBox, measured off the design export
+ * (public/images/family_tree_page.png) at its 1440px width:
  * - Root ancestor: Benon
  * - 6 generations: strictly Grandpere & Grandmere couples
  */
 export const TREE_ROOT_BENON = {
   id: "benon-root",
-  cx: 190,
-  cy: 250,
-  r: 68,
+  cx: 274,
+  cy: 351,
+  r: 100,
   name: "Benon",
   generation: "2019-2021" as PromotionYear,
   role: "Root Patriarch",
@@ -268,9 +272,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2019-2021 (Pair directly below Benon)
   {
     id: "gp-2019-sylvain",
-    cx: 225,
-    cy: 425,
-    r: 34,
+    cx: 336,
+    cy: 627,
+    r: 53,
     name: "Sylvain",
     generation: "2019-2021",
     role: "Grandpere",
@@ -279,9 +283,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2019-honette",
-    cx: 300,
-    cy: 425,
-    r: 34,
+    cx: 443,
+    cy: 627,
+    r: 53,
     name: "Honette",
     generation: "2019-2021",
     role: "Grandmere",
@@ -292,9 +296,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2021-2022 (Top Center pair)
   {
     id: "gp-2021-innocent",
-    cx: 420,
-    cy: 160,
-    r: 34,
+    cx: 609,
+    cy: 194,
+    r: 53,
     name: "Innocent",
     generation: "2021-2022",
     role: "Grandpere",
@@ -302,9 +306,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2021-jolie",
-    cx: 495,
-    cy: 175,
-    r: 34,
+    cx: 718,
+    cy: 218,
+    r: 53,
     name: "Jolie",
     generation: "2021-2022",
     role: "Grandmere",
@@ -315,9 +319,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2022-2023 (Top Right pair: Patrick higher, Francine offset)
   {
     id: "gp-2022-patrick",
-    cx: 645,
-    cy: 105,
-    r: 34,
+    cx: 966,
+    cy: 99,
+    r: 53,
     name: "Patrick",
     generation: "2022-2023",
     role: "Grandpere",
@@ -326,9 +330,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2022-francine",
-    cx: 720,
-    cy: 130,
-    r: 34,
+    cx: 1075,
+    cy: 140,
+    r: 53,
     name: "Francine",
     generation: "2022-2023",
     role: "Grandmere",
@@ -339,9 +343,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2023-2024 (Mid Center pair below middle cards)
   {
     id: "gp-2023-elua",
-    cx: 410,
-    cy: 555,
-    r: 34,
+    cx: 595,
+    cy: 857,
+    r: 53,
     name: "Elua",
     generation: "2023-2024",
     role: "Grandpere",
@@ -350,9 +354,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2023-joyeuse",
-    cx: 485,
-    cy: 550,
-    r: 34,
+    cx: 712,
+    cy: 837,
+    r: 53,
     name: "Joyeuse",
     generation: "2023-2024",
     role: "Grandmere",
@@ -363,9 +367,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2024-2025 (Mid Right pair)
   {
     id: "gp-2024-thierry",
-    cx: 680,
-    cy: 545,
-    r: 34,
+    cx: 1021,
+    cy: 809,
+    r: 53,
     name: "Thierry",
     generation: "2024-2025",
     role: "Grandpere",
@@ -374,9 +378,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2024-liliane",
-    cx: 755,
-    cy: 555,
-    r: 34,
+    cx: 1121,
+    cy: 837,
+    r: 53,
     name: "Liliane",
     generation: "2024-2025",
     role: "Grandmere",
@@ -387,9 +391,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   // Generation 2025-2026 (Bottom Tier pair)
   {
     id: "gp-2025-pacifique",
-    cx: 350,
-    cy: 860,
-    r: 35,
+    cx: 524,
+    cy: 1315,
+    r: 53,
     name: "Pacifique",
     generation: "2025-2026",
     role: "Grandpere",
@@ -398,9 +402,9 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
   {
     id: "gm-2025-hyguette",
-    cx: 435,
-    cy: 865,
-    r: 35,
+    cx: 643,
+    cy: 1333,
+    r: 53,
     name: "Hyguette",
     generation: "2025-2026",
     role: "Grandmere",
@@ -408,19 +412,76 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
   },
 ];
 
-/* Rounded rectangle cards with meaningful labels strictly matching Image Two */
+/* The label cards beside each couple, at the design's sizes. */
 export const TREE_CARDS: TreeCardData[] = [
-  // Card below Sylvain & Honette (2019-2021)
-  { id: "c1", x: 155, y: 475, w: 215, h: 38, label: "2019 – 2021" },
-  // Cards side by side under Innocent & Jolie (2021-2022 & IMENA Roots)
-  { id: "c2", x: 265, y: 280, w: 205, h: 38, label: "2021 – 2022" },
-  { id: "c3", x: 485, y: 280, w: 185, h: 38, label: "IMENA Roots" },
-  // Card to the right of Patrick & Francine (2022-2023)
-  { id: "c4", x: 700, y: 200, w: 205, h: 38, label: "2022 – 2023" },
-  // Card below Thierry & Liliane (2024-2025)
-  { id: "c5", x: 680, y: 625, w: 225, h: 40, label: "2024 – 2025" },
-  // Card below Elua & Joyeuse (2023-2024)
-  { id: "c6", x: 250, y: 635, w: 225, h: 40, label: "2023 – 2024" },
-  // Card below & to right of Pacifique & Hyguette (2025-2026)
-  { id: "c7", x: 480, y: 880, w: 225, h: 42, label: "2025 – 2026" },
+  {
+    id: "c1",
+    x: 233,
+    y: 690,
+    w: 312,
+    h: 131,
+    label: "2019 – 2021",
+    caption: "Sylvain & Honette",
+    generation: "2019-2021",
+  },
+  {
+    id: "c2",
+    x: 393,
+    y: 393,
+    w: 312,
+    h: 131,
+    label: "2021 – 2022",
+    caption: "Innocent & Jolie",
+    generation: "2021-2022",
+  },
+  {
+    id: "c3",
+    x: 716,
+    y: 393,
+    w: 277,
+    h: 131,
+    label: "IMENA Roots",
+    caption: "Benon, since 1996",
+    generation: "2019-2021",
+  },
+  {
+    id: "c4",
+    x: 1021,
+    y: 268,
+    w: 312,
+    h: 131,
+    label: "2022 – 2023",
+    caption: "Patrick & Francine",
+    generation: "2022-2023",
+  },
+  {
+    id: "c5",
+    x: 375,
+    y: 966,
+    w: 330,
+    h: 138,
+    label: "2023 – 2024",
+    caption: "Elua & Joyeuse",
+    generation: "2023-2024",
+  },
+  {
+    id: "c6",
+    x: 1014,
+    y: 954,
+    w: 331,
+    h: 138,
+    label: "2024 – 2025",
+    caption: "Thierry & Liliane",
+    generation: "2024-2025",
+  },
+  {
+    id: "c7",
+    x: 718,
+    y: 1365,
+    w: 330,
+    h: 140,
+    label: "2025 – 2026",
+    caption: "Pacifique & Hyguette",
+    generation: "2025-2026",
+  },
 ];

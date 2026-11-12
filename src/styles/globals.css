@@ -23,6 +23,7 @@
   /* --- Brand and surfaces ------------------------------------------------ */
   --color-primary: #0d1aba;
   --color-primary-hover: #0a1598;
+  --color-primary-deep: #070f6b;
   --color-background: #fcffff;
   --color-surface: #ffffff;
   /* The tinted bands behind About, Recent Handovers and the elders cards. */
@@ -58,15 +59,11 @@
      frame work and never used for text or interface state. */
   --color-ornament: #c3d2e8; /* the line-drawn suns, trees and houses */
   --color-frame: #999d8f; /* the thick photo frame */
-  --color-frame-accent: #87b2b5; /* the card outlined behind it */
+  --color-frame-accent: #88b3b6; /* the card outlined behind it */
+  --color-frame-card: #e7eeeb; /* the fill of that card */
   --color-placeholder: #d9d9d9; /* the quote cards */
   --color-stat: #7b4a94; /* the second milestone badge on the timeline */
-  --color-slogan-card: #c9b8e6; /* the lavender slogan cards */
-  --color-story-ring: #6b4a30; /* the brown rim of the Our Story portrait */
-  --color-story-glow: #e8a33d; /* the warm light under that portrait */
-  --color-story-soft: #b9b2ea; /* the faded end of the Our Story sentence */
-  --color-milestone: #9c2fb0; /* the third milestone badge */
-  --color-milestone-soft: #e4e0fa; /* the last milestone badge */
+  --color-slogan-card: #c9bfed; /* the lavender slogan cards */
 
   /* Auth screens (login, admin login, verify). Sampled from the Figma auth
      frames, which use a violet brand fill rather than --color-primary. Text
@@ -352,6 +349,93 @@
   --color-tree-portrait: #fbe7d8; /* the warm disc behind each portrait */
   --color-tree-line: #2b2b2b; /* the chart's connecting lines */
   --color-tree-label: #4a4a4a; /* names under the chart portraits */
+  /* The public tree page, sampled from public/images/family_tree_page.png. */
+  --color-tree-box: #d9d9d9; /* the label cards and empty circles in the tree */
+  --color-tree-box-hover: #cdcdd4;
+  --color-tree-silhouette: #b3b3bb; /* the figure in a circle with no photo */
+  --color-tree-outline: #c7b3f0; /* the member card border */
+  --color-tree-badge-ink: #323586;
+  --color-tree-badge-edge: #e7e7fe;
+  --color-tree-quote-bar: #efe6fe; /* the bar beside a member's saying */
+  --color-tree-copy: #767683; /* the saying */
+
+  /* Its desktop type, at the design's 1440px layout. */
+  --text-tree-intro: 1.875rem; /* 30px — the paragraph under the title */
+  --text-tree-intro--line-height: 1.27;
+  --text-tree-promo: 2.125rem; /* 34px — The 2025-2026 Promotion */
+  --text-tree-promo--line-height: 1.2;
+  --text-tree-row: 1.75rem; /* 28px — Grandpere & Grandmere */
+  --text-tree-row--line-height: 1.25;
+  --text-tree-row--font-weight: 600;
+  --text-tree-name: 1.5625rem; /* 25px — the name on a member card */
+  --text-tree-name--line-height: 1.5;
+  --text-tree-name--font-weight: 700;
+
+  /* --- Our Story page ---------------------------------------------------- */
+  /* Sampled from the design export (public/images/our_story_page.png), which
+     is laid out at 1440px. The type sizes below are that layout's desktop
+     sizes; smaller screens use the regular scale. */
+  --container-story: 1414px; /* 1350px of content inside the 32px gutters */
+  --color-story-band: #f8fafe; /* the tilted band behind the hero title */
+  --color-story-ornament: #e0e0f0; /* the sun, hearts and house */
+  --color-story-ink: #1a1a29; /* headings on the page */
+  --color-story-copy: #686875; /* the intro paragraph */
+  --color-story-soft: #cbcaf1; /* the faded end of the OUR STORY sentence */
+  --color-story-quiet: #bcbcbc; /* the grey sentence beside the portrait */
+  --color-story-label: #454655; /* "Members" and "Subfamilies" */
+  --color-story-rule: #d9d9d9; /* the rule through the portrait */
+  --color-story-shadow: #997047; /* the warm shadow under the portrait */
+  --color-timeline-panel: #f5f2ff;
+  --color-timeline-link: #e2dff5; /* the short lines between the cards */
+  --color-timeline-copy: #6b6b7a;
+  --color-milestone-blue: #303ccf; /* first badge and the record dot */
+  --color-milestone: #8d1397; /* the third badge */
+  --color-milestone-soft: #e0e0ff; /* the last badge */
+  --color-milestone-ink: #282c84; /* the icon on the last badge */
+  --color-slogan-ink: #565669;
+
+  --text-story-hero: 4.75rem; /* 76px */
+  --text-story-hero--line-height: 0.92;
+  --text-story-hero--font-weight: 700;
+  --text-story-hero--letter-spacing: -0.01em;
+  --text-story-title: 3.625rem; /* 58px — OUR STORY, OUR SLOGANS */
+  --text-story-title--line-height: 1;
+  --text-story-title--font-weight: 400;
+  --text-story-lead: 2.4375rem; /* 39px — the intro heading */
+  --text-story-lead--line-height: 0.76;
+  --text-story-lead--font-weight: 500;
+  --text-story-body: 1.125rem; /* 18px */
+  --text-story-body--line-height: 1.6;
+  --text-story-note: 1.5rem; /* 24px — the bold sentence beside the portrait */
+  --text-story-note--line-height: 1.125;
+  --text-story-aside: 1.625rem; /* 26px — the grey sentence across from it */
+  --text-story-aside--line-height: 1.05;
+  --text-story-stat: 5.25rem; /* 84px */
+  --text-story-stat--line-height: 1;
+  --text-story-stat--font-weight: 700;
+  --text-story-stat-label: 1.875rem; /* 30px */
+  --text-story-stat-label--line-height: 1.2;
+  --text-story-stat-label--font-weight: 500;
+  --text-story-sub: 2.5rem; /* 40px — Passionately Spoken */
+  --text-story-sub--line-height: 1.2;
+  --text-story-sub--font-weight: 500;
+  --text-timeline-title: 3.25rem; /* 52px */
+  --text-timeline-title--line-height: 1.1;
+  --text-timeline-title--font-weight: 700;
+  --text-timeline-year: 1.625rem; /* 26px */
+  --text-timeline-year--line-height: 1;
+  --text-timeline-year--font-weight: 700;
+  --text-timeline-label: 0.8125rem; /* 13px */
+  --text-timeline-label--line-height: 1.2;
+  --text-timeline-label--font-weight: 700;
+  --text-timeline-body: 1rem; /* 16px */
+  --text-timeline-body--line-height: 1.55;
+  --text-slogan-title: 2.3125rem; /* 37px */
+  --text-slogan-title--line-height: 1.1;
+  --text-slogan-title--font-weight: 500;
+  --text-slogan-title--letter-spacing: -0.02em;
+  --text-slogan: 1.40625rem; /* 22.5px */
+  --text-slogan--line-height: 1.18;
 
   /* --- Slogan cards ------------------------------------------------------- */
   /* The four cards of the slogan cross. The design calls for 346x419; these
@@ -532,19 +616,19 @@
 @keyframes route-enter {
   from {
     opacity: 0;
-    transform: translateY(0.75rem);
-    filter: blur(4px);
+    transform: translateY(0.5rem);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
+/* Short and opacity/transform only: a blur over the whole page is costly to
+   paint, and a long entrance reads as a slow page. */
 @utility route-enter {
   @media (prefers-reduced-motion: no-preference) {
-    animation: route-enter 450ms var(--ease-out-soft) both;
+    animation: route-enter 260ms var(--ease-out-soft) both;
   }
 }
 

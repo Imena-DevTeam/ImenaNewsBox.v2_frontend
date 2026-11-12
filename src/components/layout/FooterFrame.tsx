@@ -38,9 +38,10 @@ export function FooterLink({ href, label }: { href: string; label: string }) {
 }
 
 /**
- * The close of every page: a brand-blue card holding the family's mark, a
+ * The close of every page: a deep-blue card holding the family's mark, a
  * line about the place and the ways to reach it on the left, the gold link
- * columns on the right, and a hairline above the small print. The family's
+ * columns on the right, and a soft rule above the small print, which sits
+ * centred along the bottom of the card. The family's
  * name sits huge and barely there along the very bottom of the page, half
  * tucked behind the card.
  */
@@ -72,7 +73,7 @@ export function FooterFrame({
       </p>
 
       <div className="max-w-page relative z-10 mx-auto">
-        <div className="bg-primary text-surface rounded-[2rem] px-7 py-10 shadow-[0_24px_60px_rgba(13,26,186,0.18)] sm:px-12 sm:py-12">
+        <div className="bg-primary-deep text-surface rounded-[2rem] px-7 py-10 shadow-[0_24px_60px_rgba(7,15,107,0.22)] sm:px-12 sm:py-12">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
             <div className="max-w-md">
               <Link
@@ -116,15 +117,19 @@ export function FooterFrame({
             </div>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-white/15 pt-6">
-            <div className="text-caption text-surface/70 font-normal">
-              {bottomStart}
-            </div>
+          <span
+            aria-hidden
+            className="rounded-pill mt-12 block h-0.5 bg-white/15"
+          />
+          <div className="mt-6 flex flex-col items-center gap-3 text-center">
             {bottomEnd ? (
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
                 {bottomEnd}
               </div>
             ) : null}
+            <div className="text-caption text-surface/70 font-normal">
+              {bottomStart}
+            </div>
           </div>
         </div>
       </div>

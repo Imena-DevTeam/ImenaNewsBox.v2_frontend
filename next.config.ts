@@ -16,6 +16,15 @@ const nextConfig: NextConfig = {
        that reads the request, and it is an auth step, not something to
        re-show from cache. */
     staleTimes: { static: 600, dynamic: 30 },
+
+    /* Barrel packages that Next does not rewrite by default. Without this,
+       importing one icon compiles and ships the whole set (Hugeicons alone
+       is thousands of modules), which is most of a cold dev compile. */
+    optimizePackageImports: [
+      "@hugeicons/core-free-icons",
+      "@hugeicons/react",
+      "motion",
+    ],
   },
 
   images: {
