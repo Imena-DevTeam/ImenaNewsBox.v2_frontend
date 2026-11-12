@@ -1,6 +1,5 @@
 import { BLOGGER, MEMBER } from "@/constants/member";
 import { TRINITY } from "@/features/families/data";
-import type { Role } from "@/lib/session";
 
 /**
  * The family register: one record per person, and the only list of people in
@@ -16,22 +15,13 @@ import type { Role } from "@/lib/session";
  * runs over a copy of this array in component state and says so.
  */
 
-export type MemberStatus = "active" | "invited" | "suspended";
+/* The record's shape is defined once, in @/types/member, because the API
+   sends it and this fixture stands in for the API. Re-exported here so the
+   seventy or so places that already import FamilyMember from this module
+   keep working, and so the fixture and the wire cannot drift apart. */
+import type { FamilyMember, MemberStatus } from "@/types/member";
 
-export interface FamilyMember {
-  /** Stable across an email change, which is the whole point of having it. */
-  id: string;
-  fullName: string;
-  email: string;
-  /** A branch slug from TRINITY: wihogora | light | hope. */
-  branch: string;
-  /** ISO, or empty — the Birthdays page cannot place them without it. */
-  bornOn: string;
-  role: Role;
-  status: MemberStatus;
-  /** ISO. The list's default order is newest first. */
-  joinedOn: string;
-}
+export type { FamilyMember, MemberStatus };
 
 /* Two pools composed by index rather than 73 hand-written names. The strides
    are coprime with the pool lengths and the pair repeats only after 120

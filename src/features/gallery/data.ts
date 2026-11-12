@@ -177,9 +177,10 @@ export const MOMENTS: Moment[] = [
   },
 ];
 
-/** "20 December 2025" */
+/** "December 20, 2025" — en-US, like every other date on the site. The
+    gallery was the one place reading them the other way round. */
 export function formatPhotoDate(iso: string): string {
-  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",

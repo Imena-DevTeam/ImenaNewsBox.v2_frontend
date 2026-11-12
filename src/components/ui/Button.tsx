@@ -33,15 +33,20 @@ const base =
 
 type ButtonProps = { variant?: Variant; size?: Size; children: ReactNode };
 
+/* type defaults to "button". A <button> with no type submits the form it
+   is standing in, so the one place this is forgotten is a form that submits
+   when somebody meant to open a dialog. Pass type="submit" to submit. */
 export function Button({
   variant = "primary",
   size = "md",
+  type = "button",
   className,
   children,
   ...props
 }: ButtonProps & Omit<ComponentProps<"button">, "children">) {
   return (
     <button
+      type={type}
       className={cn(base, VARIANTS[variant], SIZES[size], className)}
       {...props}
     >

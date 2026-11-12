@@ -177,7 +177,7 @@ export function EmptyTestimonial({
               onClick={onAction}
               className="hover:border-primary hover:bg-primary/5 group flex cursor-pointer items-center gap-3 rounded-full border border-dashed border-slate-300 bg-white px-6 py-3 transition-all duration-300"
             >
-              <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110">
+              <div className="bg-primary text-surface flex size-6 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110">
                 {actionIcon === "reset" ? (
                   <RotateCcw className="size-3.5 stroke-[2.5]" />
                 ) : (
@@ -188,24 +188,25 @@ export function EmptyTestimonial({
                 {actionLabel}
               </span>
             </button>
-          ) : (
+          ) : actionHref ? (
+            /* No fallback address. This defaulted to a tweet advertising
+               uselayouts.com and mentioning a stranger's handle, which came
+               in with the component and would have gone out from a private
+               family site the first time somebody left the prop off. */
             <a
-              href={
-                actionHref ||
-                "https://twitter.com/intent/tweet?text=Recently%20used%20uselayouts.com%20%5Byour%20experience%5D%20by%20%400xUrvish"
-              }
+              href={actionHref}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:border-primary hover:bg-primary/5 group flex items-center gap-3 rounded-full border border-dashed border-slate-300 bg-white px-6 py-3 transition-all duration-300"
             >
-              <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110">
+              <div className="bg-primary text-surface flex size-6 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110">
                 <Plus aria-hidden className="size-4 stroke-[3]" />
               </div>
               <span className="group-hover:text-primary text-sm font-medium text-slate-800 transition-colors">
                 {actionLabel}
               </span>
             </a>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

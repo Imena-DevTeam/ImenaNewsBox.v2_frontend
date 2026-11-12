@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useModalDialog } from "@/components/ui/useModalDialog";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { SubfamilyBadge } from "@/components/ui/SubfamilyBadge";
 import { ROUTES } from "@/constants/routes";
@@ -28,6 +29,7 @@ const DEFAULT_QUOTE = "“Shinjagira niyo waba ushira.”";
 
 export function ProfileView({ onSignOut }: ProfileViewProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const editDialog = useModalDialog(isEditing);
   const [quote, setQuote] = useStoredValue(
     "imena:profile_quote",
     DEFAULT_QUOTE,
@@ -109,7 +111,7 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
                 className="flex cursor-pointer items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50/70 px-6 py-2.5 text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-100 hover:text-rose-700"
               >
                 <LogOut className="size-4" />
-                Log out
+                Sign out
               </button>
             </form>
           </div>
@@ -183,38 +185,54 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
         </div>
       </section>
 
-      {/* Edit Profile Modal Dialog */}
-      {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
-            onClick={() => setIsEditing(false)}
-          />
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b pb-3">
-              <h3 className="text-base font-bold text-neutral-900">
-                Edit Personal Motto
+      {/* A native <dialog>, like the nine others in this codebase. It was a
+          fixed overlay, which looks the same and gives none of what this
+          gives: Escape, focus trapped inside it, the page behind it inert,
+          and focus returning to the button that opened it. */}
+      <dialog
+        ref={editDialog}
+        onClose={() => setIsEditing(false)}
+        onCancel={() => setIsEditing(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setIsEditing(false);
+        }}
+        aria-labelledby="edit-motto-title"
+        className="bg-surface open:animate-dialog-pop m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl p-0 shadow-2xl backdrop:bg-black/40 motion-reduce:animate-none"
+      >
+        {isEditing ? (
+          <div className="p-6">
+            <div className="border-member-border flex items-center justify-between border-b pb-3">
+              <h3
+                id="edit-motto-title"
+                className="text-member-ink text-base font-bold"
+              >
+                Edit personal motto
               </h3>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+                aria-label="Close"
+                className="text-muted hover:bg-member-tint hover:text-member-ink rounded-lg p-1"
               >
-                <X className="size-5" />
+                <X aria-hidden className="size-5" />
               </button>
             </div>
 
             <div className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-700">
-                  Family Motto / Favorite Proverb
+                <label
+                  htmlFor="profile-motto"
+                  className="text-member-ink block text-xs font-semibold"
+                >
+                  Family motto or favourite proverb
                 </label>
                 <textarea
+                  id="profile-motto"
                   value={tempQuote}
                   onChange={(e) => setTempQuote(e.target.value)}
                   rows={3}
-                  className="mt-1.5 w-full rounded-xl border border-neutral-300 p-3 text-sm focus:border-purple-600"
-                  placeholder="Enter your family motto..."
+                  className="focus:border-brand border-field-border mt-1.5 w-full rounded-xl border p-3 text-sm"
+                  placeholder="A line your family lives by"
                 />
               </div>
 
@@ -222,22 +240,22 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="rounded-full px-5 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100"
+                  className="text-muted hover:bg-member-tint rounded-full px-5 py-2 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveQuote}
-                  className="rounded-full bg-[#5B21B6] px-6 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#4C1D95]"
+                  className="bg-brand hover:bg-brand-hover text-surface rounded-full px-6 py-2 text-xs font-semibold shadow-sm"
                 >
-                  Save Changes
+                  Save changes
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : null}
+      </dialog>
     </div>
   );
 }

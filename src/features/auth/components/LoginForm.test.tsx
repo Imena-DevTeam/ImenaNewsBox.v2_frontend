@@ -13,11 +13,30 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => params,
 }));
 
+/* The login steps are server actions now: the role is decided there and
+   held in a signed cookie, never passed on in the URL. These stand in for
+   the round trip and record what the form asked for. */
+const beginMemberLogin = vi.fn(
+  async (_name: string) => ({ ok: true }) as const,
+);
+const beginAdminLogin = vi.fn(
+  async (_email: string, _password: string) => ({ ok: true }) as const,
+);
+vi.mock("@/app/actions/session", () => ({
+  beginMemberLogin: (name: string) => beginMemberLogin(name),
+  beginAdminLogin: (email: string, password: string) =>
+    beginAdminLogin(email, password),
+}));
+
 const logIn = () =>
   fireEvent.click(screen.getByRole("button", { name: "Log In" }));
 
 beforeEach(() => {
   push.mockClear();
+  beginMemberLogin.mockClear();
+  beginAdminLogin.mockClear();
+  beginMemberLogin.mockResolvedValue({ ok: true } as const);
+  beginAdminLogin.mockResolvedValue({ ok: true } as const);
   params = new URLSearchParams();
 });
 
@@ -42,6 +61,7 @@ describe("LoginForm", () => {
     logIn();
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/verify"));
+    expect(beginMemberLogin).toHaveBeenCalledWith("Imena");
   });
 
   it("links to the admin login", () => {
@@ -55,9 +75,9 @@ describe("LoginForm", () => {
 });
 
 describe("LoginForm, as the blogger", () => {
-  /* She uses the family's one login. Typing her name is what asks the verify
-     step for a blogger session, which is what puts the studio in her rail. */
-  it("asks for a blogger session when the blogger signs in", async () => {
+  /* She uses the family's one login. The name goes to the server, which
+     looks it up in the register and holds the answer in a cookie. */
+  it("hands the name to the server rather than deciding here", async () => {
     render(<LoginForm />);
 
     fireEvent.change(screen.getByLabelText("Name"), {
@@ -65,23 +85,25 @@ describe("LoginForm, as the blogger", () => {
     });
     logIn();
 
-    await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/verify?role=blogger"),
-    );
+    await waitFor(() => expect(beginMemberLogin).toHaveBeenCalledWith("Ngabe"));
   });
 
-  it("asks for nothing extra for anybody else", async () => {
+  /* The line this test holds: /verify?role=admin and any five digits made
+     you an administrator until 12 Nov 2026. Nothing about what you are may
+     travel in a URL, for the blogger or for anybody else. */
+  it("puts no role in the URL, whoever signs in", async () => {
     render(<LoginForm />);
 
     fireEvent.change(screen.getByLabelText("Name"), {
-      target: { value: "Imena" },
+      target: { value: "Ngabe" },
     });
     logIn();
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/verify"));
+    await waitFor(() => expect(push).toHaveBeenCalled());
+    expect(push.mock.calls[0]![0]).toBe("/verify");
   });
 
-  it("carries both the role and the destination", async () => {
+  it("carries the destination, which is all a URL decides", async () => {
     params = new URLSearchParams({ next: "/studio/posts" });
     render(<LoginForm />);
 
@@ -91,17 +113,32 @@ describe("LoginForm, as the blogger", () => {
     logIn();
 
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith(
-        "/verify?role=blogger&next=%2Fstudio%2Fposts",
-      ),
+      expect(push).toHaveBeenCalledWith("/verify?next=%2Fstudio%2Fposts"),
     );
+  });
+
+  /* A login the server turned down goes nowhere. */
+  it("stays put and says so when the server refuses", async () => {
+    beginMemberLogin.mockResolvedValue({
+      ok: false,
+      message: "Nope.",
+    } as never);
+    render(<LoginForm />);
+
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "Imena" },
+    });
+    logIn();
+
+    expect(await screen.findByText("Nope.")).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
   });
 });
 
 describe("AdminLoginForm", () => {
   const fill = () => {
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "admin@imenafamily.rw" },
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "Aganze" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
       target: { value: "correct-horse" },
@@ -109,31 +146,48 @@ describe("AdminLoginForm", () => {
     logIn();
   };
 
-  it("goes on to the verify step as an admin", async () => {
+  it("sends both halves of the credential to the server", async () => {
     render(<AdminLoginForm />);
     fill();
 
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/verify?role=admin"),
+      expect(beginAdminLogin).toHaveBeenCalledWith("Aganze", "correct-horse"),
     );
+    expect(push).toHaveBeenCalledWith("/verify?from=admin");
   });
 
-  /* The family name identifies seventy-three people. The register signs
-     people in by address, and this door has to agree with it. */
-  it("will not take a family name in place of an address", async () => {
+  /* It validated the shape of these two fields and then threw them away,
+     pushing a URL anybody could type. A refused credential goes nowhere. */
+  it("goes nowhere when the credential is refused", async () => {
+    beginAdminLogin.mockResolvedValue({
+      ok: false,
+      message: "That name and password do not match an administrator.",
+    } as never);
+    render(<AdminLoginForm />);
+    fill();
+
+    expect(
+      await screen.findByText(
+        "That name and password do not match an administrator.",
+      ),
+    ).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  /* The design asks for a name on both doors. What this door adds is the
+     password, so a blank one goes nowhere and nothing is held. */
+  it("will not go on without a password", async () => {
     render(<AdminLoginForm />);
 
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "Imena" },
-    });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "correct-horse" },
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "Aganze" },
     });
     logIn();
 
     expect(
-      await screen.findByText("That does not look like an email address"),
+      await screen.findByText("Password must be at least 8 characters"),
     ).toBeInTheDocument();
+    expect(beginAdminLogin).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
   });
 
@@ -149,7 +203,7 @@ describe("AdminLoginForm", () => {
 
     await waitFor(() =>
       expect(push).toHaveBeenCalledWith(
-        "/verify?role=admin&next=%2Fadmin%2Fmembers",
+        "/verify?from=admin&next=%2Fadmin%2Fmembers",
       ),
     );
   });
@@ -162,7 +216,7 @@ describe("AdminLoginForm", () => {
     fill();
 
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/verify?role=admin"),
+      expect(push).toHaveBeenCalledWith("/verify?from=admin"),
     );
   });
 

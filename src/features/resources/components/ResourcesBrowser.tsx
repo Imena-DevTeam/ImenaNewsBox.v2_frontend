@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motionWanted } from "@/lib/viewTransition";
 import { createPortal } from "react-dom";
 import { Check, Download, LayoutGrid, List, Search, X } from "lucide-react";
 import { EmptyTestimonial } from "@/components/ui/EmptyTestimonial";
@@ -103,7 +104,12 @@ export function ResourcesBrowser() {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     if (gridRef.current) {
-      gridRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      /* The reduced-motion floor in globals.css cannot reach a scroll asked
+         for in JavaScript, so this asks for itself. */
+      gridRef.current.scrollIntoView({
+        behavior: motionWanted() ? "smooth" : "auto",
+        block: "start",
+      });
     }
   };
 

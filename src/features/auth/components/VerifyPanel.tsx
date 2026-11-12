@@ -5,15 +5,22 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { VerifyForm } from "@/features/auth/components/VerifyForm";
 import { ROUTES } from "@/constants/routes";
-import { RETURN_PARAM, type Role } from "@/lib/session";
+import { RETURN_PARAM } from "@/lib/session";
 
 /**
- * Reads the address and the role out of the query string.
+ * Reads the address and the destination out of the query string.
  *
  * Done here rather than on the page so the page itself touches nothing from
  * the request and can be prerendered: it was the one route still rendered per
  * visit. VerifyForm is a client component already, so this moves nothing
  * extra across the boundary.
+ *
+ * > [!IMPORTANT]
+ * > **Nothing here decides what you are.** This screen read `?role=` until
+ * > 12 Nov 2026 and handed it to the action that signed the session, so
+ * > typing /verify?role=admin and any five digits made you an administrator.
+ * > The role now lives in a signed, httpOnly cookie the login step set, and
+ * > startMemberSession reads it there. `from` below chooses a back link.
  */
 export function VerifyPanel() {
   const params = useSearchParams();
@@ -27,13 +34,11 @@ export function VerifyPanel() {
       ? requested
       : undefined;
 
-  /* Which login sent you here, and as whom. It decides both where "back"
-     goes and which kind of session the code issues. The blogger comes
-     through the member login, so hers goes back there. */
-  const asked = params.get("role");
-  const role: Role =
-    asked === "admin" ? "admin" : asked === "blogger" ? "blogger" : "member";
-  const back = role === "admin" ? ROUTES.ADMIN_LOGIN : ROUTES.LOGIN;
+  /* Which login sent you here, so "back" returns to the door you came
+     through. Cosmetic: the blogger comes through the member login, and so
+     does everybody whose breadcrumb is missing or made up. */
+  const back =
+    params.get("from") === "admin" ? ROUTES.ADMIN_LOGIN : ROUTES.LOGIN;
 
   return (
     <>
@@ -54,7 +59,7 @@ export function VerifyPanel() {
       </Link>
 
       <div className="pb-auth-lg flex flex-1 items-center">
-        <VerifyForm email={email} returnTo={returnTo} role={role} />
+        <VerifyForm email={email} returnTo={returnTo} back={back} />
       </div>
     </>
   );

@@ -9,9 +9,15 @@
  * TODO: when the backend lands, verify the code against it and carry the
  * user's identity in the token (or swap this for the token it issues).
  *
- * Uses Web Crypto only, so the same code runs in the middleware (edge) and
- * in server actions (Node).
+ * The signing itself is in @/lib/signing, shared with the pending-login
+ * cookie: Web Crypto only, so the same code runs in the middleware (edge)
+ * and in server actions (Node).
+ *
+ * The role in this token is written by the server and never by a caller —
+ * see app/actions/session.ts, which reads it from the pending-login cookie.
  */
+import { sameString, secret, sign } from "@/lib/signing";
+
 export const SESSION_COOKIE = "imena_member";
 
 /** A week, which is how long the design's "catch up" flow implies. */
@@ -77,49 +83,6 @@ export function isMemberPath(pathname: string): boolean {
    issued before the admin area existed keep working until they expire. */
 const VERSION = "v2";
 const LEGACY_VERSION = "v1";
-
-/* Only for local development. Production without AUTH_SECRET fails closed:
-   no session can be issued and none is accepted. */
-const DEV_SECRET = "imena-dev-only-secret-do-not-use-in-production";
-
-function secret(): string | null {
-  const configured = process.env.AUTH_SECRET;
-  if (configured) return configured;
-  return process.env.NODE_ENV === "production" ? null : DEV_SECRET;
-}
-
-function toBase64Url(bytes: ArrayBuffer): string {
-  let binary = "";
-  for (const byte of new Uint8Array(bytes)) binary += String.fromCharCode(byte);
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-async function sign(payload: string, key: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(key),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  return toBase64Url(
-    await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(payload)),
-  );
-}
-
-/* Compares every character whatever the first difference, so the time a
-   check takes says nothing about how close a guess was. */
-function sameString(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let difference = 0;
-  for (let i = 0; i < a.length; i++)
-    difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return difference === 0;
-}
 
 /** A fresh session token, or null when no secret is configured. */
 export async function createSessionToken(

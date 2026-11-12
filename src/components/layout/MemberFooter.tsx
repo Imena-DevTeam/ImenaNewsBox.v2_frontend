@@ -11,6 +11,7 @@ import {
 } from "@/constants/site";
 import { BackToTop } from "./BackToTop";
 import { FooterUpdates } from "./FooterUpdates";
+import { CurrentYear } from "@/components/ui/CurrentYear";
 
 const HEADING = "text-caption text-member-ink tracking-widest uppercase";
 const LINK =
@@ -93,8 +94,8 @@ export function MemberFooter() {
         <div className="border-member-border mt-14 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
           <BackToTop />
           <p className="text-caption text-member-rail-ink font-normal">
-            &copy; {new Date().getFullYear()} IMENA Family. Together since{" "}
-            {FAMILY_FOUNDED}, more than {FAMILY_MEMBER_COUNT} of us.
+            &copy; <CurrentYear /> IMENA Family. Together since {FAMILY_FOUNDED}
+            , more than {FAMILY_MEMBER_COUNT} of us.
           </p>
         </div>
       </div>
