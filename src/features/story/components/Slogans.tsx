@@ -1,9 +1,10 @@
+import Image from "next/image";
 import { Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
-import { SectionTitle } from "@/components/ui/SectionTitle";
 import { HeartsOrnament } from "@/components/ui/Ornaments";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 import { cn } from "@/lib/cn";
 
 /* The four slogans, placed at the top, left, right and bottom of the cross.
@@ -37,7 +38,29 @@ export function Slogans() {
        size, and without this they would add a horizontal scrollbar. The tall
        vertical padding is the other half of the same problem — the rotation
        carries the corners far above and below the grid. */
-    <section className="overflow-x-clip py-16 md:py-32 lg:py-52">
+    <section className="relative isolate overflow-x-clip py-16 md:py-32 lg:py-52">
+      {/* The design's stickers, in the corners the turning cross leaves
+          empty and behind it, so a card passing over one stays readable. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 hidden md:block"
+      >
+        <HeartsOrnament className="text-gallery-ornament absolute top-1/4 right-8 w-20 lg:right-16" />
+        <HeartsOrnament className="text-gallery-ornament absolute bottom-1/4 left-8 w-20 -rotate-12 lg:left-16" />
+        <Reveal
+          from="bottom"
+          className="absolute right-10 bottom-16 lg:right-24"
+        >
+          <Image
+            src="/images/house.svg"
+            alt=""
+            width={149}
+            height={155}
+            className="motion-safe:animate-float-slow w-24 -rotate-20 lg:w-32"
+          />
+        </Reveal>
+      </div>
+
       <Container>
         <SectionTitle title="OUR SLOGANS" />
 
@@ -49,7 +72,7 @@ export function Slogans() {
 
         {/* The whole cross turns slowly, so the cards travel in a circle.
             Before it starts, the cards assemble: each grows into its arm of
-            the cross in turn, top first, then the heart lands in the middle.
+            the cross in turn, top first, then the hearts land in the middle.
             Motion only scales the cards inside each item, so it never touches
             the transforms the orbit animation runs on. */}
         <Stagger
@@ -75,7 +98,7 @@ export function Slogans() {
                 item.placement,
               )}
             >
-              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-md p-6 md:p-8">
+              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-3xl p-6 md:p-8">
                 <span
                   aria-hidden
                   className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-9 items-center justify-center md:top-8 md:left-8"
@@ -99,7 +122,7 @@ export function Slogans() {
 
           <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
             <StaggerItem from="none" scale={0.4}>
-              <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+              <HeartsOrnament className="text-gallery-ornament motion-safe:md:animate-orbit-reverse w-16" />
             </StaggerItem>
           </li>
         </Stagger>

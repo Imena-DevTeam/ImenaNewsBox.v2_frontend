@@ -16,15 +16,27 @@ export function StoryIntro() {
   return (
     <section className="overflow-x-clip">
       <Container className="relative grid items-center gap-12 pb-14 md:grid-cols-2 md:gap-16 md:pb-24">
-        <MaskReveal from="left">
-          <Image
-            src={storyIntro}
-            alt="Four members of the IMENA family together outside a family home"
-            placeholder="blur"
-            sizes="(min-width: 768px) 50vw, 100vw"
-            className="w-full rounded-2xl object-cover"
+        {/* The design's frame: a thick band around the photograph, and a
+            pale card outlined behind it, slipped out to the right and down.
+            The margin keeps room for the card, so it never leaves the
+            column. */}
+        <div className="relative isolate mr-6 mb-5 md:mr-8 md:mb-6">
+          <span
+            aria-hidden
+            className="border-frame-accent bg-frame-accent/20 absolute inset-0 -z-10 translate-x-6 translate-y-5 rounded-3xl border-2 md:translate-x-8 md:translate-y-6"
           />
-        </MaskReveal>
+          <MaskReveal from="left">
+            <div className="border-frame bg-frame overflow-hidden rounded-3xl border-12 md:border-16">
+              <Image
+                src={storyIntro}
+                alt="Four members of the IMENA family together outside a family home"
+                placeholder="blur"
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="w-full rounded-sm object-cover"
+              />
+            </div>
+          </MaskReveal>
+        </div>
 
         <div>
           {/* Set to the same edge as the paragraph below it. */}

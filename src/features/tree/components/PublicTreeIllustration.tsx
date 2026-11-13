@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   TREE_CARDS,
+  TREE_NEXT_PAIR,
   TREE_PORTRAIT_NODES,
   TREE_ROOT_BENON,
   type PromotionYear,
@@ -56,7 +57,7 @@ export function PublicTreeIllustration({
   return (
     <div className="relative mx-auto w-full max-w-4xl px-2 select-none sm:px-4">
       <svg
-        viewBox="0 0 960 1020"
+        viewBox="0 0 960 1100"
         className="h-auto w-full overflow-visible"
         aria-label="IMENA Family Tree Branches Illustration"
       >
@@ -92,72 +93,6 @@ export function PublicTreeIllustration({
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
-
-        {/* -------------------------------------------------------------
-            DECORATIVE BACKGROUND LINE-ART (Strictly from Image Two)
-        ------------------------------------------------------------- */}
-        {/* 1. Sun (Top-Left) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2"
-          strokeLinecap="round"
-          opacity="0.35"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="50" cy="50" r="16" />
-          <line x1="50" y1="24" x2="50" y2="16" />
-          <line x1="50" y1="76" x2="50" y2="84" />
-          <line x1="24" y1="50" x2="16" y2="50" />
-          <line x1="76" y1="50" x2="84" y2="50" />
-          <line x1="32" y1="32" x2="26" y2="26" />
-          <line x1="68" y1="68" x2="74" y2="74" />
-          <line x1="32" y1="68" x2="26" y2="74" />
-          <line x1="68" y1="32" x2="74" y2="26" />
-        </g>
-
-        {/* 2. House (Mid-Left) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M 32 630 L 60 600 L 88 630 L 88 662 L 32 662 Z" />
-          <path d="M 50 662 L 50 638 C 50 632, 70 632, 70 638 L 70 662" />
-        </g>
-
-        {/* 3. Hearts (Bottom-Left) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M 98 960 C 98 944, 118 934, 128 948 C 138 934, 158 944, 158 960 C 158 978, 128 998, 128 998 C 128 998, 98 978, 98 960 Z" />
-          <path d="M 82 974 C 82 962, 98 954, 106 965 C 114 954, 130 962, 130 974 C 130 989, 106 1004, 106 1004 C 106 1004, 82 989, 82 974 Z" />
-        </g>
-
-        {/* 4. Tree (Bottom-Right) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M 830 875 L 830 900" />
-          <path d="M 810 900 L 850 900" />
-          <path d="M 830 875 C 805 875, 795 855, 805 840 C 795 825, 810 805, 830 810 C 840 795, 860 800, 865 815 C 875 820, 880 840, 865 855 C 875 870, 855 875, 830 875 Z" />
-        </g>
 
         {/* -------------------------------------------------------------
             ORGANIC CONNECTING BRANCHES (Strictly matching Image Two)
@@ -345,6 +280,84 @@ export function PublicTreeIllustration({
             strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
+
+          {/* Branch 13: out of the 2025-2026 card, curving right and down
+              into the pair that follows it, with a limb to the second. */}
+          <path
+            d="M 705 901 C 770 901, 800 918, 800 950"
+            stroke="#1e2025"
+            strokeWidth={2.5}
+          />
+          <path
+            d="M 752 905 C 815 898, 872 918, 880 955"
+            stroke="#1e2025"
+            strokeWidth={2.5}
+          />
+        </g>
+
+        {/* -------------------------------------------------------------
+            THE NEXT PAIR (2026-2027): not named yet, so blank portraits and
+            a label, and nothing to open.
+        ------------------------------------------------------------- */}
+        <g role="img" aria-label={`${TREE_NEXT_PAIR.label}, not yet named`}>
+          {TREE_NEXT_PAIR.nodes.map((node) => (
+            <g key={node.id}>
+              <clipPath id={`clip-${node.id}`}>
+                <circle cx={node.cx} cy={node.cy} r={TREE_NEXT_PAIR.r} />
+              </clipPath>
+              <circle
+                cx={node.cx}
+                cy={node.cy}
+                r={TREE_NEXT_PAIR.r}
+                fill="#e2e8f0"
+                filter="url(#node-shadow)"
+              />
+              <g clipPath={`url(#clip-${node.id})`}>
+                <circle
+                  cx={node.cx}
+                  cy={node.cy - 6}
+                  r={TREE_NEXT_PAIR.r * 0.38}
+                  fill="#94a3b8"
+                />
+                <ellipse
+                  cx={node.cx}
+                  cy={node.cy + TREE_NEXT_PAIR.r * 0.75}
+                  rx={TREE_NEXT_PAIR.r * 0.65}
+                  ry={TREE_NEXT_PAIR.r * 0.45}
+                  fill="#94a3b8"
+                />
+              </g>
+              <circle
+                cx={node.cx}
+                cy={node.cy}
+                r={TREE_NEXT_PAIR.r}
+                fill="none"
+                stroke="#1e2025"
+                strokeWidth={2}
+              />
+            </g>
+          ))}
+          <rect
+            x={TREE_NEXT_PAIR.card.x}
+            y={TREE_NEXT_PAIR.card.y}
+            width={TREE_NEXT_PAIR.card.w}
+            height={TREE_NEXT_PAIR.card.h}
+            rx="16"
+            fill="#e6e9f0"
+            stroke="#c9ced8"
+            strokeWidth="1.2"
+          />
+          <text
+            x={TREE_NEXT_PAIR.card.x + TREE_NEXT_PAIR.card.w / 2}
+            y={TREE_NEXT_PAIR.card.y + TREE_NEXT_PAIR.card.h / 2 + 4.5}
+            textAnchor="middle"
+            fontSize="13"
+            fontWeight="800"
+            fontFamily="var(--font-sans), sans-serif"
+            className="fill-text tracking-wide select-none"
+          >
+            {TREE_NEXT_PAIR.label}
+          </text>
         </g>
 
         {/* -------------------------------------------------------------
@@ -378,11 +391,11 @@ export function PublicTreeIllustration({
                 x={card.x + card.w / 2}
                 y={card.y + card.h / 2 + 4.5}
                 textAnchor="middle"
-                fill="#64748b"
-                fontSize="11.5"
-                fontWeight="700"
+                stroke="none"
+                fontSize="13"
+                fontWeight="800"
                 fontFamily="var(--font-sans), sans-serif"
-                className="pointer-events-none tracking-wide select-none"
+                className="fill-text pointer-events-none tracking-wide select-none"
               >
                 {card.label}
               </text>

@@ -225,24 +225,12 @@ export function PublicPromotionSection({
   return (
     <section
       id="promotion-section"
-      className="relative scroll-mt-24 pt-12 pb-24 md:pt-16 md:pb-32"
+      /* overflow-x-clip: the two cards wait off to either side before they
+         slide in, and that offset was widening the page on phones and
+         tablets. Clip rather than hidden, so nothing here starts scrolling. */
+      className="relative scroll-mt-24 overflow-x-clip pt-12 pb-24 md:pt-16 md:pb-32"
     >
       {/* Decorative Ornaments with parallax drift matching landing page */}
-      <Parallax
-        distance={-25}
-        className="pointer-events-none absolute -top-6 left-4 hidden opacity-40 select-none md:block lg:left-12"
-      >
-        <Reveal from="left" delay={0.15} distance={24}>
-          <Image
-            src="/images/hearts.svg"
-            alt=""
-            width={80}
-            height={72}
-            className="object-contain"
-          />
-        </Reveal>
-      </Parallax>
-
       <Parallax
         distance={35}
         className="pointer-events-none absolute top-1/3 right-4 hidden opacity-35 select-none md:block lg:right-12"
