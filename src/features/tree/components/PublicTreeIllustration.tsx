@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   TREE_CARDS,
+  TREE_NEXT_PAIR,
   TREE_PORTRAIT_NODES,
   TREE_ROOT_BENON,
   type PromotionYear,
@@ -56,7 +57,7 @@ export function PublicTreeIllustration({
   return (
     <div className="relative mx-auto w-full max-w-4xl px-2 select-none sm:px-4">
       <svg
-        viewBox="0 0 960 1020"
+        viewBox="0 0 960 1100"
         className="h-auto w-full overflow-visible"
         aria-label="IMENA Family Tree Branches Illustration"
       >
@@ -279,6 +280,84 @@ export function PublicTreeIllustration({
             strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
+
+          {/* Branch 13: out of the 2025-2026 card, curving right and down
+              into the pair that follows it, with a limb to the second. */}
+          <path
+            d="M 705 901 C 770 901, 800 918, 800 950"
+            stroke="#1e2025"
+            strokeWidth={2.5}
+          />
+          <path
+            d="M 752 905 C 815 898, 872 918, 880 955"
+            stroke="#1e2025"
+            strokeWidth={2.5}
+          />
+        </g>
+
+        {/* -------------------------------------------------------------
+            THE NEXT PAIR (2026-2027): not named yet, so blank portraits and
+            a label, and nothing to open.
+        ------------------------------------------------------------- */}
+        <g role="img" aria-label={`${TREE_NEXT_PAIR.label}, not yet named`}>
+          {TREE_NEXT_PAIR.nodes.map((node) => (
+            <g key={node.id}>
+              <clipPath id={`clip-${node.id}`}>
+                <circle cx={node.cx} cy={node.cy} r={TREE_NEXT_PAIR.r} />
+              </clipPath>
+              <circle
+                cx={node.cx}
+                cy={node.cy}
+                r={TREE_NEXT_PAIR.r}
+                fill="#e2e8f0"
+                filter="url(#node-shadow)"
+              />
+              <g clipPath={`url(#clip-${node.id})`}>
+                <circle
+                  cx={node.cx}
+                  cy={node.cy - 6}
+                  r={TREE_NEXT_PAIR.r * 0.38}
+                  fill="#94a3b8"
+                />
+                <ellipse
+                  cx={node.cx}
+                  cy={node.cy + TREE_NEXT_PAIR.r * 0.75}
+                  rx={TREE_NEXT_PAIR.r * 0.65}
+                  ry={TREE_NEXT_PAIR.r * 0.45}
+                  fill="#94a3b8"
+                />
+              </g>
+              <circle
+                cx={node.cx}
+                cy={node.cy}
+                r={TREE_NEXT_PAIR.r}
+                fill="none"
+                stroke="#1e2025"
+                strokeWidth={2}
+              />
+            </g>
+          ))}
+          <rect
+            x={TREE_NEXT_PAIR.card.x}
+            y={TREE_NEXT_PAIR.card.y}
+            width={TREE_NEXT_PAIR.card.w}
+            height={TREE_NEXT_PAIR.card.h}
+            rx="16"
+            fill="#e6e9f0"
+            stroke="#c9ced8"
+            strokeWidth="1.2"
+          />
+          <text
+            x={TREE_NEXT_PAIR.card.x + TREE_NEXT_PAIR.card.w / 2}
+            y={TREE_NEXT_PAIR.card.y + TREE_NEXT_PAIR.card.h / 2 + 4.5}
+            textAnchor="middle"
+            fontSize="13"
+            fontWeight="800"
+            fontFamily="var(--font-sans), sans-serif"
+            className="fill-text tracking-wide select-none"
+          >
+            {TREE_NEXT_PAIR.label}
+          </text>
         </g>
 
         {/* -------------------------------------------------------------

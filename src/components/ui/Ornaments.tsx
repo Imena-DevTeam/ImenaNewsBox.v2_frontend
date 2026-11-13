@@ -83,3 +83,18 @@ export function TreeOrnament({ className }: OrnamentProps) {
     </svg>
   );
 }
+
+export function HeartsOrnament({ className }: OrnamentProps) {
+  return (
+    <svg
+      viewBox="0 0 64 48"
+      aria-hidden
+      className={cn("text-ornament", className)}
+      {...stroke}
+      strokeWidth={4.5}
+    >
+      <path d="M26 42C14 33 7 27 7 19a9 9 0 0 1 16-5.6A9 9 0 0 1 39 19c0 8-7 14-13 23Z" />
+      <path d="M44 34c-9-7-14-12-14-18a8 8 0 0 1 14-5 8 8 0 0 1 14 5c0 6-5 11-14 18Z" />
+    </svg>
+  );
+}
