@@ -3,7 +3,6 @@ import { cn } from "@/lib/cn";
 import { branchName } from "../branch";
 import { ALL_MEMBERS, PROMOTIONS } from "../promotions";
 import type { TreePerson } from "../types";
-import { PairedHearts } from "./PairedHearts";
 
 type Size = "lg" | "md" | "sm";
 
@@ -35,13 +34,6 @@ const FACES: {
   { year: 1, role: 2, size: "sm", left: "6%", top: "34%" },
 ];
 
-const HEARTS: { left: string; top: string; tilt: string }[] = [
-  { left: "44%", top: "18%", tilt: "-rotate-12" },
-  { left: "92%", top: "32%", tilt: "rotate-12" },
-  { left: "22%", top: "88%", tilt: "-rotate-12" },
-  { left: "82%", top: "94%", tilt: "rotate-6" },
-];
-
 /** Where the tooltip sits, kept inside the page at either edge. */
 function tooltipSide(left: string): string {
   const at = parseInt(left, 10);
@@ -58,17 +50,6 @@ function tooltipSide(left: string): string {
 export function FloatingFaceHero() {
   return (
     <div className="relative mt-2 h-80 w-full md:h-112">
-      {HEARTS.map((heart) => (
-        <PairedHearts
-          key={`${heart.left}-${heart.top}`}
-          className={cn(
-            "absolute -translate-x-1/2 -translate-y-1/2",
-            heart.tilt,
-          )}
-          style={{ left: heart.left, top: heart.top }}
-        />
-      ))}
-
       {FACES.map((face, index) => {
         const person: TreePerson | undefined =
           PROMOTIONS[face.year]?.members[face.role] ?? ALL_MEMBERS[index];

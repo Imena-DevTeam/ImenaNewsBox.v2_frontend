@@ -13,7 +13,7 @@ type AuthShellProps = {
 /**
  * Login page layout: a white page with the form column on the left and a
  * blob-cut family photo near the top right. The photo and the lavender
- * hearts and house outlines only show on desktop.
+ * house outline only show on desktop.
  */
 export function AuthShell({ title, children }: AuthShellProps) {
   return (
@@ -22,13 +22,6 @@ export function AuthShell({ title, children }: AuthShellProps) {
         {/* Was one fixed cut-out of a single photograph; now the same
             silhouette with the pictures changing behind it. */}
         <AuthPhoto className="auth-blob" />
-        <Image
-          src="/images/hearts.svg"
-          alt=""
-          width={90}
-          height={81}
-          className="auth-hearts"
-        />
         <div className="auth-house">
           <Image src="/images/house.svg" alt="" width={149} height={155} />
         </div>

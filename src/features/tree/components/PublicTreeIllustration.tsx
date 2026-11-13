@@ -94,72 +94,6 @@ export function PublicTreeIllustration({
         </defs>
 
         {/* -------------------------------------------------------------
-            DECORATIVE BACKGROUND LINE-ART (Strictly from Image Two)
-        ------------------------------------------------------------- */}
-        {/* 1. Sun (Top-Left) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2"
-          strokeLinecap="round"
-          opacity="0.35"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="50" cy="50" r="16" />
-          <line x1="50" y1="24" x2="50" y2="16" />
-          <line x1="50" y1="76" x2="50" y2="84" />
-          <line x1="24" y1="50" x2="16" y2="50" />
-          <line x1="76" y1="50" x2="84" y2="50" />
-          <line x1="32" y1="32" x2="26" y2="26" />
-          <line x1="68" y1="68" x2="74" y2="74" />
-          <line x1="32" y1="68" x2="26" y2="74" />
-          <line x1="68" y1="32" x2="74" y2="26" />
-        </g>
-
-        {/* 2. House (Mid-Left) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M 32 630 L 60 600 L 88 630 L 88 662 L 32 662 Z" />
-          <path d="M 50 662 L 50 638 C 50 632, 70 632, 70 638 L 70 662" />
-        </g>
-
-        {/* 3. Hearts (Bottom-Left) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M 98 960 C 98 944, 118 934, 128 948 C 138 934, 158 944, 158 960 C 158 978, 128 998, 128 998 C 128 998, 98 978, 98 960 Z" />
-          <path d="M 82 974 C 82 962, 98 954, 106 965 C 114 954, 130 962, 130 974 C 130 989, 106 1004, 106 1004 C 106 1004, 82 989, 82 974 Z" />
-        </g>
-
-        {/* 4. Tree (Bottom-Right) */}
-        <g
-          stroke="#94a3b8"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M 830 875 L 830 900" />
-          <path d="M 810 900 L 850 900" />
-          <path d="M 830 875 C 805 875, 795 855, 805 840 C 795 825, 810 805, 830 810 C 840 795, 860 800, 865 815 C 875 820, 880 840, 865 855 C 875 870, 855 875, 830 875 Z" />
-        </g>
-
-        {/* -------------------------------------------------------------
             ORGANIC CONNECTING BRANCHES (Strictly matching Image Two)
         ------------------------------------------------------------- */}
         <g fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -378,11 +312,11 @@ export function PublicTreeIllustration({
                 x={card.x + card.w / 2}
                 y={card.y + card.h / 2 + 4.5}
                 textAnchor="middle"
-                fill="#64748b"
-                fontSize="11.5"
-                fontWeight="700"
+                stroke="none"
+                fontSize="13"
+                fontWeight="800"
                 fontFamily="var(--font-sans), sans-serif"
-                className="pointer-events-none tracking-wide select-none"
+                className="fill-text pointer-events-none tracking-wide select-none"
               >
                 {card.label}
               </text>
