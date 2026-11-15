@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { HeartsOrnament, HouseOrnament } from "@/components/ui/Ornaments";
 import Link from "next/link";
 import { AuthPhoto } from "@/features/auth/components/AuthPhoto";
 import { ROUTES } from "@/constants/routes";
@@ -22,21 +23,13 @@ export function AuthShell({ title, children }: AuthShellProps) {
         {/* Was one fixed cut-out of a single photograph; now the same
             silhouette with the pictures changing behind it. */}
         <AuthPhoto className="auth-blob" />
-        <Image
-          src="/images/hearts.svg"
-          alt=""
-          width={90}
-          height={81}
-          className="auth-hearts"
-        />
-        <div className="auth-house">
-          <Image src="/images/house.svg" alt="" width={149} height={155} />
-        </div>
+        <HeartsOrnament size="lg" className="auth-hearts" />
+        <HouseOrnament size="lg" className="auth-house" />
       </div>
 
       <Link
         href={ROUTES.HOME}
-        className="group rounded-pill border-text bg-surface text-text transition-base hover:bg-text hover:text-surface relative z-10 inline-flex h-12 items-center gap-3 self-start border px-5.5 text-xl"
+        className="group rounded-pill border-text bg-surface text-text transition-base hover:bg-text hover:text-surface text-h4 relative z-10 inline-flex h-12 items-center gap-3 self-start border px-5.5"
       >
         <Image
           src="/icons/arrow-back.svg"
@@ -45,7 +38,7 @@ export function AuthShell({ title, children }: AuthShellProps) {
           height={14}
           className="group-hover:invert"
         />
-        Back To Home
+        Back to home
       </Link>
 
       <div className="lg:pl-auth-inset relative flex flex-1 items-center py-10 lg:py-6">

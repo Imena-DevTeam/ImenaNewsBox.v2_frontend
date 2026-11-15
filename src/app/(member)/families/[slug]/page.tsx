@@ -1,3 +1,4 @@
+import { placeholderFor } from "@/types/media";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -48,7 +49,7 @@ export default async function SubfamilyPage({ params }: Params) {
             key={fact.label}
             className="border-member-border bg-member-panel rounded-lg border px-4 py-4 text-center"
           >
-            <dt className="text-caption text-muted font-semibold tracking-[0.14em] uppercase">
+            <dt className="text-caption text-muted font-semibold tracking-widest uppercase">
               {fact.label}
             </dt>
             <dd className="text-h3-m text-member-ink mt-1 font-semibold">
@@ -90,7 +91,7 @@ export default async function SubfamilyPage({ params }: Params) {
                     src={moment.image}
                     alt=""
                     fill
-                    placeholder="blur"
+                    placeholder={placeholderFor(moment.image)}
                     sizes="(min-width: 640px) 50vw, 100vw"
                     className="object-cover"
                   />

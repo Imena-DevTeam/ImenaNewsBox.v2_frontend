@@ -1,3 +1,4 @@
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, MessageCircle } from "lucide-react";
@@ -56,7 +57,7 @@ export function FeaturedPost({
       <Image
         src={post.cover}
         alt={post.coverAlt}
-        placeholder="blur"
+        placeholder={placeholderFor(post.cover)}
         fill
         sizes="(min-width: 1024px) 60vw, 100vw"
         className="object-cover"
@@ -79,7 +80,7 @@ export function FeaturedPost({
           <Image
             src={post.cover}
             alt=""
-            placeholder="blur"
+            placeholder={placeholderFor(post.cover)}
             fill
             sizes="(min-width: 640px) 45vw, 100vw"
             className="object-cover"

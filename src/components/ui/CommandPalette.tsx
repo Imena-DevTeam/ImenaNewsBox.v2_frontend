@@ -3,29 +3,36 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import { ADMIN_TABS } from "@/constants/nav";
-import { ROUTES } from "@/constants/routes";
-import { FAMILY_REGISTER } from "@/features/members/data";
 import { cn } from "@/lib/cn";
 
-interface Command {
+export interface Command {
   id: string;
   label: string;
-  /** The group heading it sits under. */
+  /** The group it belongs to: Pages, People, Stories, Albums. */
   group: string;
+  /** A second line searched as well: a branch, a category, a place. */
+  hint?: string;
   href: string;
 }
 
+/** Any button on the page can open the palette by sending this event. */
+export const OPEN_SEARCH_EVENT = "imena:open-search";
+
+export function openSearch() {
+  window.dispatchEvent(new Event(OPEN_SEARCH_EVENT));
+}
+
 /**
- * Jump anywhere in the admin area from the keyboard: Cmd K on a Mac, Ctrl K
- * elsewhere. Opened by the button beside it, so it is not keyboard-only.
+ * Find anything in the member area: Cmd K on a Mac, Ctrl K elsewhere, or
+ * any button that calls `openSearch()`, so it is never keyboard-only. The
+ * list is handed in, so this file knows nothing about people or posts.
  *
  * Built on the native <dialog> and showModal(), which gives Escape, focus
  * trapping, inertness and focus restoration from the browser. The list is a
  * listbox the input owns through aria-activedescendant, so arrow keys move
  * the selection while typing continues in the field.
  */
-export function CommandPalette() {
+export function CommandPalette({ commands }: { commands: Command[] }) {
   const router = useRouter();
   const ref = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,38 +40,13 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
 
-  const commands = useMemo<Command[]>(
-    () => [
-      {
-        id: "new-member",
-        label: "Add a member",
-        group: "Create",
-        href: ROUTES.ADMIN_MEMBER_NEW,
-      },
-      ...ADMIN_TABS.map((tab) => ({
-        id: `go-${tab.label}`,
-        label: tab.label,
-        group: "Go to",
-        href: tab.href,
-      })),
-      /* Find a person. This is what an administrator with seventy-three
-         records opens a palette for; it carries the id rather than the
-         address, and the page turns that back into a name. */
-      ...FAMILY_REGISTER.map((person) => ({
-        id: `person-${person.id}`,
-        label: person.fullName,
-        group: "People",
-        href: `${ROUTES.ADMIN_MEMBERS}?find=${person.id}`,
-      })),
-    ],
-    [],
-  );
-
   const matches = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const found = needle
       ? commands.filter((command) =>
-          command.label.toLowerCase().includes(needle),
+          `${command.label} ${command.hint ?? ""}`
+            .toLowerCase()
+            .includes(needle),
         )
       : commands;
     return found.slice(0, 8);
@@ -78,8 +60,13 @@ export function CommandPalette() {
       event.preventDefault();
       setOpen((wasOpen) => !wasOpen);
     };
+    const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener(OPEN_SEARCH_EVENT, onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(OPEN_SEARCH_EVENT, onOpen);
+    };
   }, []);
 
   useEffect(() => {
@@ -102,24 +89,12 @@ export function CommandPalette() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="border-member-border bg-member-panel text-body-sm text-muted hover:border-brand hover:text-member-ink focus-visible:outline-brand transition-fast inline-flex h-10 items-center gap-2 rounded-lg border px-3.5"
-      >
-        <Search aria-hidden className="size-4" />
-        Search or jump to…
-        <kbd className="text-caption border-member-border text-muted ml-2 hidden rounded border px-1.5 py-0.5 font-sans sm:inline">
-          Ctrl K
-        </kbd>
-      </button>
-
       <dialog
         ref={ref}
         onClose={() => setOpen(false)}
         onCancel={() => setOpen(false)}
-        aria-label="Search or jump to"
-        className="bg-surface open:animate-dialog-pop mx-auto mt-24 w-[min(34rem,calc(100vw-2rem))] rounded-lg p-0 shadow-2xl backdrop:bg-black/50 motion-reduce:animate-none"
+        aria-label="Search the family site"
+        className="bg-surface open:animate-dialog-pop backdrop:bg-member-ink/50 mx-auto mt-24 w-[min(34rem,calc(100vw-2rem))] rounded-lg p-0 shadow-2xl motion-reduce:animate-none"
       >
         <div className="border-member-border flex items-center gap-2.5 border-b px-4">
           <Search aria-hidden className="text-muted size-4 shrink-0" />
@@ -132,7 +107,7 @@ export function CommandPalette() {
             aria-activedescendant={matches[cursor]?.id}
             autoComplete="off"
             value={query}
-            placeholder="Search or jump to…"
+            placeholder="Search people, stories, albums…"
             onChange={(event) => {
               setQuery(event.target.value);
               setCursor(0);
@@ -183,8 +158,15 @@ export function CommandPalette() {
                       : "text-member-ink",
                   )}
                 >
-                  <span className="text-body-sm min-w-0 truncate font-medium">
-                    {command.label}
+                  <span className="min-w-0">
+                    <span className="text-body-sm block truncate font-medium">
+                      {command.label}
+                    </span>
+                    {command.hint ? (
+                      <span className="text-caption text-muted block truncate">
+                        {command.hint}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="text-caption text-muted shrink-0">
                     {command.group}

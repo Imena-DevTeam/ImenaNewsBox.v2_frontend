@@ -4,6 +4,7 @@ import {
   createSessionToken,
   getSessionRole,
   isAdminPath,
+  isAdminPublicPath,
   isMemberPath,
   isStudioPath,
   mayUseStudio,
@@ -117,6 +118,7 @@ describe("session role", () => {
 describe("isMemberPath", () => {
   it("covers member pages and their children only", () => {
     expect(isMemberPath("/gallery")).toBe(true);
+    expect(isMemberPath("/people/m-07")).toBe(true);
     expect(isMemberPath("/gallery/fete-memories")).toBe(true);
     expect(isMemberPath("/galleryx")).toBe(false);
     expect(isMemberPath("/family-tree")).toBe(false);
@@ -124,14 +126,53 @@ describe("isMemberPath", () => {
   });
 });
 
+/**
+ * The exemption list is the whole of what separates the register from the
+ * public, so it gets a case per path rather than one assertion with six
+ * expectations in it. The pages behind it are reached by people who cannot
+ * sign in — a locked-out administrator — which is why they cannot sit
+ * behind the gate that asks for the password they have lost.
+ */
 describe("isAdminPath", () => {
-  it("covers the admin area but never its login page", () => {
+  it("covers the admin area", () => {
     expect(isAdminPath("/admin")).toBe(true);
     expect(isAdminPath("/admin/posts")).toBe(true);
     expect(isAdminPath("/admin/albums/new")).toBe(true);
-    expect(isAdminPath("/admin/login")).toBe(false);
+    expect(isAdminPath("/admin/members")).toBe(true);
+  });
+
+  it("is not fooled by a path that merely starts with the name", () => {
     expect(isAdminPath("/administration")).toBe(false);
     expect(isAdminPath("/dashboard")).toBe(false);
+  });
+
+  it("lets the login through", () => {
+    expect(isAdminPath("/admin/login")).toBe(false);
+    expect(isAdminPublicPath("/admin/login")).toBe(true);
+  });
+
+  it("lets the forgot-password page through", () => {
+    expect(isAdminPath("/admin/forgot-password")).toBe(false);
+    expect(isAdminPublicPath("/admin/forgot-password")).toBe(true);
+  });
+
+  it("lets a reset link through, token and all", () => {
+    expect(isAdminPath("/admin/reset-password/abc123")).toBe(false);
+    expect(isAdminPublicPath("/admin/reset-password/abc123")).toBe(true);
+  });
+
+  /* The exemptions are exact paths, never prefixes. A prefix would open
+     everything under a name anybody can type. */
+  it("gates anything hiding under an exempt name", () => {
+    expect(isAdminPath("/admin/login-x")).toBe(true);
+    expect(isAdminPath("/admin/login/members")).toBe(true);
+    expect(isAdminPath("/admin/forgot-password/members")).toBe(true);
+  });
+
+  /* Nothing to do on it, so it is not public. */
+  it("gates a reset path with no token", () => {
+    expect(isAdminPath("/admin/reset-password/")).toBe(true);
+    expect(isAdminPath("/admin/reset-password")).toBe(true);
   });
 });
 

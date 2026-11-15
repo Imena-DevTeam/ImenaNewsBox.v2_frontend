@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { AdminLoginForm } from "@/features/auth/components/AdminLoginForm";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 
-export const metadata: Metadata = { title: "Admin Log In" };
+export const metadata: Metadata = { title: "Admin log in" };
 
 /**
  * The page reads nothing from the request, so it stays prerendered. The form

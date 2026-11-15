@@ -52,7 +52,7 @@ export function AlbumPanel({
       ref={ref}
       onClose={onClose}
       onCancel={onClose}
-      className="bg-surface open:animate-dialog-pop m-auto max-h-[calc(100dvh-4rem)] w-[min(40rem,calc(100vw-2rem))] overflow-y-auto rounded-lg p-0 shadow-xl backdrop:bg-black/50 motion-reduce:animate-none"
+      className="bg-surface open:animate-dialog-pop backdrop:bg-member-ink/50 m-auto max-h-[calc(100dvh-4rem)] w-[min(40rem,calc(100vw-2rem))] overflow-y-auto rounded-lg p-0 shadow-xl motion-reduce:animate-none"
     >
       {open && album ? (
         <AlbumFields
@@ -119,17 +119,20 @@ function AlbumFields({
 
       <div className="mt-6 flex flex-col gap-5">
         <TextField
+          autoComplete="off"
           label="Album title"
           error={errors.title?.message}
           {...register("title")}
         />
         <div className="grid gap-5 sm:grid-cols-2">
           <TextField
+            autoComplete="off"
             label="Where"
             error={errors.place?.message}
             {...register("place")}
           />
           <TextField
+            autoComplete="off"
             label="When"
             type="date"
             error={errors.takenOn?.message}
@@ -137,6 +140,7 @@ function AlbumFields({
           />
         </div>
         <TextField
+          autoComplete="off"
           label="Description (optional)"
           error={errors.description?.message}
           {...register("description")}

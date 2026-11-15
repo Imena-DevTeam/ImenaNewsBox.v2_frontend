@@ -7,6 +7,7 @@ import { ROUTES } from "@/constants/routes";
 import { elder3 } from "@/lib/images";
 import { useSignedIn } from "@/components/layout/SignedIn";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { SearchButton } from "@/components/layout/SearchButton";
 import { DashboardGreeting } from "./DashboardGreeting";
 
 const AVATAR = elder3;
@@ -31,6 +32,7 @@ export function DashboardHeader({ search }: { search?: ReactNode }) {
       ) : null}
 
       <div className="order-2 ml-auto flex shrink-0 items-center gap-1.5 sm:gap-3 lg:order-3 lg:ml-0">
+        <SearchButton />
         <NotificationBell />
 
         <Link
@@ -51,12 +53,12 @@ export function DashboardHeader({ search }: { search?: ReactNode }) {
           {/* Hover tooltip showing member name and role */}
           <div
             role="tooltip"
-            className="pointer-events-none absolute top-full right-0 z-50 mt-2 -translate-y-1 rounded-xl border border-neutral-200/90 bg-white/95 px-3 py-1.5 whitespace-nowrap opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+            className="border-member-border/90 bg-surface/95 pointer-events-none absolute top-full right-0 z-50 mt-2 -translate-y-1 rounded-md border px-3 py-1.5 whitespace-nowrap opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
           >
-            <p className="text-xs leading-tight font-bold text-neutral-900">
+            <p className="text-member-ink text-caption leading-tight font-bold">
               {person.name}
             </p>
-            <p className="text-caption leading-tight font-medium text-neutral-500">
+            <p className="text-caption text-muted leading-tight font-medium">
               {person.role}
             </p>
           </div>

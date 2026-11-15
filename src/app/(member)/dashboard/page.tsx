@@ -5,6 +5,10 @@ import { DashboardTagline } from "@/features/dashboard/components/DashboardTagli
 import { HeroSlides } from "@/features/dashboard/components/HeroSlides";
 import { PopularArticles } from "@/features/blogs/components/PopularArticles";
 import { BirthdaysPanel } from "@/features/birthdays/components/BirthdaysPanel";
+import { ProfileNudge } from "@/features/profile/components/ProfileNudge";
+import { signedInRecord } from "../_lib/signed-in-record";
+import { registerCelebrants } from "../_lib/birthdays";
+import { todayAndNext } from "@/features/birthdays/data";
 import { SubFamilyTrinity } from "@/features/families/components/SubFamilyTrinity";
 
 export const metadata: Metadata = {
@@ -28,7 +32,10 @@ export const metadata: Metadata = {
  * first thing after the photographs, and the grid moves it back to the side
  * from `lg` up.
  */
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const record = await signedInRecord();
+  const { today, upcoming } = todayAndNext(registerCelebrants(), new Date());
+
   return (
     <div className="space-y-10">
       <div>
@@ -38,9 +45,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid items-start gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
+      <ProfileNudge registeredBornOn={record?.bornOn ?? ""} />
+
+      <div className="grid grid-cols-1 items-start gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
         <PopularArticles className="order-2 lg:order-1" />
-        <BirthdaysPanel className="order-1 lg:order-2" />
+        <BirthdaysPanel
+          today={today}
+          upcoming={upcoming}
+          className="order-1 lg:order-2"
+        />
       </div>
 
       <SubFamilyTrinity />

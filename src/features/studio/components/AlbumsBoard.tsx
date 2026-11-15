@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FolderPlus, Images, MapPin, Search, Trash2 } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toaster";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CONTROL, Picker } from "@/components/ui/Picker";
 import { ROUTES } from "@/constants/routes";
@@ -66,8 +66,7 @@ export function AlbumsBoard({
   const [editing, setEditing] = useState<Album | null>(
     () => albums.find((album) => album.slug === openSlug) ?? null,
   );
-  const [removing, setRemoving] = useState<Album | null>(null);
-  const [outcome, setOutcome] = useState<string | null>(null);
+  const toast = useToast();
 
   /* The cover that travels into the panel. It is held for the frame before
      the panel opens, because a view transition needs the shared name in the
@@ -149,18 +148,27 @@ export function AlbumsBoard({
       );
     }
 
-    setOutcome(
-      `${was.title} would ${said.length > 0 ? said.join(", ") : "be saved unchanged"}. Nothing was stored: the albums service does not exist yet.`,
-    );
+    toast({
+      message: `${was.title} would ${said.length > 0 ? said.join(", ") : "be saved unchanged"}. Nothing was stored: the albums service does not exist yet.`,
+    });
     setEditing(null);
   };
 
   const remove = (album: Album) => {
-    setShelf((shelf) => shelf.filter((one) => one.slug !== album.slug));
-    setOutcome(
-      `${album.title} and its ${album.photos.length} photographs would be removed. Nothing was stored: the albums service does not exist yet.`,
-    );
-    setRemoving(null);
+    const at = shelf.findIndex((one) => one.slug === album.slug);
+    setShelf((was) => was.filter((one) => one.slug !== album.slug));
+    toast({
+      message: `${album.title} was removed. Nothing was stored.`,
+      action: {
+        label: "Undo",
+        run: () =>
+          setShelf((was) => {
+            const next = [...was];
+            next.splice(Math.min(at, next.length), 0, album);
+            return next;
+          }),
+      },
+    });
   };
 
   return (
@@ -176,6 +184,7 @@ export function AlbumsBoard({
               className="text-muted pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2"
             />
             <input
+              autoComplete="off"
               id="albums-search"
               type="search"
               value={query}
@@ -215,7 +224,6 @@ export function AlbumsBoard({
 
       <p role="status" aria-live="polite" className="text-body-sm text-muted">
         {shown.length} of {shelf.length} albums
-        {outcome ? ` · ${outcome}` : ""}
       </p>
 
       {shown.length === 0 ? (
@@ -282,7 +290,7 @@ export function AlbumsBoard({
                   <button
                     type="button"
                     onClick={() => edit(album)}
-                    className="text-body-sm text-brand focus-visible:outline-brand hover:bg-member-tint rounded-pill px-3 py-2 font-semibold"
+                    className="text-body-sm text-brand focus-visible:outline-brand hover:bg-member-tint rounded-pill h-10 px-3 font-semibold"
                   >
                     Edit
                     <span className="sr-only"> {album.title}</span>
@@ -295,7 +303,7 @@ export function AlbumsBoard({
                   </Link>
                   <button
                     type="button"
-                    onClick={() => setRemoving(album)}
+                    onClick={() => remove(album)}
                     aria-label={`Remove ${album.title}`}
                     className="text-muted hover:text-danger focus-visible:outline-brand transition-fast ml-auto flex size-10 items-center justify-center rounded-full"
                   >
@@ -313,21 +321,6 @@ export function AlbumsBoard({
         album={editing}
         onSave={save}
         onClose={() => setEditing(null)}
-      />
-
-      <ConfirmDialog
-        open={removing !== null}
-        destructive
-        title={removing ? `Remove ${removing.title}?` : "Remove this album?"}
-        description={
-          removing
-            ? `Its ${removing.photos.length} photographs leave the gallery with it, and this cannot be undone.`
-            : ""
-        }
-        confirmLabel="Remove the album"
-        cancelLabel="Keep it"
-        onCancel={() => setRemoving(null)}
-        onConfirm={() => removing && remove(removing)}
       />
     </div>
   );

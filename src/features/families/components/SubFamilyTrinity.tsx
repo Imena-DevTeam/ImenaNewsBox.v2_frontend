@@ -1,3 +1,5 @@
+import { Quote } from "@/components/ui/Quote";
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Crown, Users } from "lucide-react";
@@ -18,7 +20,7 @@ export function SubFamilyTrinity() {
     <section aria-labelledby="sub-family-trinity">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-brand text-caption mb-2 font-semibold tracking-[0.16em] uppercase">
+          <p className="text-brand text-caption mb-2 font-semibold tracking-widest uppercase">
             Our roots
           </p>
           <h2
@@ -49,7 +51,7 @@ export function SubFamilyTrinity() {
                 src={family.image}
                 alt=""
                 fill
-                placeholder="blur"
+                placeholder={placeholderFor(family.image)}
                 sizes="(min-width: 640px) 33vw, 100vw"
                 className="transition-base object-cover group-hover:scale-105"
               />
@@ -57,16 +59,16 @@ export function SubFamilyTrinity() {
                   the photograph. */}
               <span
                 aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/10"
+                className="from-member-ink/95 via-member-ink/65 to-member-ink/10 absolute inset-0 bg-gradient-to-t"
               />
 
-              <span className="text-member-ink text-caption absolute top-4 right-4 flex items-center gap-1.5 rounded-full border border-white/60 bg-white/80 px-3 py-1 font-semibold backdrop-blur-md">
+              <span className="text-member-ink text-caption border-surface/60 bg-surface/80 absolute top-4 right-4 flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold backdrop-blur-md">
                 <Users aria-hidden className="text-brand size-3.5" />
                 {family.members} members
               </span>
 
               <span className="text-surface relative w-full p-5">
-                <span className="text-caption text-surface/80 block font-semibold tracking-[0.14em] uppercase">
+                <span className="text-caption text-surface/80 block font-semibold tracking-widest uppercase">
                   Family branch
                 </span>
                 <span className="text-h3-m mt-1 flex items-center gap-2 font-semibold">
@@ -76,16 +78,17 @@ export function SubFamilyTrinity() {
                     className="transition-base size-5 group-hover:translate-x-1"
                   />
                 </span>
-                <span className="font-member-serif text-body-lg text-celebration-gold mt-2 block italic">
-                  &ldquo;{family.motto}&rdquo;
-                  <span className="text-caption text-surface/70 ml-2 not-italic">
-                    {family.mottoMeaning}
-                  </span>
-                </span>
+                <Quote
+                  tone="light"
+                  meaning={family.mottoMeaning}
+                  className="mt-2"
+                >
+                  {family.motto}
+                </Quote>
                 <span className="text-body-sm text-surface/85 mt-2 block">
                   {family.holds}
                 </span>
-                <span className="text-caption text-surface/80 mt-3 flex items-center gap-1.5 border-t border-white/20 pt-3">
+                <span className="text-caption text-surface/80 border-surface/20 mt-3 flex items-center gap-1.5 border-t pt-3">
                   <Crown
                     aria-hidden
                     className="text-celebration-gold size-3.5"

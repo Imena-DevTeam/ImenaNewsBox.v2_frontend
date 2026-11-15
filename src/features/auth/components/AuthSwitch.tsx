@@ -9,7 +9,7 @@ type AuthSwitchProps = {
 /** Small line under the auth buttons linking the member and admin logins. */
 export function AuthSwitch({ prompt, href, label }: AuthSwitchProps) {
   return (
-    <p className="text-muted mt-auth-md text-center text-base">
+    <p className="text-muted mt-auth-md text-body text-center">
       {prompt}{" "}
       <Link
         href={href}

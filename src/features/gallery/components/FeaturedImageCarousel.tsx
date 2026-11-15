@@ -1,5 +1,6 @@
 "use client";
 
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Expand } from "lucide-react";
@@ -150,7 +151,7 @@ export function FeaturedImageCarousel() {
                   type="button"
                   onClick={guarded(() => setLightboxOpen(true))}
                   aria-label={`Open ${centre.title} full screen`}
-                  className="group/centre aspect-gallery-stage bg-member-field focus-visible:outline-brand relative w-full cursor-zoom-in overflow-hidden rounded-2xl shadow-xl"
+                  className="group/centre aspect-gallery-stage bg-member-field focus-visible:outline-brand relative w-full cursor-zoom-in overflow-hidden rounded-lg shadow-xl"
                 >
                   {/* Every cover is stacked here so a change of slide is a
                       cross-fade with a little depth, not a cut. */}
@@ -173,7 +174,7 @@ export function FeaturedImageCarousel() {
                           alt={active ? item.alt : ""}
                           fill
                           priority={itemIndex === 0}
-                          placeholder="blur"
+                          placeholder={placeholderFor(item.image)}
                           sizes="(min-width: 1024px) 460px, 100vw"
                           className={cn(
                             "object-cover",
@@ -187,7 +188,7 @@ export function FeaturedImageCarousel() {
                     );
                   })}
 
-                  <span className="text-member-ink absolute right-3 bottom-3 grid size-10 place-items-center rounded-full border border-white/60 bg-white/60 opacity-0 backdrop-blur-md transition-opacity duration-200 group-hover/centre:opacity-100 group-focus-visible/centre:opacity-100">
+                  <span className="text-member-ink border-surface/60 bg-surface/60 absolute right-3 bottom-3 grid size-10 place-items-center rounded-full border opacity-0 backdrop-blur-md transition-opacity duration-200 group-hover/centre:opacity-100 group-focus-visible/centre:opacity-100">
                     <Expand aria-hidden className="size-4" />
                   </span>
                 </button>
@@ -206,7 +207,7 @@ export function FeaturedImageCarousel() {
                 onClick={guarded(() => turn(offset))}
                 aria-label={`Bring ${image.title} to the middle`}
                 className={cn(
-                  "bg-member-field transition-base focus-visible:outline-brand relative w-full cursor-pointer overflow-hidden rounded-2xl shadow-xl hover:opacity-100",
+                  "bg-member-field transition-base focus-visible:outline-brand relative w-full cursor-pointer overflow-hidden rounded-lg shadow-xl hover:opacity-100",
                   outer
                     ? "aspect-gallery-stage-side opacity-45"
                     : "aspect-gallery-stage-mid opacity-75",
@@ -250,7 +251,7 @@ export function FeaturedImageCarousel() {
             onClick={() => turn(by)}
             aria-label={label}
             className={cn(
-              "text-member-ink focus-visible:outline-brand absolute top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-white/60 bg-white/60 shadow-lg backdrop-blur-md transition-[opacity,background-color] duration-200 hover:bg-white/80",
+              "text-member-ink focus-visible:outline-brand border-surface/60 bg-surface/60 hover:bg-surface/80 absolute top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border shadow-lg backdrop-blur-md transition-[opacity,background-color] duration-200",
               "opacity-100 md:opacity-0 md:group-focus-within/stage:opacity-100 md:group-hover/stage:opacity-100",
               side,
             )}
@@ -280,7 +281,7 @@ export function FeaturedImageCarousel() {
 
       <p
         aria-live={paused || reducedMotion ? "polite" : "off"}
-        className="border-member-border text-caption text-member-ink mx-auto mt-4 w-max rounded-full border bg-white/80 px-4 py-1.5 tabular-nums shadow-sm backdrop-blur"
+        className="border-member-border text-caption text-member-ink bg-surface/80 mx-auto mt-4 w-max rounded-full border px-4 py-1.5 tabular-nums shadow-sm backdrop-blur"
       >
         <span className="font-semibold">
           {index + 1} / {COUNT}
@@ -303,7 +304,7 @@ export function FeaturedImageCarousel() {
               aria-label={`Show ${item.title}`}
               aria-current={itemIndex === index}
               className={cn(
-                "focus-visible:outline-brand relative block size-12 overflow-hidden rounded-xl transition-[opacity,box-shadow,transform] duration-200 hover:-translate-y-0.5",
+                "focus-visible:outline-brand relative block size-12 overflow-hidden rounded-md transition-[opacity,box-shadow,transform] duration-200 hover:-translate-y-0.5",
                 itemIndex === index
                   ? "ring-member-accent ring-2 ring-offset-2"
                   : "opacity-60 hover:opacity-100",

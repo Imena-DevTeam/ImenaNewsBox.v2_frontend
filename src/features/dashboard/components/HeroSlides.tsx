@@ -1,5 +1,6 @@
 "use client";
 
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
@@ -74,6 +75,9 @@ export function HeroSlides() {
     go(distance < 0 ? 1 : -1);
   };
 
+  /* No gatherings yet: the dashboard simply starts at the next band. */
+  if (!slide) return null;
+
   return (
     <section
       aria-roledescription="carousel"
@@ -107,7 +111,7 @@ export function HeroSlides() {
                 <Image
                   src={s.image}
                   alt={i === index ? s.alt : ""}
-                  placeholder="blur"
+                  placeholder={placeholderFor(s.image)}
                   fill
                   priority={i === 0}
                   loading={i === 0 ? undefined : i === index ? "eager" : "lazy"}
@@ -121,7 +125,7 @@ export function HeroSlides() {
         {/* A shade the title can sit on at any point of the photo. */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent"
+          className="from-member-ink/60 via-member-ink/15 absolute inset-0 bg-gradient-to-t to-transparent"
         />
 
         {/* Announced as one region, so a change of slide reads as a change

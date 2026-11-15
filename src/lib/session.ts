@@ -40,11 +40,45 @@ export type Role = "member" | "admin" | "blogger";
 /** Every role a token may carry, for validating one that arrives. */
 const ROLES: Role[] = ["member", "admin", "blogger"];
 
-/** Everything under /admin except the login page itself. */
 export const ADMIN_PREFIX = "/admin";
 
+/**
+ * The /admin paths a visitor with no session may reach.
+ *
+ * There was one — the login — and it was a line in `isAdminPath`. Two more
+ * arrived with the password reset, and they are reached by exactly the
+ * people who **cannot** sign in, so they cannot sit behind the gate that
+ * sends you to a login you have lost the password for.
+ *
+ * > [!CAUTION]
+ * > This list is the whole of what separates the register from the public.
+ * > Each entry is an **exact path**, never a prefix, so `/admin/login-x`
+ * > and `/admin/forgot-password/members` are still gated — a prefix here
+ * > would open everything underneath a name anybody can type.
+ */
+export const ADMIN_PUBLIC_PATHS = [
+  "/admin/login",
+  "/admin/forgot-password",
+] as const;
+
+/* The one that cannot be an exact path, because the token is in it. The
+   token itself proves nothing: the page behind this renders a form, and the
+   backend decides whether the token is worth anything. */
+const ADMIN_PUBLIC_PREFIX = "/admin/reset-password/";
+
+export function isAdminPublicPath(pathname: string): boolean {
+  if (ADMIN_PUBLIC_PATHS.some((path) => path === pathname)) return true;
+  /* Longer than the prefix, so a bare /admin/reset-password/ with no token
+     is gated rather than public: there is nothing to do on it. */
+  return (
+    pathname.startsWith(ADMIN_PUBLIC_PREFIX) &&
+    pathname.length > ADMIN_PUBLIC_PREFIX.length
+  );
+}
+
+/** Everything under /admin except the pages a signed-out visitor needs. */
 export function isAdminPath(pathname: string): boolean {
-  if (pathname === "/admin/login") return false;
+  if (isAdminPublicPath(pathname)) return false;
   return pathname === ADMIN_PREFIX || pathname.startsWith(`${ADMIN_PREFIX}/`);
 }
 
@@ -71,6 +105,7 @@ export const MEMBER_PREFIXES = [
   "/birthdays",
   "/tree",
   "/families",
+  "/people",
 ] as const;
 
 export function isMemberPath(pathname: string): boolean {

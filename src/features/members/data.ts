@@ -1,4 +1,4 @@
-import { BLOGGER, MEMBER } from "@/constants/member";
+import { BLOGGER, MEMBER, SECOND_ADMINISTRATOR } from "@/constants/member";
 import { TRINITY } from "@/features/families/data";
 
 /**
@@ -83,6 +83,15 @@ export const SIGNED_IN_ID = "m-01";
     looks her up rather than carrying a name in the code. */
 export const BLOGGER_ID = "m-02";
 
+/**
+ * The second administrator.
+ *
+ * Seeded by name rather than left as whichever row index 2 happened to be,
+ * because the password reset needs **two** people a reviewer can sign in as:
+ * one asks for a link and the other sends it. See MIN_ADMINS.
+ */
+export const SECOND_ADMIN_ID = "m-03";
+
 function record(index: number, branch: string): FamilyMember {
   const surname = SURNAMES[(index * 7) % SURNAMES.length]!;
   const given = GIVEN[(index * 5) % GIVEN.length]!;
@@ -103,6 +112,7 @@ function record(index: number, branch: string): FamilyMember {
     role: "member",
     status:
       index % 23 === 5 ? "invited" : index % 37 === 11 ? "suspended" : "active",
+    photo: "",
     joinedOn: `${2026 - Math.floor(index / 32)}-${String(((index * 5) % 12) + 1).padStart(2, "0")}-${String(((index * 11) % 28) + 1).padStart(2, "0")}`,
   };
 }
@@ -124,6 +134,7 @@ function register(): FamilyMember[] {
   ngabe.role = "blogger";
   ngabe.status = "active";
   ngabe.bornOn = "1996-09-02";
+  ngabe.photo = "/images/elder-1.webp";
 
   /* The person doing the editing. Their own record is the one the role
      control locks, so it has to be in the list rather than implied. */
@@ -133,6 +144,19 @@ function register(): FamilyMember[] {
   me.role = "admin";
   me.status = "active";
   me.bornOn = "1979-04-16";
+  me.photo = "/images/elder-3.webp";
+
+  /* The second administrator, and the reason the password reset can work at
+     all: a locked-out administrator needs somebody else who can send them
+     the link. One administrator means one forgotten password locks the
+     register for good — see MIN_ADMINS and CLAUDE.md §21. */
+  const second = people.find((person) => person.id === SECOND_ADMIN_ID)!;
+  second.fullName = `${SECOND_ADMINISTRATOR.name} Nkusi`;
+  second.email = `${SECOND_ADMINISTRATOR.name}@imenafamily.rw`.toLowerCase();
+  second.role = "admin";
+  second.status = "active";
+  second.bornOn = "1983-07-11";
+  second.photo = "/images/elder-2.webp";
 
   return people;
 }
@@ -151,6 +175,43 @@ export function countByBranch(
     counts[person.branch] = (counts[person.branch] ?? 0) + 1;
   }
   return counts;
+}
+
+/**
+ * How few administrators the register may hold.
+ *
+ * Two, because the password reset puts a person in the loop rather than an
+ * email provider: a locked-out administrator is helped by another one. With
+ * one administrator a forgotten password is permanent and nobody can reach
+ * /admin again.
+ *
+ * > [!IMPORTANT]
+ * > The UI disables the controls that would break this and says why, which
+ * > is a courtesy rather than a rule. **The backend has to refuse it too** —
+ * > a disabled `<select>` stops a mis-click, not a request.
+ */
+export const MIN_ADMINS = 2;
+
+/** Everyone who holds the administrator role and can actually use it. */
+export function administrators(
+  people: FamilyMember[] = FAMILY_REGISTER,
+): FamilyMember[] {
+  return people.filter(
+    (person) => person.role === "admin" && person.status === "active",
+  );
+}
+
+/**
+ * Whether this person's administrator role may be taken away — by demoting
+ * them, suspending them or removing them altogether. All three have the same
+ * answer, so they ask the same question.
+ */
+export function mayLoseAdmin(
+  person: FamilyMember,
+  people: FamilyMember[] = FAMILY_REGISTER,
+): boolean {
+  if (person.role !== "admin" || person.status !== "active") return true;
+  return administrators(people).length > MIN_ADMINS;
 }
 
 /** The record holding an address, case-insensitively, or undefined. Email is

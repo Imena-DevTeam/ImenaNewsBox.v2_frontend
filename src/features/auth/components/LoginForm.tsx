@@ -69,17 +69,17 @@ export function LoginForm() {
         <TextField
           label="Name"
           placeholder="Enter family name"
-          autoComplete="organization"
+          autoComplete="username"
           error={errors.name?.message}
           {...register("name")}
         />
 
         <AuthButton type="submit" disabled={isSubmitting} className="mt-6">
-          Log In
+          Log in
         </AuthButton>
 
         {failed ? (
-          <p role="alert" className="text-danger mt-4 text-center text-base">
+          <p role="alert" className="text-danger text-body mt-4 text-center">
             {failed}
           </p>
         ) : null}

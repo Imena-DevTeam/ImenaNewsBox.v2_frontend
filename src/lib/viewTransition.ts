@@ -36,3 +36,58 @@ export function withViewTransition(run: () => void): void {
 
   document.startViewTransition(() => flushSync(run));
 }
+
+/**
+ * Resolves once the address bar shows `path`, or after a short wait if it
+ * never does, so a navigation the router abandons cannot freeze the page
+ * inside a transition.
+ */
+function untilPath(path: string, limitMs = 1200): Promise<void> {
+  const started = performance.now();
+  return new Promise((resolve) => {
+    const check = () => {
+      if (
+        window.location.pathname === path ||
+        performance.now() - started > limitMs
+      ) {
+        requestAnimationFrame(() => resolve());
+        return;
+      }
+      requestAnimationFrame(check);
+    };
+    check();
+  });
+}
+
+/**
+ * A client navigation the browser animates between: the old page is
+ * captured, the router pushes, and the new page is captured once it is on
+ * screen. Returns false where the API is missing or motion is turned down,
+ * so the caller lets the link navigate the ordinary way.
+ */
+export function navigateWithTransition(
+  push: (href: string) => void,
+  href: string,
+): boolean {
+  if (
+    typeof document === "undefined" ||
+    typeof document.startViewTransition !== "function" ||
+    !motionWanted()
+  ) {
+    return false;
+  }
+  const path = new URL(href, window.location.href).pathname;
+  const transition = document.startViewTransition(() => {
+    push(href);
+    return untilPath(path);
+  });
+  /* A slow page (a first compile in dev, a cold server) can outlast the
+     browser's patience, which aborts the animation and rejects these. The
+     navigation itself carries on regardless, so the rejection is expected
+     and not an error. */
+  const ignore = () => {};
+  transition.ready.catch(ignore);
+  transition.finished.catch(ignore);
+  transition.updateCallbackDone.catch(ignore);
+  return true;
+}

@@ -52,7 +52,7 @@ export function ActivityList({
           <RelativeTime
             iso={entry.at}
             now={now}
-            className="text-caption text-muted shrink-0 tracking-[0.14em] uppercase"
+            className="text-caption text-muted shrink-0 tracking-widest uppercase"
           />
         </li>
       ))}

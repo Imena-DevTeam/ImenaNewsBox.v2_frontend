@@ -140,7 +140,7 @@ export default function StudioPage() {
                   durationMs={420}
                   className="text-h1-m text-member-ink font-bold"
                 />
-                <span className="text-caption text-muted tracking-[0.14em] uppercase">
+                <span className="text-caption text-muted tracking-widest uppercase">
                   {count.label}
                 </span>
               </Link>

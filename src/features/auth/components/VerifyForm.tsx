@@ -105,7 +105,7 @@ export function VerifyForm({
         className="mt-auth-md text-center"
       />
 
-      <p className="text-muted mt-auth-sm text-center text-xl">
+      <p className="text-muted mt-auth-sm text-h4 text-center">
         Enter the one-time password we sent to{" "}
         {email ? (
           <span className="text-text font-medium">{email}</span>
@@ -125,7 +125,7 @@ export function VerifyForm({
 
       <div
         aria-live="polite"
-        className="mt-4 flex min-h-6 items-center gap-2 text-base"
+        className="text-body mt-4 flex min-h-6 items-center gap-2"
       >
         {status === "verifying" ? (
           <>
@@ -146,7 +146,7 @@ export function VerifyForm({
       {expired ? (
         <Link
           href={back}
-          className="text-brand hover:text-brand-hover transition-fast mt-4 text-xl underline underline-offset-2"
+          className="text-brand hover:text-brand-hover transition-fast text-h4 mt-4 underline underline-offset-2"
         >
           Start again from the login page
         </Link>
@@ -158,12 +158,12 @@ export function VerifyForm({
           <button
             type="button"
             onClick={restart}
-            className="text-brand hover:text-brand-hover transition-fast text-xl underline underline-offset-2"
+            className="text-brand hover:text-brand-hover transition-fast text-h4 underline underline-offset-2"
           >
             Resend code
           </button>
         ) : (
-          <p className="text-muted text-xl">Resend code in {remaining}s</p>
+          <p className="text-muted text-h4">Resend code in {remaining}s</p>
         )}
       </div>
     </div>

@@ -31,7 +31,7 @@ export function HierarchyRoleCard({
   const Heading = compact ? "h4" : "h3";
 
   return (
-    <article className={cn("min-w-0", className)}>
+    <article className={cn("@container min-w-0", className)}>
       <Heading
         className={cn(
           "text-body mb-3 flex items-center gap-2 font-semibold",
@@ -49,14 +49,14 @@ export function HierarchyRoleCard({
 
       <div
         className={cn(
-          "bg-surface/80 flex gap-4 rounded-2xl border p-4 shadow-sm transition-[background-color,box-shadow] duration-200 hover:shadow-md",
+          "bg-surface/80 flex flex-col gap-4 rounded-lg border p-4 shadow-sm transition-[background-color,box-shadow] duration-200 hover:shadow-md @xs:flex-row",
           theme.card,
         )}
       >
         <div
           className={cn(
-            "bg-member-field relative shrink-0 overflow-hidden rounded-xl",
-            compact ? "h-32 w-24" : "h-36 w-28 md:h-40 md:w-32",
+            "bg-member-field relative shrink-0 overflow-hidden rounded-md",
+            compact ? "h-32 w-24" : "h-36 w-28 @md:h-40 @md:w-32",
           )}
         >
           <Image

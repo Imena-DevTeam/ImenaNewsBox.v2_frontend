@@ -1,3 +1,4 @@
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import { Crown, Users } from "lucide-react";
 import type { Subfamily } from "../data";
@@ -19,22 +20,22 @@ export function SubfamilyHeader({ family }: { family: Subfamily }) {
         alt=""
         fill
         priority
-        placeholder="blur"
+        placeholder={placeholderFor(family.image)}
         sizes="(min-width: 768px) 100vw, 100vw"
         className="object-cover"
       />
       <span
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/10"
+        className="from-member-ink/95 via-member-ink/65 to-member-ink/10 absolute inset-0 bg-gradient-to-t"
       />
 
-      <span className="text-member-ink text-caption absolute top-4 right-4 flex items-center gap-1.5 rounded-full border border-white/60 bg-white/80 px-3 py-1 font-semibold backdrop-blur-md">
+      <span className="text-member-ink text-caption border-surface/60 bg-surface/80 absolute top-4 right-4 flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold backdrop-blur-md">
         <Users aria-hidden className="text-brand size-3.5" />
         {family.members} members
       </span>
 
       <div className="text-surface relative w-full p-5 md:p-8">
-        <p className="text-caption text-surface/80 font-semibold tracking-[0.14em] uppercase">
+        <p className="text-caption text-surface/80 font-semibold tracking-widest uppercase">
           Family branch
         </p>
         <h2
@@ -46,7 +47,7 @@ export function SubfamilyHeader({ family }: { family: Subfamily }) {
         <p className="text-body-sm text-surface/85 mt-2 max-w-prose">
           {family.holds}
         </p>
-        <p className="text-caption text-surface/80 mt-4 flex items-center gap-1.5 border-t border-white/20 pt-3">
+        <p className="text-caption text-surface/80 border-surface/20 mt-4 flex items-center gap-1.5 border-t pt-3">
           <Crown aria-hidden className="text-celebration-gold size-3.5" />
           Generation leader: {family.leader}
         </p>

@@ -1,19 +1,19 @@
 "use client";
 
+import { placeholderFor, imageUrl } from "@/types/media";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Clock, Play, X } from "lucide-react";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { cn } from "@/lib/cn";
 import { MOMENTS } from "../data";
-import { CameraOrnament, HeartsOrnament } from "./GalleryOrnaments";
+import { CameraOrnament, HeartsOrnament } from "@/components/ui/Ornaments";
 
 /**
  * Gathering moments and their video highlights: one wide card at a time,
  * with the marks along its foot to move between them.
  *
- * Behind the card sits an ambient glow — the same poster, blurred and
- * spread — so the card seems lit by its own picture. The play button opens
+ * The play button opens
  * the reel in a player with the browser's own controls (so keyboard, seek
  * and fullscreen all work as people expect) and captions on by default.
  */
@@ -57,29 +57,13 @@ export function FeaturedMoments() {
           if (event.key === "ArrowRight") turn(1);
         }}
       >
-        {/* The ambient back-glow: the poster itself, blurred and spread
-            beneath the card. Decorative, so hidden from assistive tech. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-6 inset-y-8 -z-10 scale-105 opacity-70 blur-3xl saturate-150"
-        >
-          <Image
-            key={index}
-            src={moment.poster}
-            alt=""
-            fill
-            sizes="400px"
-            className="stage-fade object-cover"
-          />
-        </div>
-
-        <div className="rounded-media aspect-gallery-video relative overflow-hidden shadow-2xl">
+        <div className="aspect-gallery-video relative overflow-hidden rounded-lg shadow-2xl">
           <Image
             key={moment.title}
             src={moment.poster}
             alt={moment.alt}
             fill
-            placeholder="blur"
+            placeholder={placeholderFor(moment.poster)}
             sizes="(min-width: 1024px) 800px, 100vw"
             className="stage-fade object-cover"
           />
@@ -88,11 +72,11 @@ export function FeaturedMoments() {
             className="from-member-ink/55 absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
           />
 
-          <p className="bg-surface text-member-ink text-caption rounded-pill absolute top-6 left-6 flex h-11 max-w-[60%] items-center px-5 md:top-10 md:left-10 md:h-13">
+          <p className="bg-surface text-member-ink text-caption rounded-pill absolute top-6 left-6 flex h-11 max-w-3/5 items-center px-5 md:top-10 md:left-10 md:h-13">
             <span className="truncate font-semibold">{moment.title}</span>
           </p>
 
-          <p className="text-caption absolute top-6 right-6 flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-white backdrop-blur-md md:top-10 md:right-10">
+          <p className="text-caption bg-member-ink/45 text-surface absolute top-6 right-6 flex items-center gap-1.5 rounded-full px-3 py-1.5 backdrop-blur-md md:top-10 md:right-10">
             <Clock aria-hidden className="size-3.5" />
             {moment.duration}
           </p>
@@ -104,12 +88,7 @@ export function FeaturedMoments() {
             className="group/play focus-visible:outline-surface absolute inset-0 grid place-items-center"
           >
             <span className="relative grid size-20 place-items-center md:size-24">
-              {/* A soft pulse behind the button, so it reads as live. */}
-              <span
-                aria-hidden
-                className="absolute inset-0 rounded-full bg-white/35 motion-safe:animate-ping"
-              />
-              <span className="text-brand relative grid size-full place-items-center rounded-full border border-white/70 bg-white/85 shadow-2xl backdrop-blur-md transition-transform duration-200 ease-out group-hover/play:scale-110">
+              <span className="text-brand border-surface/70 bg-surface/85 relative grid size-full place-items-center rounded-full border shadow-2xl backdrop-blur-md transition-transform duration-200 ease-out group-hover/play:scale-110">
                 <Play
                   aria-hidden
                   className="ml-1 size-8 fill-current md:size-9"
@@ -152,7 +131,7 @@ export function FeaturedMoments() {
         title={moment.title}
         video={moment.video}
         captions={moment.captions}
-        poster={moment.poster.src}
+        poster={imageUrl(moment.poster)}
       />
     </section>
   );
@@ -205,14 +184,14 @@ function VideoPlayer({
         "open:animate-dialog-pop motion-reduce:animate-none",
       )}
     >
-      <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
-        <div className="flex items-center justify-between gap-4 px-5 py-3 text-white">
+      <div className="bg-member-ink overflow-hidden rounded-lg shadow-2xl">
+        <div className="text-surface flex items-center justify-between gap-4 px-5 py-3">
           <p className="text-body-sm font-semibold">{title}</p>
           <button
             type="button"
             onClick={() => dialog.current?.close()}
             aria-label="Close video"
-            className="grid size-10 place-items-center rounded-full hover:bg-white/15 focus-visible:outline-white"
+            className="hover:bg-surface/15 focus-visible:outline-surface grid size-10 place-items-center rounded-full"
           >
             <X aria-hidden className="size-5" />
           </button>
@@ -224,7 +203,7 @@ function VideoPlayer({
           playsInline
           preload="metadata"
           poster={poster}
-          className="aspect-video w-full bg-black"
+          className="bg-member-ink aspect-video w-full"
         >
           <source src={video} type="video/webm" />
           <track

@@ -18,7 +18,7 @@ export default function AuthError({
 }) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-6 text-center">
-      <p className="text-caption text-brand font-semibold tracking-[0.16em] uppercase">
+      <p className="text-caption text-brand font-semibold tracking-widest uppercase">
         Something went wrong
       </p>
       <h1 className="text-h2-m md:text-h2 mt-4">We could not sign you in</h1>

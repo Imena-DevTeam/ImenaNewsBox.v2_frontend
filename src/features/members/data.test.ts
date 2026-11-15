@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { TRINITY } from "@/features/families/data";
 import {
+  administrators,
   BLOGGER_ID,
   countByBranch,
   FAMILY_REGISTER,
   findByEmail,
+  mayLoseAdmin,
+  MIN_ADMINS,
   missingBirthday,
   queryMembers,
   SIGNED_IN_ID,
@@ -48,9 +51,42 @@ describe("the family register", () => {
     expect(me?.role).toBe("admin");
   });
 
-  it("leaves exactly one admin, so the role control has something to lock", () => {
-    const admins = FAMILY_REGISTER.filter((person) => person.role === "admin");
-    expect(admins).toHaveLength(1);
+  /* It held exactly one until 13 Nov 2026, which was enough for the role
+     control to have something to lock and not enough for the password reset
+     to exist: a locked-out administrator is helped by another one. */
+  it("holds at least two active admins, so a locked-out one can be helped", () => {
+    expect(administrators(FAMILY_REGISTER).length).toBeGreaterThanOrEqual(
+      MIN_ADMINS,
+    );
+  });
+
+  it("will not let the register fall below the floor", () => {
+    const [first] = administrators(FAMILY_REGISTER);
+    expect(mayLoseAdmin(first!, FAMILY_REGISTER)).toBe(false);
+  });
+
+  /* A member losing a role they never had is not the floor's business. */
+  it("lets anybody who is not an admin change freely", () => {
+    const member = FAMILY_REGISTER.find((person) => person.role === "member")!;
+    expect(mayLoseAdmin(member, FAMILY_REGISTER)).toBe(true);
+  });
+
+  it("lets an admin go once there is one spare", () => {
+    const spare = [
+      ...FAMILY_REGISTER,
+      { ...FAMILY_REGISTER[0]!, id: "m-extra", role: "admin" as const },
+    ];
+    expect(mayLoseAdmin(spare[0]!, spare)).toBe(true);
+  });
+
+  /* Suspended is not signed in. An administrator who cannot use the role
+     does not count towards the floor, or two suspended administrators would
+     look like cover while nobody could actually help. */
+  it("does not count a suspended admin towards the floor", () => {
+    const suspended = administrators(FAMILY_REGISTER).map((person, index) =>
+      index === 0 ? person : { ...person, status: "suspended" as const },
+    );
+    expect(administrators(suspended)).toHaveLength(1);
   });
 
   /* The row that opens the studio. The login looks her up here rather than

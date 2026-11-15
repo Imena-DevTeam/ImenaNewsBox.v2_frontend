@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { HouseHeartOrnament } from "@/components/ui/Ornaments";
+import { HouseOrnament } from "@/components/ui/Ornaments";
 import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
@@ -15,7 +15,7 @@ export function StoryHero() {
         delay={1}
         className="absolute top-40 left-3 hidden md:block"
       >
-        <HouseHeartOrnament className="motion-safe:animate-float-slow size-12 md:size-14" />
+        <HouseOrnament size="lg" />
       </Reveal>
       <Reveal
         onMount
@@ -23,7 +23,7 @@ export function StoryHero() {
         delay={1.15}
         className="absolute right-3 bottom-4"
       >
-        <HouseHeartOrnament className="motion-safe:animate-float-slow size-14 md:size-16" />
+        <HouseOrnament size="lg" />
       </Reveal>
 
       <Container className="relative">

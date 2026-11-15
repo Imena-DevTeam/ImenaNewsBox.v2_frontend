@@ -44,7 +44,7 @@ export function DashboardGreeting() {
 
   return (
     <div className="min-w-0">
-      <h1 className="text-welcome-m lg:text-welcome leading-none whitespace-nowrap max-sm:text-xl">
+      <h1 className="text-welcome-m lg:text-welcome max-sm:text-h4 leading-none whitespace-nowrap">
         {hour === null ? "Muraho" : greetingFor(hour)},{" "}
         <span className="text-brand">{person.name}</span>
       </h1>
@@ -56,10 +56,7 @@ export function DashboardGreeting() {
             onClick={() => window.dispatchEvent(new Event(OPEN_UPDATES_EVENT))}
             className="bg-member-tint text-brand hover:bg-member-active/40 focus-visible:outline-brand flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold transition-colors"
           >
-            <span className="relative flex size-2">
-              <span className="bg-brand absolute inset-0 rounded-full opacity-60 motion-safe:animate-ping" />
-              <span className="bg-brand relative size-2 rounded-full" />
-            </span>
+            <span className="bg-brand size-2 rounded-full" />
             {thisWeek} family update{thisWeek === 1 ? "" : "s"} this week
             <BellRing aria-hidden className="size-3.5" />
           </button>

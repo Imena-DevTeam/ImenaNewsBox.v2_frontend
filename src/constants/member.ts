@@ -39,6 +39,24 @@ export const ADMINISTRATOR: Person = {
 };
 
 /**
+ * The second administrator.
+ *
+ * Named here rather than left as one of the generated rows, because the
+ * password reset is the first feature that needs **two** people who can
+ * actually sign in: one asks for a link and the other sends it. A reviewer
+ * has to be able to log in as both, so both have names worth typing.
+ *
+ * Her surname is outside the register's two pools on purpose, the same way
+ * Aganze's and Ngabe's are, so the seeded name cannot collide with a
+ * generated one.
+ */
+export const SECOND_ADMINISTRATOR: Person = {
+  name: "Shema",
+  role: "Family Administrator",
+  subfamily: "Hope",
+};
+
+/**
  * Who the session belongs to.
  *
  * The token carries a role and not an identity, so this is the nearest

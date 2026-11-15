@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import type { ImageSource } from "@/types/media";
 
 export type Subfamily = "Sanctuary" | "Light" | "Wihogora" | "Hope";
 
@@ -21,7 +21,7 @@ export interface TreePerson {
   /** The title as the family says it, e.g. "Grand Père", "Mère Light". */
   roleLabel: string;
   subfamily: Subfamily;
-  image: StaticImageData | string;
+  image: ImageSource;
   bio: string;
   quote?: string;
   /** Where they are now, e.g. "Kigali, Rwanda" or "Diaspora". */

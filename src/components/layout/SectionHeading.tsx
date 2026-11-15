@@ -24,7 +24,7 @@ export function SectionHeading({
     <div className="text-center">
       <div className="flex items-center justify-center gap-6">
         {before ? (
-          <span aria-hidden className="text-gallery-ornament hidden lg:block">
+          <span aria-hidden className="hidden lg:block">
             {before}
           </span>
         ) : null}
@@ -35,7 +35,7 @@ export function SectionHeading({
           {children}
         </h2>
         {after ? (
-          <span aria-hidden className="text-gallery-ornament hidden lg:block">
+          <span aria-hidden className="hidden lg:block">
             {after}
           </span>
         ) : null}

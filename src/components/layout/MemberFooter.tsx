@@ -1,3 +1,4 @@
+import { Quote } from "@/components/ui/Quote";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { endMemberSession } from "@/app/actions/session";
@@ -8,6 +9,7 @@ import {
   FAMILY_FOUNDED,
   FAMILY_MEMBER_COUNT,
   FAMILY_MOTTO,
+  FAMILY_MOTTO_MEANING,
 } from "@/constants/site";
 import { BackToTop } from "./BackToTop";
 import { FooterUpdates } from "./FooterUpdates";
@@ -46,12 +48,9 @@ export function MemberFooter() {
               tree, the photographs, the birthdays and the stories, kept in one
               place for the people in them.
             </p>
-            <p
-              lang="rw"
-              className="font-member-serif text-body text-member-rail-ink mt-5 max-w-md text-balance italic"
-            >
-              &ldquo;{FAMILY_MOTTO}&rdquo;
-            </p>
+            <Quote meaning={FAMILY_MOTTO_MEANING} className="mt-5 max-w-md">
+              <span lang="rw">{FAMILY_MOTTO}</span>
+            </Quote>
           </div>
 
           {MEMBER_FOOTER_GROUPS.map((group) => (

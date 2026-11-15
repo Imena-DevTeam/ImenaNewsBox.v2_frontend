@@ -1,92 +1,64 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Camera,
+  Heart,
+  HouseHeart,
+  PartyPopper,
+  Sun,
+  TreePine,
+} from "lucide-react";
 import { cn } from "@/lib/cn";
 
 /**
- * The line-drawn ornaments scattered behind the Our Story page. They carry no
- * meaning, so each one is hidden from assistive technology.
+ * The line-drawn marks beside headings and in page margins. Every one is a
+ * lucide icon at the same stroke and colour, from one size scale, so the
+ * marks on the story, the gallery, the blog and the sign-in pages read as one
+ * set. They carry no meaning and are hidden from assistive technology.
  */
 
-type OrnamentProps = { className?: string };
-
-const stroke = {
-  fill: "none",
-  stroke: "currentColor",
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
+const SIZE = {
+  sm: "size-10",
+  md: "size-12",
+  lg: "size-16",
 } as const;
 
-export function SunOrnament({ className }: OrnamentProps) {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      aria-hidden
-      className={cn("text-ornament", className)}
-      {...stroke}
-      strokeWidth={1.6}
-    >
-      <circle cx="24" cy="24" r="8" {...stroke} strokeWidth={1.6} />
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-        <line
-          key={deg}
-          x1="24"
-          y1="6"
-          x2="24"
-          y2="13"
-          transform={`rotate(${deg} 24 24)`}
-          {...stroke}
-          strokeWidth={1.6}
-        />
-      ))}
-    </svg>
-  );
-}
+export type OrnamentSize = keyof typeof SIZE;
 
-export function TreeOrnament({ className }: OrnamentProps) {
-  return (
-    <svg
-      viewBox="0 0 48 56"
-      aria-hidden
-      className={cn("text-ornament", className)}
-      {...stroke}
-      strokeWidth={1.6}
-    >
-      <path d="M24 4 10 24h28L24 4Z" />
-      <path d="M24 16 6 38h36L24 16Z" />
-      <path d="M14 30h8M26 30h8M12 38h24" />
-      <path d="M24 38v12M18 50h12" />
-    </svg>
-  );
-}
+type OrnamentProps = { size?: OrnamentSize; className?: string };
 
-export function HouseHeartOrnament({ className }: OrnamentProps) {
-  return (
-    <svg
-      viewBox="0 0 48 56"
-      aria-hidden
-      className={cn("text-ornament", className)}
-      {...stroke}
-      strokeWidth={4}
-    >
-      <path d="M24 4 6 20v32h36V20L24 4Z" />
-      <path
-        d="M24 42c-5-4-8-7-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 32 31c0 4-3 7-8 11Z"
-        fill="currentColor"
-        stroke="none"
+function ornament(Icon: LucideIcon) {
+  return function Ornament({ size = "md", className }: OrnamentProps) {
+    return (
+      <Icon
+        aria-hidden
+        strokeWidth={1.5}
+        className={cn("text-ornament shrink-0", SIZE[size], className)}
       />
-    </svg>
-  );
+    );
+  };
 }
 
-export function HeartsOrnament({ className }: OrnamentProps) {
+export const SunOrnament = ornament(Sun);
+export const TreeOrnament = ornament(TreePine);
+export const HouseOrnament = ornament(HouseHeart);
+export const CameraOrnament = ornament(Camera);
+export const PopperOrnament = ornament(PartyPopper);
+
+/** Two hearts, one tucked behind the other: the family's own mark. */
+export function HeartsOrnament({ size = "md", className }: OrnamentProps) {
   return (
-    <svg
-      viewBox="0 0 64 48"
+    <span
       aria-hidden
-      className={cn("text-ornament", className)}
-      {...stroke}
-      strokeWidth={2.4}
+      className={cn("text-ornament relative block", SIZE[size], className)}
     >
-      <path d="M26 42C14 33 7 27 7 19a9 9 0 0 1 16-5.6A9 9 0 0 1 39 19c0 8-7 14-13 23Z" />
-      <path d="M44 34c-9-7-14-12-14-18a8 8 0 0 1 14-5 8 8 0 0 1 14 5c0 6-5 11-14 18Z" />
-    </svg>
+      <Heart
+        strokeWidth={1.5}
+        className="absolute top-0 left-0 size-3/4 -rotate-12"
+      />
+      <Heart
+        strokeWidth={1.5}
+        className="absolute right-0 bottom-0 size-2/3 rotate-6"
+      />
+    </span>
   );
 }

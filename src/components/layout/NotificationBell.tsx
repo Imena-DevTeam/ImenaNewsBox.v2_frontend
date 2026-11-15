@@ -92,7 +92,7 @@ export function NotificationBell() {
           "open:animate-drawer-in motion-reduce:animate-none",
         )}
       >
-        <div className="bg-surface/95 flex h-full flex-col border-l border-white/60 shadow-2xl backdrop-blur-xl">
+        <div className="bg-surface/95 border-surface/60 flex h-full flex-col border-l shadow-2xl backdrop-blur-xl">
           <header className="border-member-border flex items-center justify-between gap-4 border-b px-6 py-5">
             <div>
               <h2 id="updates-title" className="text-h4 text-member-ink">
@@ -124,6 +124,11 @@ export function NotificationBell() {
             </div>
           </header>
 
+          {NOTIFICATIONS.length === 0 ? (
+            <p className="text-body-sm text-muted p-6 text-center">
+              Nothing new. Birthdays, new stories and replies will show up here.
+            </p>
+          ) : null}
           <ul className="flex-1 space-y-2 overflow-y-auto p-4">
             {NOTIFICATIONS.map((item) => {
               const Icon = KIND_ICON[item.kind];

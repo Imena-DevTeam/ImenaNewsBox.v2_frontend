@@ -94,6 +94,7 @@ export function AlbumForm() {
         </div>
 
         <TextField
+          autoComplete="off"
           label="Album title"
           placeholder="Fête memories, 2026"
           error={errors.title?.message}
@@ -101,6 +102,7 @@ export function AlbumForm() {
         />
 
         <TextField
+          autoComplete="off"
           label="Where"
           placeholder="Kigali"
           error={errors.place?.message}
@@ -108,6 +110,7 @@ export function AlbumForm() {
         />
 
         <TextField
+          autoComplete="off"
           label="When"
           type="date"
           error={errors.takenOn?.message}
@@ -116,6 +119,7 @@ export function AlbumForm() {
 
         <div>
           <TextField
+            autoComplete="off"
             label="Description (optional)"
             placeholder="One line about the day"
             error={errors.description?.message}

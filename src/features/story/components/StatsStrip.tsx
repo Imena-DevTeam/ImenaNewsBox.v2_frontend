@@ -4,7 +4,7 @@ import { MaskReveal } from "@/components/motion/MaskReveal";
 import { Reveal } from "@/components/motion/Reveal";
 import { CountUp } from "@/components/ui/CountUp";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { HouseHeartOrnament } from "@/components/ui/Ornaments";
+import { HouseOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 import { storyCircle } from "@/lib/images";
 
@@ -48,7 +48,7 @@ export function StatsStrip() {
   return (
     <section className="section-y relative overflow-hidden">
       <Reveal from="top" className="absolute top-6 left-4">
-        <HouseHeartOrnament className="motion-safe:animate-float-slow size-14 md:size-16" />
+        <HouseOrnament size="lg" />
       </Reveal>
 
       <Container className="relative">
@@ -97,7 +97,7 @@ export function StatsStrip() {
             value={3}
             label="Subfamilies"
             size="text-h1-m md:text-h1"
-            colour="text-primary"
+            colour="text-brand"
             className="md:col-start-1 md:row-start-2 md:justify-center md:pt-10"
           />
 

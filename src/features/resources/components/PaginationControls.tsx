@@ -31,7 +31,7 @@ export function PaginationControls({
       className="flex flex-col items-center justify-between gap-4 pt-6 sm:flex-row"
     >
       {/* Range Counter */}
-      <p className="text-muted text-xs">
+      <p className="text-muted text-caption">
         Showing{" "}
         <span className="text-heading font-semibold">
           {startItem}-{endItem}
@@ -48,7 +48,7 @@ export function PaginationControls({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
-          className="border-border bg-surface text-muted hover:border-brand/40 hover:bg-surface-elevated hover:text-heading focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-40"
+          className="border-border bg-surface text-muted hover:border-brand/40 hover:bg-member-tint hover:text-heading focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-40"
         >
           <ChevronLeft className="size-4" />
         </button>
@@ -62,10 +62,10 @@ export function PaginationControls({
               type="button"
               onClick={() => onPageChange(page)}
               aria-current={isActive ? "page" : undefined}
-              className={`focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full text-xs font-semibold transition-all ${
+              className={`focus-visible:outline-brand text-caption flex size-9 cursor-pointer items-center justify-center rounded-full font-semibold transition-all ${
                 isActive
-                  ? "bg-brand text-white shadow-xs"
-                  : "border-border bg-surface text-muted hover:border-brand/40 hover:bg-surface-elevated hover:text-heading border"
+                  ? "bg-brand text-surface shadow-xs"
+                  : "border-border bg-surface text-muted hover:border-brand/40 hover:bg-member-tint hover:text-heading border"
               }`}
             >
               {page}
@@ -79,7 +79,7 @@ export function PaginationControls({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
-          className="border-border bg-surface text-muted hover:border-brand/40 hover:bg-surface-elevated hover:text-heading focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-40"
+          className="border-border bg-surface text-muted hover:border-brand/40 hover:bg-member-tint hover:text-heading focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-40"
         >
           <ChevronRight className="size-4" />
         </button>

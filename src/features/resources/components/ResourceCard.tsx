@@ -15,20 +15,20 @@ const CATEGORY_STYLES: Record<
   { badge: string; dot: string }
 > = {
   Documents: {
-    badge: "border-blue-500/30 bg-blue-500/10 text-blue-700",
-    dot: "bg-blue-500",
+    badge: "border-hope-edge/30 bg-hope-ink/10 text-hope-ink",
+    dot: "bg-hope-ink",
   },
   Guides: {
-    badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
-    dot: "bg-emerald-500",
+    badge: "border-window-green/30 bg-window-green/10 text-window-green",
+    dot: "bg-window-green",
   },
   "Family Resources": {
     badge: "border-brand/30 bg-brand/10 text-brand",
     dot: "bg-brand",
   },
   "Educational Materials": {
-    badge: "border-amber-500/30 bg-amber-500/10 text-amber-800",
-    dot: "bg-amber-500",
+    badge: "border-light-ink/30 bg-celebration-gold/10 text-light-ink",
+    dot: "bg-celebration-gold",
   },
 };
 
@@ -41,11 +41,11 @@ export function ResourceCard({
     CATEGORY_STYLES[resource.category] ?? CATEGORY_STYLES.Documents;
 
   return (
-    <article className="border-border bg-surface shadow-subtle hover:border-brand/40 group relative flex h-full flex-col justify-between rounded-3xl border p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8">
+    <article className="border-border bg-surface shadow-subtle hover:border-brand/40 group relative flex h-full flex-col justify-between rounded-lg border p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8">
       {/* Top Content Area */}
       <div className="flex flex-col items-center">
         {/* Top Metadata Badges */}
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
+        <div className="text-caption mb-4 flex flex-wrap items-center justify-center gap-2 font-medium">
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 ${categoryStyle.badge}`}
           >
@@ -53,13 +53,13 @@ export function ResourceCard({
             <span>{resource.category}</span>
           </span>
 
-          <span className="border-border bg-surface-elevated text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
+          <span className="border-border bg-member-panel text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
             <FileText className="size-3" />
             <span>{resource.fileSize}</span>
           </span>
 
           {resource.viewsCount && (
-            <span className="border-border bg-surface-elevated text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
+            <span className="border-border bg-member-panel text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
               <Eye className="size-3" />
               <span>{resource.viewsCount.toLocaleString()}</span>
             </span>
@@ -67,7 +67,7 @@ export function ResourceCard({
         </div>
 
         {/* Document Icon / Emblem */}
-        <div className="border-border bg-surface-elevated group-hover:bg-brand/10 group-hover:border-brand/40 mb-4 flex size-14 items-center justify-center rounded-2xl border p-2 transition-colors sm:size-16">
+        <div className="border-border bg-member-panel group-hover:bg-brand/10 group-hover:border-brand/40 mb-4 flex size-14 items-center justify-center rounded-lg border p-2 transition-colors sm:size-16">
           <Image
             src="/images/imena-crest.webp"
             alt=""
@@ -83,7 +83,7 @@ export function ResourceCard({
         </h3>
 
         {/* Description */}
-        <p className="text-body text-muted mt-2 line-clamp-3 text-xs leading-relaxed sm:text-sm">
+        <p className="text-body text-muted text-caption sm:text-body-sm mt-2 line-clamp-3 leading-relaxed">
           {resource.description}
         </p>
 
@@ -99,7 +99,7 @@ export function ResourceCard({
           <button
             type="button"
             onClick={() => onView(resource)}
-            className="bg-brand hover:bg-brand/90 focus-visible:outline-brand flex min-h-[42px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl text-xs font-semibold text-white shadow-xs transition-all"
+            className="bg-brand hover:bg-brand/90 focus-visible:outline-brand text-surface text-caption flex min-h-10.5 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md font-semibold shadow-xs transition-all"
           >
             <ExternalLink className="size-3.5" />
             <span>View PDF</span>
@@ -109,7 +109,7 @@ export function ResourceCard({
             type="button"
             onClick={() => onDownload(resource)}
             title="Download document"
-            className="border-border bg-surface-elevated text-heading hover:bg-surface-tint focus-visible:outline-brand flex size-[42px] shrink-0 cursor-pointer items-center justify-center rounded-xl border transition-colors"
+            className="border-border bg-surface text-heading hover:bg-member-tint focus-visible:outline-brand flex size-10.5 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-colors"
           >
             <Download className="size-4" />
           </button>

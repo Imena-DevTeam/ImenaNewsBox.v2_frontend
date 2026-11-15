@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import type { ImageSource } from "@/types/media";
 import { elder1, elder2, elder3, elder4 } from "@/lib/images";
 
 /* ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ export interface Person {
   role: string;
   subfamily: Subfamily;
   saying: string;
-  photo: StaticImageData;
+  photo: ImageSource;
   /** Where the portrait sits in the diagram. */
   node: { cx: number; cy: number; r: number };
 }

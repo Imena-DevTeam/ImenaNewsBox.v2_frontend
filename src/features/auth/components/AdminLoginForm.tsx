@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -92,11 +93,23 @@ export function AdminLoginForm() {
           {...register("password")}
         />
 
+        {/* Beside the field it is about, which is where somebody who has
+            just failed to type it looks. It is a public page under /admin:
+            see ADMIN_PUBLIC_PATHS. */}
+        <div className="flex justify-end">
+          <Link
+            href={ROUTES.ADMIN_FORGOT_PASSWORD}
+            className="text-muted hover:text-brand transition-fast text-body rounded-sm underline-offset-4 hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </div>
+
         <AuthButton type="submit" disabled={isSubmitting} className="mt-6!">
-          Log In
+          Log in
         </AuthButton>
         {failed ? (
-          <p role="alert" className="text-danger mt-4 text-center text-base">
+          <p role="alert" className="text-danger text-body mt-4 text-center">
             {failed}
           </p>
         ) : null}
@@ -105,7 +118,7 @@ export function AdminLoginForm() {
       {/* Where they were going before the gate stopped them, so the extra
           step reads as a detour rather than a dead end. */}
       {next ? (
-        <p className="text-muted mt-4 text-center text-base">
+        <p className="text-muted text-body mt-4 text-center">
           You will carry on to{" "}
           <span className="text-member-ink font-medium">{next}</span>.
         </p>

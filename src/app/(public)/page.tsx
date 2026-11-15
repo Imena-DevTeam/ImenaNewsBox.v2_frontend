@@ -4,6 +4,7 @@ import { CoreValues } from "@/features/landing/components/CoreValues";
 import { EldersQuotes } from "@/features/landing/components/EldersQuotes";
 import { Hero } from "@/features/landing/components/Hero";
 import { RecentHandovers } from "@/features/landing/components/RecentHandovers";
+import { TreeTeaser } from "@/features/landing/components/TreeTeaser";
 import { StoryCta } from "@/features/landing/components/StoryCta";
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
       <AboutSection />
       <CoreValues />
       <RecentHandovers />
+      <TreeTeaser />
       <BlogHighlights />
       <StoryCta />
       <EldersQuotes />

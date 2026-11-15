@@ -1,8 +1,9 @@
 "use client";
 
+import { Quote as FamilyQuote } from "@/components/ui/Quote";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { Quote, X } from "lucide-react";
+import { X } from "lucide-react";
 import { branchName } from "../branch";
 import type { TreePerson } from "../types";
 
@@ -36,9 +37,9 @@ export function PersonDialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) dialog.current?.close();
       }}
-      className="open:animate-dialog-pop backdrop:bg-member-ink/40 m-auto w-[min(100vw-2rem,34rem)] max-w-none rounded-3xl bg-transparent p-0 backdrop:backdrop-blur-sm motion-reduce:animate-none"
+      className="open:animate-dialog-pop backdrop:bg-member-ink/40 m-auto w-[min(100vw-2rem,34rem)] max-w-none rounded-lg bg-transparent p-0 backdrop:backdrop-blur-sm motion-reduce:animate-none"
     >
-      <div className="bg-surface shadow-menu relative overflow-hidden rounded-3xl">
+      <div className="bg-surface shadow-menu relative overflow-hidden rounded-lg">
         <button
           type="button"
           onClick={() => dialog.current?.close()}
@@ -75,13 +76,9 @@ export function PersonDialog({
           </p>
 
           {person.quote ? (
-            <blockquote className="font-member-serif text-member-ink mt-5 flex gap-3 italic">
-              <Quote
-                aria-hidden
-                className="text-member-active mt-1 size-5 shrink-0"
-              />
+            <FamilyQuote cite={person.name} className="mt-5">
               {person.quote}
-            </blockquote>
+            </FamilyQuote>
           ) : null}
 
           <p className="text-caption text-member-rail-ink mt-6 font-normal">

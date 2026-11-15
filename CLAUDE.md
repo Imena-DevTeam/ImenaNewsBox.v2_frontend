@@ -1398,3 +1398,460 @@ TanStack Query in the root layout, and it is the price of the cache.
   structure document describes.
 - **`store/`** is still empty. Nothing has needed global client state yet,
   and `zustand` stays installed for when something does.
+
+---
+
+## 21. Invitations, admin signup, and the password nobody else knows
+
+The plan for the feature asked for on 13 Nov 2026. Written before the code,
+so what gets built can be judged against it.
+
+> When we want a person to be a member, the admin clicks **Add a member**,
+> fills the details, and it sends an invitation link to their email. Then it
+> shows them their family name, and below it a button saying **Go to login**.
+> The same should work for admins who were invited first — but for them we
+> need a **signup page**, only reachable from the link. And if there is a
+> signup page for admins, there should be a **forgot password** page for
+> them too: there must be at least two admins, so when one forgets, the
+> other is notified and can send the link to the address already known, and
+> the first one refills their credentials.
+
+### The four flows
+
+| #   | Who                        | Lands on                 | What they do there                                    |
+| --- | -------------------------- | ------------------------ | ----------------------------------------------------- |
+| 1   | an invited member          | `/invite/[token]`        | read the name they sign in with, then **Go to login** |
+| 2   | an invited administrator   | `/invite/[token]/signup` | set a password nobody else has ever known             |
+| 3   | a locked-out administrator | `/admin/forgot-password` | ask; the other administrators are told                |
+| 4   | the other administrator    | `/admin`                 | send the reset link to the address on the record      |
+
+Flow 1 is the one worth reading twice. `/login` takes a **name and no
+password**, so the invitation landing page is not a form — it is a
+**statement**. Its whole job is to tell somebody what to type. A form there
+would be asking them to invent a credential the member door does not have.
+
+### What this breaks on purpose
+
+> [!CAUTION]
+> **`ADMIN_PASSWORD` cannot survive this.** There is one password for all
+> administrators today, read from the environment and compared in plain text
+> in `features/auth/admin.ts`. Per-administrator signup and per-administrator
+> reset are impossible on top of a single shared secret: "A sets a new
+> password" would set everybody's.
+
+So this feature is really **administrators getting individual credentials**,
+which is what the TODO in that file has always said would happen. The
+password moves to the backend, hashed, and `checkAdminCredential` stops being
+a frontend concern. `admin.ts` and its tests stay until the auth endpoint is
+real, and the file gains a note naming what replaces it.
+
+### The three rules that are not negotiable
+
+**1. The token is the backend's property.** Expiry, single use, and the role
+inside it are signed server-side. This frontend hands the token over, renders
+what comes back, and shows a clean refusal when the answer is no. It
+**never** decodes a token in the browser and **never** trusts a `role` in a
+URL — that is precisely the hole §17 closed, and an invitation link is a
+better disguise for it than `/verify?role=admin` ever was.
+
+**2. The two-administrator floor is enforced, not advertised.** The register
+refuses to demote or remove the second-to-last administrator, with the reason
+on the control rather than on save. Without that, somebody suspends an
+administrator in November and in January the remaining one forgets their
+password and **nobody alive can reach `/admin`**. The backend has to enforce
+the same floor; a disabled `<select>` is a courtesy, not a rule.
+
+**3. A reset notifies both administrators.** If B can send A a reset link,
+B can take A's account. That is inherent in the design and not a reason to
+reject it — the family wants a person in the loop rather than an email
+provider — but it needs two guards, and they are the whole protection:
+
+- the link goes **only** to the address already on A's record, never to one
+  typed at reset time;
+- **A is told as well as B.** A silent takeover is the failure mode, and the
+  notice to A is what makes it a loud one.
+
+### What the frontend can and cannot do
+
+**Everything that matters here is an email and a signed token, and this
+frontend can send neither.** So what gets built is the complete set of
+screens and states, calling services that call endpoints that do not answer
+yet — the same honest holding pattern the rest of the app is in. Nothing
+stores, nothing is emailed, and every outcome says so.
+
+|                                                 | Frontend | Backend                            |
+| ----------------------------------------------- | -------- | ---------------------------------- |
+| the invite form, the outcome, the address shown | yes      | creates the record, sends the mail |
+| the invitation landing page                     | yes      | validates the token, returns it    |
+| the admin signup form and its password rules    | yes      | stores the hash, spends the token  |
+| the forgot-password request screen              | yes      | notifies the other administrators  |
+| the other administrator's **send the link**     | yes      | issues and mails the token         |
+| the reset form behind the token                 | yes      | validates, sets, invalidates       |
+| the two-administrator floor on the control      | yes      | **enforces it as a rule**          |
+
+### The stand-in, and why it cannot be a back door
+
+With no API there is nothing to validate a token against, and four states
+have to be reviewable: a member's invitation, an administrator's, an expired
+link and a spent one. So `features/invitations/data.ts` holds a stand-in that
+reads the **shape** of the token (`member-…`, `admin-…`, `expired-…`,
+`used-…`) and answers from the register.
+
+> [!IMPORTANT]
+> **The stand-in is off whenever an API is configured.** It is behind
+> `hasApi()`, so the moment `NEXT_PUBLIC_API_URL` is set the real service
+> answers and a hand-written token gets the backend's refusal. And it grants
+> nothing in either case: the invitation pages issue **no session**. The
+> member's page renders a name; the administrator's posts a password to a
+> service that does not store it. There is no path from a guessed token to a
+> session, which is the only property that matters.
+
+### The middleware hole this opens
+
+`isAdminPath()` exempts exactly one path — `/admin/login` — and everything
+else under `/admin` needs an admin session. **`/admin/forgot-password` and
+`/admin/reset-password/[token]` are reached by people who cannot sign in**,
+so they need the same exemption, and getting that wrong either locks them out
+of the page that unlocks them or opens the register to the world.
+
+So the exemption becomes a named list rather than a second `if`, in
+`lib/session.ts` beside `isAdminPath`, with a test per path and a test that
+`/admin`, `/admin/members` and a path merely _starting_ with an exempt name
+are still gated.
+
+### Routes
+
+| Path                            | Public?        | What it is                                |
+| ------------------------------- | -------------- | ----------------------------------------- |
+| `/invite/[token]`               | yes            | the member's name, and **Go to login**    |
+| `/invite/[token]/signup`        | yes            | the administrator's password, token-gated |
+| `/admin/forgot-password`        | **yes, newly** | ask for a reset                           |
+| `/admin/reset-password/[token]` | **yes, newly** | set the new password                      |
+| `/admin`                        | no             | gains a **Reset requests** band           |
+| `/admin/members`                | no             | the invitation outcome, and the floor     |
+
+### The register needs a second administrator
+
+`FAMILY_REGISTER` holds exactly one, and `data.test.ts` asserts it — flow 3
+cannot even be demonstrated with one. A second active administrator joins the
+fixture and that test becomes "at least two, so a locked-out one can be
+helped", which is the rule the feature rests on rather than an incidental
+count. `SIGNED_IN_ID` stays the one whose role control is locked.
+
+### Done means
+
+1. The gate clean: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`,
+   `pnpm test`, `pnpm build`.
+2. No session is issued anywhere in this feature.
+3. The middleware exemptions are tested path by path.
+4. The floor cannot be got around from the UI: not by the role select, not
+   by the remove button.
+5. No new raw hex, off-palette class or bracket value. No emoji, no helper
+   labels.
+6. Every screen says what would happen and that nothing was stored.
+
+### What the backend team still has to answer
+
+Five endpoints and one decision:
+
+```
+POST /invitations                        create, with a role
+GET  /invitations/:token                 validate -> { fullName, role, email }
+POST /invitations/:token/accept          password when the role is admin
+POST /auth/forgot-password               -> notifies the other admins
+POST /auth/reset-requests/:id/approve    the other admin sends the link
+POST /auth/reset-password/:token         set it, spend the token
+```
+
+**Does the invited administrator set their own password, or does the inviting
+one set a temporary password they must change?** This plan assumes the
+former — a password nobody else has ever known is strictly better — but it is
+their call, because they store it.
+
+### Applied, 13 Nov 2026
+
+Every screen and state in the plan above, judged against it.
+
+| Built                                   | Where                                                              |
+| --------------------------------------- | ------------------------------------------------------------------ |
+| the exemption list                      | `lib/session.ts` — `ADMIN_PUBLIC_PATHS`, `isAdminPublicPath`       |
+| the floor                               | `members/data.ts` — `MIN_ADMINS`, `administrators`, `mayLoseAdmin` |
+| the wire shapes                         | `types/invitation.ts`                                              |
+| the calls                               | `services/invitations.service.ts`, `services/auth.service.ts`      |
+| the stand-in                            | `features/invitations/data.ts`                                     |
+| the member's landing, and every refusal | `InviteWelcome`, `InviteRefused`                                   |
+| choosing a password, once               | `auth/components/SetPasswordForm`                                  |
+| the two screens that use it             | `AdminSignupForm`, `ResetPasswordForm`                             |
+| asking for a reset                      | `auth/components/ForgotPasswordForm`                               |
+| answering one                           | `admin/components/ResetRequests`, a third band on `/admin`         |
+
+**One form for both passwords.** The invitation's and the reset's differ
+only in what they say above the fields and what they say when it worked, so
+those are props. A second copy would have been a second place for the
+confirmation field, the lockout warning and the no-API case to drift apart.
+
+**One link for both kinds of person.** `/invite/[token]` reads the role from
+the **backend's answer** and sends an administrator on to the signup page, so
+whoever invites somebody does not have to know which URL to paste. The signup
+page checks the token again rather than trusting that the page before it did,
+because most people arrive there directly.
+
+### Four departures from the plan
+
+1. **The role select locks for two different reasons now**, and the message
+   says which: your own record locks because you would lose the page you are
+   standing on, and the floor locks because the register needs two
+   administrators. One sentence for both would have been wrong for each.
+2. **The floor closes three doors, not one.** The plan named demote and
+   remove. **Suspending** an administrator takes the role away just as
+   surely — a suspended administrator cannot send anybody a link — so the
+   status select refuses it too. Closing two of three would have been worse
+   than closing none, because the open one would look like a decision.
+3. **No rosette on the two password pages**, though `/verify` has one and it
+   is the same kind of moment. `SuccessBadge` pulls Motion into the bundle,
+   and these pages are public and opened once, from a link, by somebody who
+   may be on mobile data: **212 kB first load fell to 169 kB** when it went.
+   The rosette belongs where it is the climax of something rather than the
+   preamble to a link.
+4. **`ForgotPasswordForm` has no error branch.** A refusal would say
+   something about the name, and the one thing that screen must not do is
+   tell a stranger which of seventy-three people is an administrator. It
+   answers the same way whoever asks, and a failure on the server is
+   reported by the silence — no link arrives, and they ask in person, which
+   is what this flow was always going to come down to.
+
+### What the tests hold
+
+**`no-session.test.ts` reads the four public pages and refuses to let them
+grow a session** — it looks for `startMemberSession`, both cookies, both
+token makers and `cookies(` by name, so it cannot be fooled by a helper
+three files away. That is the one property the whole feature rests on: a
+link grants nothing.
+
+Beside it: a case per middleware exemption, including that `/admin/login-x`
+and `/admin/forgot-password/members` are still gated and a reset path with
+no token is too; the floor from all three directions; the stand-in's four
+states; that it **stops standing in** the moment `NEXT_PUBLIC_API_URL` is
+set; that no administrator is ever asked to approve their own reset; and
+that the forgot-password screen says the same thing about a name in the
+register and a name nobody has.
+
+### Gate
+
+Typecheck, lint and format clean. **246 tests over 31 files**, up from 209.
+`pnpm build` compiles; `/invite/[token]` is 114 kB first load, the other
+three 169 kB.
+
+### Still true, and what is next
+
+**Nothing is sent and nothing is stored.** Every screen says so in its own
+words. The admin's invitation reports what the link would do; the reset band
+reports what the email would say and that the other administrator would be
+told.
+
+`ADMIN_PASSWORD` is still the only administrator credential, and it is now
+**contradicted by two screens that exist**. That is the first thing to fix
+when the auth endpoints answer, and `features/auth/admin.ts` says so at the
+top. Until then the shared password is what `/admin/login` checks, and the
+password somebody sets at `/invite/<token>/signup` goes nowhere.
+
+To walk the four flows locally, with no backend: `/invite/member-demo`,
+`/invite/admin-demo`, `/invite/expired-demo`, `/invite/used-demo`, and
+`/admin/forgot-password`. The tokens are `SAMPLE_TOKENS` in
+`features/invitations/data.ts`.
+
+### Two administrators, seeded and told apart
+
+The second administrator was whichever row index 2 happened to be, which was
+enough for the floor to have something to lock and not enough to walk the
+reset through: a reviewer has to be able to sign in as **both** people.
+
+| Who               | id     | Name             | Signs in with      |
+| ----------------- | ------ | ---------------- | ------------------ |
+| `SIGNED_IN_ID`    | `m-01` | Aganze Rubagumya | `aganze-dev-admin` |
+| `SECOND_ADMIN_ID` | `m-03` | Shema Nkusi      | `shema-dev-admin`  |
+
+Both are seeded by name in `register()`, declared in `constants/member.ts`
+beside the member and the blogger, and both surnames sit **outside** the two
+name pools so a seeded name cannot collide with a generated one.
+
+**A password each, in development only.** The reset is the first feature that
+needs two administrators distinguished by their credential — "one of them
+forgets his password" is not a story you can walk through if both share one.
+`DEV_PASSWORDS` in `features/auth/admin.ts` keys them by id, and knowing one
+does not open the other's door.
+
+> [!IMPORTANT]
+> **Setting `ADMIN_PASSWORD` overrides all of it** and both administrators
+> share that one value again. That is not a bug in the fixture, it is the
+> limitation itself: one secret in the environment cannot be set per person,
+> which is why per-person signup ends it. Four tests hold both behaviours,
+> including that `ADMIN_PASSWORD` wins when it is set.
+
+`checkAdminCredential` now picks the expected password **after** finding the
+person, so one more thing had to be kept true: an unknown name falls back to
+a value nothing matches rather than returning early, because no path through
+that function may skip the comparison — skipping it is what tells somebody,
+by how long the answer took, that a name is not an administrator's.
+
+**Gate:** typecheck, lint and format clean. **250 tests over 31 files**, up
+from 246. `pnpm build` compiles.
+
+---
+
+## 22. Modernisation pass, 15 Nov 2026
+
+| Was                                                         | Now                                                                                                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| decorative gradients and glows                              | flat fills; only the scrims behind text on photos and the skeleton shimmer remain                                                     |
+| three ornament sources (lucide, hand SVGs, `/images/*.svg`) | `components/ui/Ornaments` — lucide only, stroke 1.5, `text-ornament`, sizes `sm`/`md`/`lg`, placed beside headings or in the margin   |
+| off-palette classes, raw hex, bracket sizes                 | tokens; what remains in brackets is layout with no token (`calc`, `min()`, grid templates, `transition-[…]`), and canvas-confetti hex |
+| emoji, sparkle icons, "TODAY'S FAMILY BIRTHDAY!"            | gone; sentence case                                                                                                                   |
+| perpetual float, orbit, ping and parallax                   | removed; one entrance per page, then still                                                                                            |
+| fixed-width card layouts                                    | `@container` on `BlogCard` and `HierarchyRoleCard`                                                                                    |
+| fixture images typed `StaticImageData`                      | `ImageSource`; `placeholderFor()` and `imageUrl()` in `types/media.ts` keep a remote URL from throwing on `placeholder="blur"`        |
+| plain navigation                                            | `TransitionLink`: blog cards glide their cover into the article; album cards cross-fade                                               |
+| `tests/` did not exist                                      | 21 Playwright tests: both doors, the forged-role hole, invitations, and no sideways scroll at 360/390/768/1440                        |
+
+> [!IMPORTANT]
+> In this palette **`heading` is violet** and **`member-chip` is solid
+> violet**. Dark text is `member-ink`; a light chip is `member-tint`.
+
+The e2e suite found and fixed two real overflows: `/family-tree` at 360–768px
+and `/dashboard` at 360px, both an implicit grid column sized by content
+(`grid-cols-1` fixes it). It runs on port 3100 with no API configured, so the
+stand-ins answer even when `.env.local` names a backend.
+
+**Not done, because they need the API:** optimistic updates with TanStack
+Query, and the members table taking its rows from the server.
+
+### Colour, made one system (15 Nov 2026)
+
+**One accent: violet, `brand`.** The royal blue `primary` is gone. The
+public pages carried it and the member area carried violet, so a blog card
+had a violet tag and a blue link. The user chose violet everywhere.
+
+| Use                                   | Token                                  |
+| ------------------------------------- | -------------------------------------- |
+| accent, links, filled buttons         | `brand` / `brand-hover`                |
+| headings, ink on light surfaces       | `member-ink` (`heading` is the accent) |
+| body text / quiet text                | `text` / `muted`                       |
+| edges                                 | `member-border` (`border` aliases it)  |
+| quiet panels / tints                  | `member-panel` / `member-tint`         |
+| white, and the dark scrim over photos | `surface`, `member-ink/…`              |
+| subfamilies                           | `wihogora-*`, `light-*`, `hope-*`      |
+
+Near-duplicates now point at one source (`heading`, `member-accent`,
+`tagline-accent` → `brand`; `tree-ink`, `tagline-ink`, `sanctuary-ink` →
+`member-ink`), and seven unused tokens were deleted. `white`/`black` classes
+became `surface`/`member-ink`. The confetti reads its colours from the tokens
+at runtime instead of copying hex values.
+
+### Blog comments, and the transition timeout
+
+The comment count on a story was a `<span>` styled like a button, and no
+comments section existed. `ArticleComments` lists sample comments and the
+reader's own, posts and deletes them, and keeps them on the device, like
+likes and saves. The count is the number listed, and it links to
+`#comments`. Four tests cover it.
+
+`TransitionLink` threw "Transition was aborted because of timeout" when the
+next page took longer than the browser waits (a first compile in dev). It
+now stops waiting after 1.2s and ignores that rejection. The navigation
+always carried on.
+
+**Gate:** typecheck, lint and format clean; **254 tests over 32 files**;
+`pnpm build` compiles.
+
+### The UX pass (15 Nov 2026)
+
+| What                               | Where                                                                                                                                                                                                                             |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| one way to say how an action ended | `components/ui/Toaster` — `useToast()({ message, action })`, mounted in the member layout. It pauses while hovered or focused. The register, posts, albums, resources and the share button all use it                             |
+| undo, not "are you sure"           | posts and albums delete at once with **Undo** in the toast. Removing a **person** still asks first, then offers Undo as well: a relative is worth the extra click                                                                 |
+| missing loading screens            | `/families/[slug]`, `/admin/members/new`                                                                                                                                                                                          |
+| autofill hints                     | every field has one: `name`, `email`, `username`, `bday`, `new-password`, and `off` for searches and written content. The member door is `username`, not `organization`                                                           |
+| touch targets                      | in `globals.css`: icon-only controls (named only by `aria-label`) are at least 44px under `pointer: coarse`                                                                                                                       |
+| one radius scale                   | `sm` 6 · `md` 12 · `lg` 20 · `pill`. Tailwind's `xl`–`4xl` and `--radius-media` are gone. `field`, `dock` and `member-rail` stay as named shapes                                                                                  |
+| search for everyone                | `CommandPalette` moved to `components/ui` and takes its list as props. `features/search/commands.ts` builds it **on the server** per role: pages, people, stories, albums, plus studio and admin pages for those who may use them |
+| completion nudge                   | `ProfileNudge` on the dashboard asks for a missing date of birth; **Add it** opens `/profile?edit=1`                                                                                                                              |
+
+> [!NOTE]
+> The code box already supported paste, `inputMode="numeric"` and
+> `one-time-code`. The audit said otherwise because it only searched single
+> lines.
+
+**Gate:** typecheck, lint and format clean. **264 tests over 35 files.**
+`pnpm build` compiles. **All 21 Playwright tests pass** (two of them only
+after a retry, because a dev compile can outlast the waits; see
+`tests/helpers.ts`).
+
+### Mottos are official (15 Nov 2026)
+
+> [!IMPORTANT]
+> **Nobody edits their own motto.** The family sets the mottos: one per
+> branch (`TRINITY[].motto`) and the family's own (`FAMILY_MOTTO`). The
+> profile shows the member's branch motto, read-only, falling back to the
+> family's. The motto editor, its device storage key and the "write your own
+> motto" nudge step are gone. `ProfileView.test.tsx` holds that no motto
+> field exists.
+
+The profile editor now holds only the date of birth.
+
+### The second UI/UX pass (15 Nov 2026)
+
+| What              | Now                                                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| landing hero      | one heading, one line, one button, one photograph; no rings, magnetic button or letter-by-letter title. The tree preview has its own section, `TreeTeaser` |
+| profile           | rebuilt on the type scale and `Button`; the signed-in name and branch, not a hard-coded "AGANZE" / "LIGHT FAMILY"; the invented activity counters are gone |
+| birthdays         | today's card, a month row, an even grid; the staggered "constellation" is gone; "Notice sent" now says nothing was sent                                    |
+| PDF viewer        | shows **the file** in the browser's own reader, in a native `<dialog>`. It used to draw two invented "certified" pages styled like Slack                   |
+| `Button`          | gained `ghost` and `danger`                                                                                                                                |
+| type scale        | 116 plain Tailwind sizes (`text-xs`…`text-5xl`) mapped onto the project's; none remain                                                                     |
+| `/people/[id]`    | a page per relative: initials, branch and its motto, birthday (day and month only), year joined. No email. Member search links here                        |
+| offline           | `OfflineBanner` in the member layout; the member `error.tsx` says "You're offline" and retries by itself when the connection returns                       |
+| empty states      | slides, notifications, album grid, comments and upcoming birthdays each say something when empty instead of rendering nothing or crashing                  |
+| lightbox on touch | swipe between photos, pinch to zoom, drag to look around, swipe down to close                                                                              |
+
+**Found by looking, not by tests:** `/birthdays` scrolled sideways at
+375px because the search button made the page header too wide (the badge
+now hides below `sm` and the title truncates); the birthday grid truncated
+names at three columns (now `xl` only); and `OtpInput` lost the first digit
+when two were typed before a re-render (it now reads the boxes themselves).
+
+> [!NOTE]
+> Screenshots from the in-app browser pane show member pages blurred: a
+> hidden pane pauses CSS animations on their first frame. The page itself
+> is fine. The pane also did not draw the PDF inside the viewer; the file is
+> served correctly, so check that one in Chrome.
+
+**Gate:** typecheck, lint and format clean. **271 tests.** `pnpm build`
+compiles. **21 Playwright tests pass.**
+
+### The third pass (15 Nov 2026)
+
+| What                | Now                                                                                                                                                                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| studio and admin    | checked by eye and at 360/1280px: no overflow. The profile and person pages each had two `<h1>`s; the header is `as="p"` there now                                                                                                                                     |
+| family tree, public | no rings, no squares, no letter-by-letter title; one plain heading and one fade                                                                                                                                                                                        |
+| family tree, member | the drifting face cloud with hearts is a single row of faces; `PairedHearts` is deleted                                                                                                                                                                                |
+| photos for people   | `FamilyMember.photo` (an address, or empty). Only the three seeded people have one. `components/ui/PersonAvatar` shows the portrait or the initials; used on the person page, the register and every birthday                                                          |
+| birthdays           | built from the register on the server (`app/(member)/_lib/birthdays.ts`, `features/birthdays/data.ts`): today's people from today's real date, then the next ones; every name links to `/people/<id>`. The invented celebrant list, nicknames and "42 wishes" are gone |
+| one quotation style | `components/ui/Quote`: serif italic in curly marks, meaning underneath, attribution under that. Used for the profile, person page, branch pages and cards, footer, tree dialog, tree cards, timeline and the elders' quotes                                            |
+| tests               | person page, offline banner, both new loading screens, `Quote`, `PersonAvatar`, the birthday arithmetic, and `tests/gallery.spec.ts` for the touch gestures and the document viewer                                                                                    |
+
+**Found by the new browser test:** the lightbox's `setPointerCapture`
+can throw for a pointer the browser no longer tracks, and the throw stopped
+the swipe before it began. It is guarded now.
+
+> [!NOTE]
+> `pnpm build` fails with "next/font/google queries have exactly one entry"
+> while a dev server is running from the same folder. Stop dev servers
+> before building; it is not a code problem.
+
+The PDF itself has still not been seen rendered: the in-app pane does not
+draw it and Claude in Chrome was not connected. The e2e test proves the
+viewer points at a real `application/pdf` file, not that Chrome draws it.
+
+**Gate:** typecheck, lint and format clean. **281 tests.** `pnpm build`
+compiles. **23 Playwright tests pass.**

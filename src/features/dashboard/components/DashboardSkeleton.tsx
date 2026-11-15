@@ -17,15 +17,15 @@ export function DashboardSkeleton() {
         <Skeleton className="mt-6 aspect-16/10 w-full rounded-lg md:aspect-9/4" />
       </div>
 
-      <div className="grid items-start gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
+      <div className="grid grid-cols-1 items-start gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
         <div className="order-2 lg:order-1">
           <Skeleton className="h-3 w-28" />
           <Skeleton className="mt-3 h-9 w-72 max-w-full rounded-lg" />
-          <Skeleton className="mt-8 aspect-[1.8] w-full rounded-lg" />
+          <Skeleton className="mt-8 aspect-9/5 w-full rounded-lg" />
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
             {Array.from({ length: 2 }, (_, index) => (
               <div key={index} className="space-y-3">
-                <Skeleton className="aspect-[1.8] w-full rounded-lg" />
+                <Skeleton className="aspect-9/5 w-full rounded-lg" />
                 <SkeletonText lines={2} />
               </div>
             ))}
@@ -34,17 +34,17 @@ export function DashboardSkeleton() {
 
         <div className="bg-member-tint order-1 rounded-lg p-5 lg:order-2">
           <div className="flex items-center gap-3">
-            <Skeleton className="size-9 rounded-xl" />
+            <Skeleton className="size-9 rounded-md" />
             <Skeleton className="h-7 w-36 rounded-lg" />
           </div>
           <SkeletonText lines={2} className="mt-4" />
-          <div className="bg-surface mt-6 rounded-2xl p-5">
-            <Skeleton className="h-8 w-40 rounded-xl" />
+          <div className="bg-surface mt-6 rounded-lg p-5">
+            <Skeleton className="h-8 w-40 rounded-md" />
             <div className="my-5 flex items-center gap-4">
-              <Skeleton className="size-20 shrink-0 rounded-2xl" />
+              <Skeleton className="size-20 shrink-0 rounded-lg" />
               <SkeletonText lines={3} className="flex-1" />
             </div>
-            <Skeleton className="h-11 w-full rounded-xl" />
+            <Skeleton className="h-11 w-full rounded-md" />
           </div>
         </div>
       </div>

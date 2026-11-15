@@ -44,7 +44,7 @@ export function PopularArticles({ className }: { className?: string }) {
         {/* No scroll reveal on this heading: it must sit on the same line
             as the birthday board's at every scroll position. */}
         <div>
-          <p className="text-brand text-caption mb-2 font-semibold tracking-[0.16em] uppercase">
+          <p className="text-brand text-caption mb-2 font-semibold tracking-widest uppercase">
             From the archive
           </p>
           <h2

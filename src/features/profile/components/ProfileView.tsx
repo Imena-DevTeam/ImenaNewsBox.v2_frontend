@@ -1,193 +1,160 @@
 "use client";
 
+import { Quote } from "@/components/ui/Quote";
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import {
-  Calendar,
-  CircleUserRound,
-  FileText,
-  Heart,
-  LogOut,
-  ShieldCheck,
-  UserCheck,
-  X,
-} from "lucide-react";
+import { Cake, CalendarDays, LogOut, PenLine, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { useModalDialog } from "@/components/ui/useModalDialog";
-import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { useSignedIn } from "@/components/layout/SignedIn";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { SubfamilyBadge } from "@/components/ui/SubfamilyBadge";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { useModalDialog } from "@/components/ui/useModalDialog";
 import { ROUTES } from "@/constants/routes";
-import { useStoredValue } from "@/hooks/useStoredValue";
 import { elder3 } from "@/lib/images";
+import { useProfileCompletion } from "../completion";
 
 interface ProfileViewProps {
   onSignOut: () => Promise<void>;
+  /** Opened from the dashboard's "Add it", straight into the editor. */
+  startEditing?: boolean;
+  registeredBornOn?: string;
+  /** The official motto of the member's branch, set by the family. */
+  motto: string;
+  mottoMeaning?: string;
+  /** The branch's name, for the badge. */
+  branch?: string;
 }
 
-const DEFAULT_QUOTE = "“Shinjagira niyo waba ushira.”";
+function readableDate(iso: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
 
-export function ProfileView({ onSignOut }: ProfileViewProps) {
-  const [isEditing, setIsEditing] = useState(false);
+/**
+ * The member's own page: who they are, their branch and its official motto,
+ * the facts the family keeps about them, and the one thing they edit
+ * themselves, their date of birth.
+ */
+export function ProfileView({
+  onSignOut,
+  startEditing = false,
+  registeredBornOn = "",
+  motto,
+  mottoMeaning,
+  branch,
+}: ProfileViewProps) {
+  const person = useSignedIn();
+  const [isEditing, setIsEditing] = useState(startEditing);
   const editDialog = useModalDialog(isEditing);
-  const [quote, setQuote] = useStoredValue(
-    "imena:profile_quote",
-    DEFAULT_QUOTE,
-  );
-  const [tempQuote, setTempQuote] = useState(DEFAULT_QUOTE);
+  const { bornOn, setBornOn } = useProfileCompletion(registeredBornOn);
+  const [tempBornOn, setTempBornOn] = useState(registeredBornOn);
+  const branchName = branch ?? person.subfamily;
 
-  function handleSaveQuote() {
-    setQuote(tempQuote);
+  function handleSave() {
+    if (tempBornOn) setBornOn(tempBornOn);
     setIsEditing(false);
   }
 
+  const facts = [
+    {
+      icon: ShieldCheck,
+      label: "Family status",
+      value: (
+        <span className="inline-flex items-center gap-1.5">
+          Verified member <VerifiedBadge />
+        </span>
+      ),
+    },
+    {
+      icon: Cake,
+      label: "Date of birth",
+      value: bornOn ? readableDate(bornOn) : "Not added yet",
+    },
+    {
+      icon: CalendarDays,
+      label: "Promotion cohort",
+      value: "2019–2020 handover",
+    },
+  ];
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 pb-28">
-      {/* Header with Circular Profile Badge & Hover-Revealing Avatar */}
-      <PageHeader
-        title="PROFILE"
-        badgeIcon={<CircleUserRound className="size-6 text-[#581C87]" />}
-        badgeLabel="Profile"
-      />
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 pb-28">
+      <PageHeader title="Profile" as="p" />
 
-      {/* Main Profile Showcase Card matching design */}
-      <section className="relative mt-2 flex flex-col items-center gap-8 rounded-3xl bg-white p-6 sm:flex-row sm:items-center sm:gap-12 sm:p-10">
-        {/* Large Circular Profile Photo */}
-        <div className="relative shrink-0">
-          <div className="size-48 overflow-hidden rounded-full shadow-lg ring-4 ring-neutral-100 sm:size-56 md:size-64">
-            <Image
-              src={elder3}
-              alt="Aganze's profile photograph"
-              width={256}
-              height={256}
-              className="size-full object-cover"
-              priority
-            />
-          </div>
-        </div>
+      <section className="border-member-border bg-surface shadow-member flex flex-col items-center gap-8 rounded-lg border p-6 text-center sm:flex-row sm:items-center sm:p-10 sm:text-left">
+        <Image
+          src={elder3}
+          alt={`${person.name}'s profile photograph`}
+          width={192}
+          height={192}
+          priority
+          className="ring-member-tint size-40 shrink-0 rounded-full object-cover ring-4 sm:size-48"
+        />
 
-        {/* Profile Content */}
-        <div className="flex flex-1 flex-col items-center text-center sm:items-start sm:text-left">
-          {/* Subfamily Pill */}
-          <div className="mb-2">
-            <SubfamilyBadge subfamily="LIGHT FAMILY" size="md" />
-          </div>
+        <div className="flex min-w-0 flex-1 flex-col items-center sm:items-start">
+          {branchName ? (
+            <SubfamilyBadge subfamily={`${branchName} family`} size="md" />
+          ) : null}
 
-          {/* Member Name */}
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#3B2883] uppercase sm:text-5xl md:text-6xl">
-            AGANZE
+          <h1 className="text-h1-m md:text-h1 text-member-ink mt-3">
+            {person.name}
           </h1>
 
-          {/* Quote Banner */}
-          <div className="my-4 border-l-4 border-indigo-300 py-1 pl-4 text-left">
-            <p className="text-base font-semibold text-neutral-800 sm:text-lg">
-              {quote}
-            </p>
-          </div>
+          {/* The branch's official motto. Set by the family, so it is shown
+              here and never edited from a profile. */}
+          <Quote size="md" meaning={mottoMeaning} className="mt-4">
+            {motto}
+          </Quote>
 
-          {/* Action Buttons with direct Log Out */}
-          <div className="mt-2 flex flex-wrap items-center gap-4">
-            <button
-              type="button"
+          <div className="mt-6 flex flex-wrap justify-center gap-3 sm:justify-start">
+            <Button
+              size="md"
               onClick={() => {
-                setTempQuote(quote);
+                setTempBornOn(bornOn);
                 setIsEditing(true);
               }}
-              className="cursor-pointer rounded-full bg-[#EDE9FE] px-8 py-2.5 text-sm font-semibold text-[#5B21B6] shadow-sm transition-colors hover:bg-[#DDD6FE]"
             >
-              Edit Profile
-            </button>
-
-            <Link
-              href={ROUTES.RESOURCES}
-              className="rounded-full border border-neutral-800 bg-transparent px-8 py-2.5 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-100"
-            >
-              View Archive
-            </Link>
-
+              <PenLine aria-hidden className="size-4" />
+              Edit date of birth
+            </Button>
+            <ButtonLink href={ROUTES.RESOURCES} variant="outline" size="md">
+              View archive
+            </ButtonLink>
             <form action={onSignOut}>
-              <button
-                type="submit"
-                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50/70 px-6 py-2.5 text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-100 hover:text-rose-700"
-              >
-                <LogOut className="size-4" />
+              <Button type="submit" variant="danger" size="md">
+                <LogOut aria-hidden className="size-4" />
                 Sign out
-              </button>
+              </Button>
             </form>
           </div>
         </div>
       </section>
 
-      {/* Secondary Details & Lineage Summary */}
-      <section className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3 text-neutral-600">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
-              <ShieldCheck className="size-5" />
-            </div>
-            <div>
-              <p className="text-xs text-neutral-500">Family Status</p>
-              <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-neutral-900">
-                  Verified Member
-                </span>
-                <VerifiedBadge />
-              </div>
+      <dl className="grid gap-4 sm:grid-cols-3">
+        {facts.map(({ icon: Icon, label, value }) => (
+          <div
+            key={label}
+            className="border-member-border bg-surface flex items-center gap-3 rounded-md border p-4"
+          >
+            <span className="bg-member-tint text-brand grid size-10 shrink-0 place-items-center rounded-md">
+              <Icon aria-hidden className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <dt className="text-caption text-muted">{label}</dt>
+              <dd className="text-body-sm text-member-ink font-semibold">
+                {value}
+              </dd>
             </div>
           </div>
-        </div>
+        ))}
+      </dl>
 
-        <div className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3 text-neutral-600">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-              <Calendar className="size-5" />
-            </div>
-            <div>
-              <p className="text-xs text-neutral-500">Promotion Cohort</p>
-              <p className="font-semibold text-neutral-900">
-                2019–2020 Handover
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Activity Counters */}
-      <section className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xs font-bold tracking-wider text-neutral-400 uppercase">
-          Family Involvement &amp; Community
-        </h2>
-        <div className="grid grid-cols-3 divide-x divide-neutral-100 text-center">
-          <div className="p-2">
-            <p className="font-serif text-2xl font-bold text-neutral-900 sm:text-3xl">
-              14
-            </p>
-            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-neutral-500">
-              <Heart className="size-3.5 text-rose-500" /> Wishes Sent
-            </p>
-          </div>
-          <div className="p-2">
-            <p className="font-serif text-2xl font-bold text-neutral-900 sm:text-3xl">
-              8
-            </p>
-            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-neutral-500">
-              <FileText className="size-3.5 text-indigo-500" /> Archives Read
-            </p>
-          </div>
-          <div className="p-2">
-            <p className="font-serif text-2xl font-bold text-neutral-900 sm:text-3xl">
-              6
-            </p>
-            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-neutral-500">
-              <UserCheck className="size-3.5 text-emerald-500" /> Handover Votes
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* A native <dialog>, like the nine others in this codebase. It was a
-          fixed overlay, which looks the same and gives none of what this
-          gives: Escape, focus trapped inside it, the page behind it inert,
+      {/* Native <dialog>: Escape, focus trapping, an inert page behind it
           and focus returning to the button that opened it. */}
       <dialog
         ref={editDialog}
@@ -196,62 +163,40 @@ export function ProfileView({ onSignOut }: ProfileViewProps) {
         onClick={(event) => {
           if (event.target === event.currentTarget) setIsEditing(false);
         }}
-        aria-labelledby="edit-motto-title"
-        className="bg-surface open:animate-dialog-pop m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl p-0 shadow-2xl backdrop:bg-black/40 motion-reduce:animate-none"
+        aria-labelledby="edit-profile-title"
+        className="bg-surface open:animate-dialog-pop backdrop:bg-member-ink/40 m-auto w-[min(28rem,calc(100vw-2rem))] rounded-lg p-0 shadow-2xl motion-reduce:animate-none"
       >
         {isEditing ? (
           <div className="p-6">
-            <div className="border-member-border flex items-center justify-between border-b pb-3">
-              <h3
-                id="edit-motto-title"
-                className="text-member-ink text-base font-bold"
-              >
-                Edit personal motto
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                aria-label="Close"
-                className="text-muted hover:bg-member-tint hover:text-member-ink rounded-lg p-1"
-              >
-                <X aria-hidden className="size-5" />
-              </button>
-            </div>
+            <h2 id="edit-profile-title" className="text-h4-m text-member-ink">
+              Your date of birth
+            </h2>
+            <p className="text-body-sm text-muted mt-1">
+              The birthdays page uses it to celebrate you. It is kept on this
+              device until profiles can be saved.
+            </p>
 
-            <div className="mt-4 space-y-4">
-              <div>
-                <label
-                  htmlFor="profile-motto"
-                  className="text-member-ink block text-xs font-semibold"
-                >
-                  Family motto or favourite proverb
-                </label>
-                <textarea
-                  id="profile-motto"
-                  value={tempQuote}
-                  onChange={(e) => setTempQuote(e.target.value)}
-                  rows={3}
-                  className="focus:border-brand border-field-border mt-1.5 w-full rounded-xl border p-3 text-sm"
-                  placeholder="A line your family lives by"
-                />
-              </div>
+            <label
+              htmlFor="profile-born-on"
+              className="text-body-sm text-member-ink mt-5 block font-semibold"
+            >
+              Date of birth
+            </label>
+            <input
+              id="profile-born-on"
+              type="date"
+              autoComplete="bday"
+              value={tempBornOn}
+              max={new Date().toISOString().slice(0, 10)}
+              onChange={(e) => setTempBornOn(e.target.value)}
+              className="border-field-border text-body mt-2 h-12 w-full rounded-sm border px-3"
+            />
 
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="text-muted hover:bg-member-tint rounded-full px-5 py-2 text-xs font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveQuote}
-                  className="bg-brand hover:bg-brand-hover text-surface rounded-full px-6 py-2 text-xs font-semibold shadow-sm"
-                >
-                  Save changes
-                </button>
-              </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="ghost" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>Save changes</Button>
             </div>
           </div>
         ) : null}

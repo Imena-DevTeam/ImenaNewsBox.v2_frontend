@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motionWanted } from "@/lib/viewTransition";
-import { createPortal } from "react-dom";
-import { Check, Download, LayoutGrid, List, Search, X } from "lucide-react";
+import { LayoutGrid, List, Search, X } from "lucide-react";
+import { useToast } from "@/components/ui/Toaster";
 import { EmptyTestimonial } from "@/components/ui/EmptyTestimonial";
 import { RESOURCES_DATA } from "../data";
 import type { ResourceCategory, ResourceItem } from "../types";
@@ -24,7 +24,7 @@ export function ResourcesBrowser() {
   const [selectedResource, setSelectedResource] = useState<ResourceItem | null>(
     null,
   );
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toast = useToast();
 
   const gridRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -125,8 +125,7 @@ export function ResourcesBrowser() {
     link.click();
     document.body.removeChild(link);
 
-    setToastMessage(`Downloading "${resource.fileName}"`);
-    setTimeout(() => setToastMessage(null), 3200);
+    toast({ message: `Downloading ${resource.fileName}` });
   };
 
   const handleResetFilters = () => {
@@ -165,13 +164,14 @@ export function ResourcesBrowser() {
               <Search className="size-4" />
             </div>
             <input
+              autoComplete="off"
               ref={searchInputRef}
               id="resources-search"
-              type="text"
+              type="search"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search documents..."
-              className="border-border bg-surface text-heading placeholder:text-muted focus:border-brand focus:ring-brand/20 min-h-[42px] w-full rounded-full border py-2 pr-9 pl-9 text-xs font-medium shadow-xs transition-colors focus:ring-2"
+              className="border-border bg-surface text-heading placeholder:text-muted focus:border-brand focus:ring-brand/20 text-caption min-h-10.5 w-full rounded-full border py-2 pr-9 pl-9 font-medium shadow-xs transition-colors focus:ring-2"
             />
             {searchQuery ? (
               <button
@@ -183,7 +183,7 @@ export function ResourcesBrowser() {
                 <X className="size-3.5" />
               </button>
             ) : (
-              <kbd className="border-border bg-surface-elevated text-muted text-caption pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 flex h-5 items-center rounded border px-1.5 font-mono font-medium">
+              <kbd className="border-border bg-member-panel text-muted text-caption pointer-events-none absolute inset-y-0 right-0 my-auto mr-3 flex h-5 items-center rounded border px-1.5 font-mono font-medium">
                 /
               </kbd>
             )}
@@ -201,7 +201,7 @@ export function ResourcesBrowser() {
               aria-label="Grid view"
               className={`focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors ${
                 viewMode === "grid"
-                  ? "bg-brand text-white shadow-xs"
+                  ? "bg-brand text-surface shadow-xs"
                   : "text-muted hover:text-heading"
               }`}
             >
@@ -213,7 +213,7 @@ export function ResourcesBrowser() {
               aria-label="List view"
               className={`focus-visible:outline-brand flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors ${
                 viewMode === "list"
-                  ? "bg-brand text-white shadow-xs"
+                  ? "bg-brand text-surface shadow-xs"
                   : "text-muted hover:text-heading"
               }`}
             >
@@ -226,7 +226,7 @@ export function ResourcesBrowser() {
       {/* Results Count Meta Bar */}
       <div
         ref={gridRef}
-        className="border-border text-muted flex items-center justify-between border-b pb-3 text-xs"
+        className="border-border text-muted text-caption flex items-center justify-between border-b pb-3"
       >
         <p>
           Showing{" "}
@@ -308,7 +308,6 @@ export function ResourcesBrowser() {
           <EmptyTestimonial
             titlePrefix="Family"
             titleHighlight="Resources"
-            emoji="📂"
             message={
               searchQuery
                 ? `Oops.. There are no resources for "${searchQuery}"`
@@ -332,24 +331,6 @@ export function ResourcesBrowser() {
         onClose={() => setSelectedResource(null)}
         onDownload={handleDownload}
       />
-
-      {/* Download Toast */}
-      {toastMessage && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              role="status"
-              aria-live="polite"
-              className="animate-in fade-in slide-in-from-bottom-4 fixed right-6 bottom-6 z-[110] flex items-center gap-2.5 rounded-2xl bg-neutral-900 px-5 py-3.5 text-xs font-semibold text-white shadow-2xl"
-            >
-              <div className="flex size-5 items-center justify-center rounded-full bg-emerald-500 text-white">
-                <Check className="size-3 stroke-[3]" />
-              </div>
-              <span>{toastMessage}</span>
-              <Download className="text-muted ml-1 size-3.5" />
-            </div>,
-            document.body,
-          )
-        : null}
     </div>
   );
 }

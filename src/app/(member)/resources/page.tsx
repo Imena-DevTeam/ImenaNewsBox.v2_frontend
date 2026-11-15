@@ -17,12 +17,12 @@ export default function ResourcesPage() {
 
       {/* Subhead strictly matching design */}
       <div className="mt-6 text-center md:mt-8">
-        <h2 className="font-heading text-2xl font-bold tracking-tight text-[#4828b8] sm:text-3xl md:text-4xl">
+        <h2 className="font-heading text-brand text-h3 sm:text-h1-m md:text-h1 font-bold tracking-tight">
           Knowledge We Share
         </h2>
         <div
           aria-hidden="true"
-          className="mx-auto mt-2 h-1 w-12 rounded-full bg-[#4828b8]"
+          className="bg-brand mx-auto mt-2 h-1 w-12 rounded-full"
         />
       </div>
 

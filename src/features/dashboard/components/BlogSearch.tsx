@@ -25,6 +25,7 @@ export function BlogSearch({ className }: { className?: string }) {
       <div className="bg-member-field rounded-pill relative flex h-12 w-full items-center lg:mx-auto lg:max-w-md">
         <Search aria-hidden className="text-muted ml-5 size-5" />
         <input
+          autoComplete="off"
           id="dashboard-search"
           type="search"
           value={query}

@@ -47,7 +47,7 @@ export function VerifyPanel() {
       <Link
         href={back}
         aria-label="Back to log in"
-        className="group transition-base -my-2.75 -ml-1.25 inline-flex size-9 items-center justify-center self-start rounded-full border border-transparent hover:border-black hover:bg-black"
+        className="group transition-base hover:border-member-ink hover:bg-member-ink -my-2.75 -ml-1.25 inline-flex size-9 items-center justify-center self-start rounded-full border border-transparent"
       >
         <Image
           src="/icons/arrow-left.svg"

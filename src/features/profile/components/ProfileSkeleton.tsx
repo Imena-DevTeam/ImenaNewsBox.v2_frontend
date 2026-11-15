@@ -28,7 +28,7 @@ export function ProfileSkeleton() {
         {Array.from({ length: 4 }, (_, index) => (
           <div
             key={index}
-            className="border-member-border rounded-2xl border p-5"
+            className="border-member-border rounded-lg border p-5"
           >
             <Skeleton className="h-5 w-32" />
             <SkeletonText lines={3} className="mt-4" />

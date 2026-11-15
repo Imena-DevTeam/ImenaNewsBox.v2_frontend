@@ -100,7 +100,7 @@ export function TreeHierarchyGrid({
               key={branch}
               aria-label={label}
               className={cn(
-                "rounded-3xl border p-4 md:p-6",
+                "rounded-lg border p-4 md:p-6",
                 theme.panel,
                 shown !== "All" && shown !== branch && "max-md:hidden",
               )}

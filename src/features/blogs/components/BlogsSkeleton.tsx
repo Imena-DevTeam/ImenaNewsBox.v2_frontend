@@ -4,7 +4,7 @@ import { Skeleton, SkeletonPage, SkeletonText } from "@/components/ui/Skeleton";
 function BlogCardSkeleton() {
   return (
     <div className="border-member-border bg-surface overflow-hidden rounded-lg border">
-      <Skeleton className="aspect-[1.8] w-full rounded-none" />
+      <Skeleton className="aspect-9/5 w-full rounded-none" />
       <div className="p-4 sm:p-5">
         <Skeleton className="h-3 w-24" />
         <Skeleton className="mt-4 h-6 w-4/5 rounded-lg" />
@@ -21,7 +21,7 @@ export function BlogsSkeleton() {
       label="Loading the family blog"
       className="min-w-0 space-y-12 md:space-y-16"
     >
-      <Skeleton className="mx-auto aspect-[1.45] w-full max-w-[50rem] rounded-lg sm:aspect-[1.8]" />
+      <Skeleton className="mx-auto aspect-29/20 w-full max-w-200 rounded-lg sm:aspect-9/5" />
 
       <div>
         <div className="flex flex-col items-center">

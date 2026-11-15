@@ -20,8 +20,8 @@ export function BackToTop({ tone = "light" }: { tone?: "light" | "dark" }) {
       className={cn(
         "group text-caption inline-flex items-center gap-2 rounded-full border px-4 py-2 font-semibold transition-[translate,background-color] duration-200 ease-out hover:-translate-y-0.5",
         tone === "dark"
-          ? "text-surface border-white/25 bg-white/10 hover:bg-white/20 focus-visible:outline-white"
-          : "border-member-border text-member-ink focus-visible:outline-brand bg-white/70 backdrop-blur-md hover:bg-white",
+          ? "text-surface border-surface/25 bg-surface/10 hover:bg-surface/20 focus-visible:outline-surface"
+          : "border-member-border text-member-ink focus-visible:outline-brand bg-surface/70 hover:bg-surface backdrop-blur-md",
       )}
     >
       <ArrowUp

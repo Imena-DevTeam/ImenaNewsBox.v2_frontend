@@ -4,17 +4,17 @@ import { Skeleton, SkeletonPage, SkeletonText } from "@/components/ui/Skeleton";
 /** One resource card: chips, the file icon, title, summary and actions. */
 function ResourceCardSkeleton() {
   return (
-    <div className="border-border bg-surface flex h-full flex-col items-center rounded-3xl border p-6">
+    <div className="border-border bg-surface flex h-full flex-col items-center rounded-lg border p-6">
       <div className="flex gap-2">
         <Skeleton className="rounded-pill h-5 w-20" />
         <Skeleton className="rounded-pill h-5 w-14" />
       </div>
-      <Skeleton className="mt-4 size-14 rounded-2xl" />
+      <Skeleton className="mt-4 size-14 rounded-lg" />
       <Skeleton className="mt-4 h-6 w-4/5 rounded-lg" />
       <SkeletonText lines={3} className="mt-3 w-full" />
       <div className="border-border/60 mt-6 flex w-full gap-2 border-t pt-4">
-        <Skeleton className="h-11 flex-1 rounded-xl" />
-        <Skeleton className="size-11 shrink-0 rounded-xl" />
+        <Skeleton className="h-11 flex-1 rounded-md" />
+        <Skeleton className="size-11 shrink-0 rounded-md" />
       </div>
     </div>
   );
@@ -33,7 +33,7 @@ export function ResourcesSkeleton() {
       </div>
 
       <div className="mt-8 space-y-8 md:mt-10 md:space-y-10">
-        <Skeleton className="h-40 w-full rounded-3xl md:h-48" />
+        <Skeleton className="h-40 w-full rounded-lg md:h-48" />
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">

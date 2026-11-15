@@ -17,7 +17,7 @@ export default function AdminNotFound() {
       <AdminTabs />
 
       <div className="py-24 text-center">
-        <p className="text-caption text-brand font-semibold tracking-[0.16em] uppercase">
+        <p className="text-caption text-brand font-semibold tracking-widest uppercase">
           Not found
         </p>
         <h1 className="text-h2-m md:text-h2 text-member-ink mt-4">

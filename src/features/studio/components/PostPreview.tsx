@@ -40,7 +40,7 @@ export function PostPreview({
 
   return (
     <article className="min-w-0">
-      <p className="text-caption text-brand font-semibold tracking-[0.16em] uppercase">
+      <p className="text-caption text-brand font-semibold tracking-widest uppercase">
         {category}
       </p>
 

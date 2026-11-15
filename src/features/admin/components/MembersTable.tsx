@@ -1,7 +1,9 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState, type CSSProperties } from "react";
-import { Search, Trash2, Undo2, UserPlus } from "lucide-react";
+import { Search, Trash2, UserPlus } from "lucide-react";
+import { useToast } from "@/components/ui/Toaster";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -9,6 +11,8 @@ import { CONTROL, Picker } from "@/components/ui/Picker";
 import { TRINITY } from "@/features/families/data";
 import {
   branchName,
+  mayLoseAdmin,
+  MIN_ADMINS,
   missingBirthday,
   queryMembers,
   type FamilyMember,
@@ -108,18 +112,13 @@ export function MembersTable({
   const [editing, setEditing] = useState<FamilyMember | null>(null);
   const [adding, setAdding] = useState(initialAdd);
   const [removing, setRemoving] = useState<FamilyMember | null>(null);
-  const [outcome, setOutcome] = useState<string | null>(null);
+  const toast = useToast();
+  const say = (message: string) => toast({ message });
 
   /* The row to flash, and the row on its way out. Both are ids rather than
      records: they point at a row, they are not a copy of one. */
   const [changed, setChanged] = useState<string | null>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
-
-  /* The one removal that can still be taken back, kept with the place it
-     came from so Undo puts it back where it was rather than at the top. */
-  const [undo, setUndo] = useState<{ person: FamilyMember; at: number } | null>(
-    null,
-  );
 
   /* The name that travels into the dialog. It is set on the frame before the
      dialog opens, because a view transition needs the name present in the
@@ -168,6 +167,16 @@ export function MembersTable({
     });
   };
 
+  /* The floor, read from the register in state rather than from the module,
+     so it answers about the list as it now stands: promote somebody and the
+     locks open on the same render.
+
+     > [!IMPORTANT]
+     > This disables controls and says why. It is a courtesy, not a rule —
+     > the backend has to refuse the same thing, because a disabled <select>
+     > stops a mis-click and not a request. See MIN_ADMINS. */
+  const floorHolds = editing !== null && !mayLoseAdmin(editing, register);
+
   /* Everyone else's address, so the panel can refuse a duplicate without
      refusing the record its own email. */
   const takenEmails = register
@@ -183,7 +192,7 @@ export function MembersTable({
           person.id === editing.id ? { ...person, ...values } : person,
         ),
       );
-      setOutcome(
+      say(
         before === values.email
           ? `${values.fullName} would be saved. Nothing was stored: the members service does not exist yet.`
           : `${values.fullName} would sign in with ${values.email} instead of ${before}. Nothing was stored, and no email was sent.`,
@@ -193,15 +202,16 @@ export function MembersTable({
       const id = `m-new-${register.length + 1}`;
       /* Joined today, because they were added today. */
       const joinedOn = new Date().toISOString().slice(0, 10);
-      setRegister((was) => [{ id, joinedOn, ...values }, ...was]);
-      setOutcome(
-        `${values.fullName} would be added to the register and invited at ${values.email}. Nothing was stored, and no email was sent.`,
+      setRegister((was) => [{ id, joinedOn, photo: "", ...values }, ...was]);
+      say(
+        /* What the invitation actually does, in the order it happens. The
+           link is the only way in: nobody is added already signed up. */
+        `${values.fullName} would be added to the register and sent an invitation link at ${values.email}, and would stay invited until they opened it. Nothing was stored, and no email was sent.`,
       );
       setChanged(id);
     }
     setEditing(null);
     setAdding(false);
-    setUndo(null);
   };
 
   /* Removing somebody has two halves. The outcome is reported at once, so
@@ -212,31 +222,28 @@ export function MembersTable({
     const at = register.findIndex((one) => one.id === person.id);
     setRemoving(null);
     setLeaving(person.id);
-    setOutcome(
-      `${person.fullName} would be removed from the register. Nothing was stored: the members service does not exist yet.`,
-    );
 
     window.setTimeout(() => {
       setRegister((was) => was.filter((one) => one.id !== person.id));
       setLeaving(null);
-      setUndo({ person, at });
+      toast({
+        message: `${person.fullName} was removed. Nothing was stored.`,
+        action: { label: "Undo", run: () => putBack(person, at) },
+      });
     }, LEAVE_MS);
   };
 
   /* Nothing was stored, so putting somebody back costs one splice. It is
      offered because the confirmation is the only thing standing between a
      mis-aimed click and a relative disappearing from the register. */
-  const putBack = () => {
-    if (!undo) return;
-    const { person, at } = undo;
+  const putBack = (person: FamilyMember, at: number) => {
     setRegister((was) => {
       const next = [...was];
       next.splice(Math.min(at, next.length), 0, person);
       return next;
     });
     setChanged(person.id);
-    setOutcome(`${person.fullName} is back in the register.`);
-    setUndo(null);
+    say(`${person.fullName} is back in the register.`);
   };
 
   const withoutBirthday = missingBirthday(register).length;
@@ -272,6 +279,7 @@ export function MembersTable({
               className="text-muted pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2"
             />
             <input
+              autoComplete="off"
               id="members-search"
               type="search"
               value={search}
@@ -338,19 +346,7 @@ export function MembersTable({
         <p role="status" aria-live="polite" className="text-body-sm text-muted">
           {found.length} of {register.length} people
           {!showAll && found.length > PAGE ? `, showing the first ${PAGE}` : ""}
-          {outcome ? ` · ${outcome}` : ""}
         </p>
-
-        {undo ? (
-          <button
-            type="button"
-            onClick={putBack}
-            className="text-body-sm text-brand hover:bg-member-tint focus-visible:outline-brand transition-fast rounded-pill inline-flex items-center gap-1.5 px-3 py-1.5 font-semibold"
-          >
-            <Undo2 aria-hidden className="size-4" />
-            Undo
-          </button>
-        ) : null}
       </div>
 
       {found.length === 0 ? (
@@ -417,33 +413,43 @@ export function MembersTable({
                   )}
                 >
                   <th scope="row" className="px-4 py-3 font-normal">
-                    <span
-                      className="text-body-sm text-member-ink block font-medium"
-                      style={
-                        person.id === morphing
-                          ? ({
-                              viewTransitionName: "member-open",
-                            } as CSSProperties)
-                          : undefined
-                      }
-                    >
-                      {person.fullName}
-                      {person.status !== "active" ? (
-                        <span className="text-caption bg-member-tint text-brand ml-2 rounded-full px-2.5 py-1 font-semibold">
-                          {STATUS_LABEL[person.status]}
+                    <div className="flex items-center gap-3">
+                      <PersonAvatar
+                        name={person.fullName}
+                        photo={person.photo}
+                        sizes="2.25rem"
+                        className="text-caption size-9"
+                      />
+                      <div className="min-w-0">
+                        <span
+                          className="text-body-sm text-member-ink block font-medium"
+                          style={
+                            person.id === morphing
+                              ? ({
+                                  viewTransitionName: "member-open",
+                                } as CSSProperties)
+                              : undefined
+                          }
+                        >
+                          {person.fullName}
+                          {person.status !== "active" ? (
+                            <span className="text-caption bg-member-tint text-brand ml-2 rounded-full px-2.5 py-1 font-semibold">
+                              {STATUS_LABEL[person.status]}
+                            </span>
+                          ) : null}
                         </span>
-                      ) : null}
-                    </span>
-                    {/* What the dropped columns were carrying. */}
-                    <span className="text-caption text-muted mt-0.5 block md:hidden">
-                      {person.email}
-                    </span>
-                    <span className="text-caption text-muted mt-0.5 block lg:hidden">
-                      {branchName(person.branch)}
-                      {person.role !== "member"
-                        ? ` · ${ROLE_LABEL[person.role]}`
-                        : ""}
-                    </span>
+                        {/* What the dropped columns were carrying. */}
+                        <span className="text-caption text-muted mt-0.5 block md:hidden">
+                          {person.email}
+                        </span>
+                        <span className="text-caption text-muted mt-0.5 block lg:hidden">
+                          {branchName(person.branch)}
+                          {person.role !== "member"
+                            ? ` · ${ROLE_LABEL[person.role]}`
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
                   </th>
                   <td className="text-body-sm text-muted hidden px-4 py-3 md:table-cell">
                     {person.email}
@@ -467,11 +473,20 @@ export function MembersTable({
                         Edit
                         <span className="sr-only"> {person.fullName}</span>
                       </button>
+                      {/* Removing an administrator is the third way to
+                          break the floor, after demoting and suspending
+                          them. The reason is on the control, in its label,
+                          rather than waiting to refuse the confirmation. */}
                       <button
                         type="button"
                         onClick={() => setRemoving(person)}
-                        aria-label={`Remove ${person.fullName}`}
-                        className="text-muted hover:text-danger focus-visible:outline-brand transition-fast flex size-10 items-center justify-center rounded-full"
+                        disabled={!mayLoseAdmin(person, register)}
+                        aria-label={
+                          mayLoseAdmin(person, register)
+                            ? `Remove ${person.fullName}`
+                            : `${person.fullName} cannot be removed: the register needs ${MIN_ADMINS} administrators`
+                        }
+                        className="text-muted hover:text-danger focus-visible:outline-brand transition-fast flex size-10 items-center justify-center rounded-full disabled:pointer-events-none disabled:opacity-40"
                       >
                         <Trash2 aria-hidden className="size-4" />
                       </button>
@@ -503,6 +518,7 @@ export function MembersTable({
         open={open}
         person={editing}
         takenEmails={takenEmails}
+        lastAdmins={floorHolds}
         onSave={save}
         onClose={() => {
           setEditing(null);

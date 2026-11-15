@@ -1,21 +1,17 @@
-import { PartyPopper } from "lucide-react";
+import { PopperOrnament } from "@/components/ui/Ornaments";
 
 /**
- * Two faint party poppers in the empty margin beside the story. Only from
- * wide screens up, where the margins exist, so they can never sit on the
- * words or add a scrollbar.
+ * Two poppers in the empty margin beside the story, from wide screens up,
+ * where the margin exists, so they can never sit on the words.
  */
 export function CelebrationOrnaments() {
   return (
-    <div aria-hidden className="pointer-events-none hidden xl:block">
-      <PartyPopper
-        className="text-gallery-ornament absolute top-[34%] right-6 size-28 rotate-12"
-        strokeWidth={1.2}
-      />
-      <PartyPopper
-        className="text-gallery-ornament absolute top-[62%] right-16 size-20 scale-x-[-1] -rotate-12"
-        strokeWidth={1.2}
-      />
+    <div
+      aria-hidden
+      className="pointer-events-none absolute top-1/3 right-8 hidden flex-col gap-24 xl:flex"
+    >
+      <PopperOrnament size="lg" />
+      <PopperOrnament size="lg" className="-scale-x-100" />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Quote } from "@/components/ui/Quote";
 import { Flag, Infinity as InfinityIcon, Landmark, Users } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
@@ -13,8 +14,8 @@ const MILESTONES = [
     label: "The beginning (Oct 20)",
     body: "Founded at the former National University of Rwanda (UNR) in Butare by survivor students seeking solidarity and mutual survival.",
     Icon: Flag,
-    badge: "bg-primary",
-    accent: "text-primary",
+    badge: "bg-brand",
+    accent: "text-brand",
   },
   {
     year: "2000",
@@ -42,7 +43,7 @@ const MILESTONES = [
     /* The design sets this label in the same pale blue as its badge, which
        reaches only 2.3:1 on white. The badge keeps the pale blue; the label
        closes the sequence back on the brand colour so it can be read. */
-    accent: "text-primary",
+    accent: "text-brand",
   },
 ];
 
@@ -63,10 +64,10 @@ export function Timeline() {
 
             {/* Brand colour rather than muted grey: on the tinted panel the
                 grey falls to 4.4:1, just under AA, and it pairs with the dot. */}
-            <p className="text-body-sm text-primary flex items-center gap-2">
+            <p className="text-body-sm text-brand flex items-center gap-2">
               <span
                 aria-hidden
-                className="bg-primary rounded-pill inline-block size-2"
+                className="bg-brand rounded-pill inline-block size-2"
               />
               Archival Record: 1996 &mdash; Present
             </p>
@@ -99,14 +100,8 @@ export function Timeline() {
                       {label}
                     </p>
 
-                    <p className="text-body-sm text-muted mt-3">
-                      {quote && (
-                        <span className="text-text block italic">
-                          &ldquo;{quote}&rdquo;
-                        </span>
-                      )}
-                      {body}
-                    </p>
+                    {quote ? <Quote className="mt-3">{quote}</Quote> : null}
+                    <p className="text-body-sm text-muted mt-3">{body}</p>
                   </TiltCard>
                 </StaggerItem>
               ),

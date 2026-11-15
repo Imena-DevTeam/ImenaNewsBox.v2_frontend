@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { FAMILY_REGISTER, SIGNED_IN_ID } from "@/features/members/data";
+import {
+  FAMILY_REGISTER,
+  SECOND_ADMIN_ID,
+  SIGNED_IN_ID,
+} from "@/features/members/data";
 import { checkAdminCredential } from "./admin";
 
 const admin = FAMILY_REGISTER.find((one) => one.id === SIGNED_IN_ID)!;
+const second = FAMILY_REGISTER.find((one) => one.id === SECOND_ADMIN_ID)!;
 const notAdmin = FAMILY_REGISTER.find((one) => one.role === "member")!;
 const blogger = FAMILY_REGISTER.find((one) => one.role === "blogger")!;
 
@@ -95,5 +100,67 @@ describe("checkAdminCredential", () => {
     });
 
     vi.unstubAllEnvs();
+  });
+});
+
+/**
+ * Two administrators, told apart by their password.
+ *
+ * The reset flow needs them: "one of them forgets his password" is not a
+ * story you can walk through if both share one. These run with
+ * `ADMIN_PASSWORD` **unset**, which is the only time the per-person
+ * development passwords apply — setting it puts everybody back on one
+ * value, which is the limitation the backend has to end.
+ */
+describe("the two seeded administrators", () => {
+  beforeEach(() => {
+    vi.stubEnv("ADMIN_PASSWORD", "");
+    vi.stubEnv("NODE_ENV", "development");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("lets each one in with their own password", () => {
+    expect(checkAdminCredential(admin.fullName, "aganze-dev-admin").ok).toBe(
+      true,
+    );
+    expect(checkAdminCredential(second.fullName, "shema-dev-admin").ok).toBe(
+      true,
+    );
+  });
+
+  /* The whole point of a password each: knowing one does not open the
+     other's door, so a reset is somebody else's problem to help with. */
+  it("does not let one of them in with the other's password", () => {
+    expect(checkAdminCredential(admin.fullName, "shema-dev-admin")).toEqual({
+      ok: false,
+      reason: "rejected",
+    });
+    expect(checkAdminCredential(second.fullName, "aganze-dev-admin").ok).toBe(
+      false,
+    );
+  });
+
+  it("still refuses a member who has learned either of them", () => {
+    expect(checkAdminCredential(notAdmin.fullName, "aganze-dev-admin").ok).toBe(
+      false,
+    );
+    expect(checkAdminCredential(notAdmin.fullName, "shema-dev-admin").ok).toBe(
+      false,
+    );
+  });
+
+  /* ADMIN_PASSWORD wins and is shared, which is both how it has always
+     behaved and the reason it cannot survive per-person signup. */
+  it("puts them back on one password when ADMIN_PASSWORD is set", () => {
+    vi.stubEnv("ADMIN_PASSWORD", PASSWORD);
+
+    expect(checkAdminCredential(admin.fullName, PASSWORD).ok).toBe(true);
+    expect(checkAdminCredential(second.fullName, PASSWORD).ok).toBe(true);
+    expect(checkAdminCredential(admin.fullName, "aganze-dev-admin").ok).toBe(
+      false,
+    );
   });
 });

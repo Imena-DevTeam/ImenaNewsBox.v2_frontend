@@ -59,22 +59,10 @@ export function Slogans() {
           className={cn(
             "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-24",
             "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3",
-            /* pause-on-hover: the cards carry body text, and text cannot be
-               read while it is travelling. Hovering or tabbing into the cross
-               stops it, which is also what WCAG 2.2.2 asks for. */
-            "pause-on-hover motion-safe:md:animate-orbit",
           )}
         >
           {SLOGANS.map((item) => (
-            <li
-              key={item.title}
-              /* Turns against the wrapper at the same rate, so the text
-                 stays upright all the way round. */
-              className={cn(
-                "motion-safe:md:animate-orbit-reverse",
-                item.placement,
-              )}
-            >
+            <li key={item.title} className={item.placement}>
               <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-md p-6 md:p-8">
                 <span
                   aria-hidden
@@ -99,7 +87,7 @@ export function Slogans() {
 
           <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
             <StaggerItem from="none" scale={0.4}>
-              <HeartsOrnament className="motion-safe:md:animate-orbit-reverse w-16" />
+              <HeartsOrnament size="lg" />
             </StaggerItem>
           </li>
         </Stagger>

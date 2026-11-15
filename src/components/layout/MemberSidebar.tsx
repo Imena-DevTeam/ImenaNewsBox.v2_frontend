@@ -84,10 +84,10 @@ export function MemberSidebar({ role }: { role?: Role | null }) {
       className={cn(
         "fixed z-50 border backdrop-blur-xl",
         /* Mobile: the bottom dock. */
-        "inset-x-4 bottom-4 mx-auto h-16 max-w-sm rounded-full border-white/40 bg-white/90 shadow-2xl",
+        "border-surface/40 bg-surface/90 inset-x-4 bottom-4 mx-auto h-16 max-w-sm rounded-full shadow-2xl",
         /* Desktop: the left dock, centred on the viewport. */
         "md:inset-x-auto md:top-1/2 md:bottom-auto md:left-6 md:mx-0 md:h-auto md:w-16 md:max-w-none md:-translate-y-1/2",
-        "md:rounded-dock md:shadow-dock md:border-white/60 md:bg-white/80",
+        "md:rounded-dock md:shadow-dock md:border-surface/60 md:bg-surface/80",
       )}
     >
       <ul

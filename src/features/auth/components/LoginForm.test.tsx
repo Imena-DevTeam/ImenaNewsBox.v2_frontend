@@ -29,7 +29,7 @@ vi.mock("@/app/actions/session", () => ({
 }));
 
 const logIn = () =>
-  fireEvent.click(screen.getByRole("button", { name: "Log In" }));
+  fireEvent.click(screen.getByRole("button", { name: "Log in" }));
 
 beforeEach(() => {
   push.mockClear();

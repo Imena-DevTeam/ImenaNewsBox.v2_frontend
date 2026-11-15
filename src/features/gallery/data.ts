@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import type { ImageSource } from "@/types/media";
 import {
   aboutFamily,
   blogReunion,
@@ -20,7 +20,7 @@ export interface PhotoMeta {
 }
 
 export interface AlbumPhoto extends PhotoMeta {
-  image: StaticImageData;
+  image: ImageSource;
   alt: string;
 }
 
@@ -28,7 +28,7 @@ export interface Album extends PhotoMeta {
   slug: string;
   title: string;
   /** The card's photograph, and the first one inside the album. */
-  image: StaticImageData;
+  image: ImageSource;
   alt: string;
   photos: AlbumPhoto[];
 }
@@ -137,7 +137,7 @@ export const FEATURED_IMAGES = FEATURED_ALBUMS;
 
 export interface Moment {
   title: string;
-  poster: StaticImageData;
+  poster: ImageSource;
   alt: string;
   /** A short reel; served from public/videos. */
   video: string;

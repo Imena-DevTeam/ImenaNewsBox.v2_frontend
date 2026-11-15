@@ -22,7 +22,7 @@ export function StoryIntro() {
             alt="Four members of the IMENA family together outside a family home"
             placeholder="blur"
             sizes="(min-width: 768px) 50vw, 100vw"
-            className="w-full rounded-2xl object-cover"
+            className="w-full rounded-lg object-cover"
           />
         </MaskReveal>
 

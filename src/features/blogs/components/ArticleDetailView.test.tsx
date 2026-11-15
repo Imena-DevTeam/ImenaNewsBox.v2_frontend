@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/components/ui/Toaster";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { ARTICLE_SLUGS, BLOG_PAGE_POSTS, getArticleBySlug } from "../data";
@@ -46,7 +47,7 @@ describe("ArticleDetailView", () => {
   const article = getArticleBySlug(SLUG)!;
 
   it("shows the pill, a way back, the title and the crest", () => {
-    render(<ArticleDetailView article={article} />);
+    render(<ArticleDetailView article={article} />, { wrapper: ToastProvider });
     expect(screen.getByText("Activity")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Back to all stories" }),
@@ -58,7 +59,7 @@ describe("ArticleDetailView", () => {
   });
 
   it("puts the photograph after the third paragraph, with its caption", () => {
-    render(<ArticleDetailView article={article} />);
+    render(<ArticleDetailView article={article} />, { wrapper: ToastProvider });
     expect(
       screen.getByText(/Generations embracing at the welcome banquet/),
     ).toBeInTheDocument();
@@ -68,7 +69,7 @@ describe("ArticleDetailView", () => {
   });
 
   it("likes and unlikes, and keeps the count honest", () => {
-    render(<ArticleDetailView article={article} />);
+    render(<ArticleDetailView article={article} />, { wrapper: ToastProvider });
     const like = screen.getByRole("button", { name: /Like this story/ });
     expect(like).toHaveTextContent("48");
     fireEvent.click(like);
@@ -79,7 +80,7 @@ describe("ArticleDetailView", () => {
   });
 
   it("saves the story", () => {
-    render(<ArticleDetailView article={article} />);
+    render(<ArticleDetailView article={article} />, { wrapper: ToastProvider });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(screen.getByRole("button", { name: "Saved" })).toHaveAttribute(
       "aria-pressed",
@@ -93,11 +94,9 @@ describe("ArticleDetailView", () => {
       value: { writeText },
       configurable: true,
     });
-    render(<ArticleDetailView article={article} />);
+    render(<ArticleDetailView article={article} />, { wrapper: ToastProvider });
     fireEvent.click(screen.getByRole("button", { name: "Share this story" }));
     expect(writeText).toHaveBeenCalledWith(window.location.href);
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      "Article link copied to clipboard!",
-    );
+    expect(await screen.findByText("Link copied")).toBeInTheDocument();
   });
 });

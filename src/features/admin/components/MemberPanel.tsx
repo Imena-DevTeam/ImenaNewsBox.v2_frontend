@@ -37,11 +37,15 @@ const STATUSES: { value: MemberEditValues["status"]; label: string }[] = [
 function MemberForm({
   person,
   takenEmails,
+  lastAdmins,
   onSave,
   onClose,
 }: {
   person: FamilyMember | null;
   takenEmails: string[];
+  /** True when taking this person's administrator role away would put the
+      register under MIN_ADMINS. */
+  lastAdmins: boolean;
   onSave: (values: MemberEditValues) => void;
   onClose: () => void;
 }) {
@@ -65,6 +69,15 @@ function MemberForm({
      standing on. The control says why rather than failing on save. */
   const self = person?.id === SIGNED_IN_ID;
 
+  /* Two different locks on one control, so the reason has to say which. Your
+     own record locks because you would lose the page you are standing on;
+     the floor locks because the register needs two administrators for a
+     locked-out one to be helped at all — see MIN_ADMINS. */
+  const roleLocked = self || lastAdmins;
+  const roleReason = self
+    ? "This is your own record. You cannot take your own administrator role away."
+    : "The register needs two administrators, so that a locked-out one can be sent a reset link. Make somebody else an administrator first.";
+
   return (
     <form onSubmit={handleSubmit(onSave)} noValidate className="p-6">
       {/* The name carries in from the row that was clicked, where the
@@ -86,7 +99,7 @@ function MemberForm({
       <p className="text-body-sm text-muted mt-1">
         {person
           ? "Everything here can be changed."
-          : "They appear on the family tree, and on the birthdays page once a date of birth is set."}
+          : "An invitation link goes to their email address. They stay invited until they open it."}
       </p>
 
       <div className="mt-6 flex flex-col gap-5">
@@ -119,7 +132,7 @@ function MemberForm({
           <div>
             <label
               htmlFor="panel-branch"
-              className="mb-2 block text-sm font-medium"
+              className="text-body-sm mb-2 block font-medium"
             >
               Family branch
             </label>
@@ -134,6 +147,7 @@ function MemberForm({
 
           <div>
             <TextField
+              autoComplete="bday"
               label="Date of birth"
               type="date"
               error={errors.bornOn?.message}
@@ -146,28 +160,27 @@ function MemberForm({
           <div>
             <label
               htmlFor="panel-role"
-              className="mb-2 block text-sm font-medium"
+              className="text-body-sm mb-2 block font-medium"
             >
               Role
             </label>
             <select
               id="panel-role"
-              disabled={self}
-              aria-describedby={self ? "panel-role-self" : undefined}
-              className={cn(FIELD, self && "opacity-60")}
+              disabled={roleLocked}
+              aria-describedby={roleLocked ? "panel-role-locked" : undefined}
+              className={cn(FIELD, roleLocked && "opacity-60")}
               {...register("role")}
             >
               <option value="member">Member</option>
               <option value="blogger">Blogger</option>
               <option value="admin">Administrator</option>
             </select>
-            {self ? (
+            {roleLocked ? (
               <p
-                id="panel-role-self"
+                id="panel-role-locked"
                 className="text-caption text-muted mt-1.5"
               >
-                This is your own record. You cannot take your own administrator
-                role away.
+                {roleReason}
               </p>
             ) : null}
           </div>
@@ -175,17 +188,39 @@ function MemberForm({
           <div>
             <label
               htmlFor="panel-status"
-              className="mb-2 block text-sm font-medium"
+              className="text-body-sm mb-2 block font-medium"
             >
               Status
             </label>
-            <select id="panel-status" className={FIELD} {...register("status")}>
+            {/* Suspending an administrator takes the role away as surely as
+                demoting them: a suspended administrator cannot send anybody
+                a reset link. So the floor closes this door too, rather than
+                leaving it as the way around the one above. */}
+            <select
+              id="panel-status"
+              aria-describedby={lastAdmins ? "panel-status-floor" : undefined}
+              className={FIELD}
+              {...register("status")}
+            >
               {STATUSES.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option
+                  key={option.value}
+                  value={option.value}
+                  disabled={lastAdmins && option.value === "suspended"}
+                >
                   {option.label}
                 </option>
               ))}
             </select>
+            {lastAdmins ? (
+              <p
+                id="panel-status-floor"
+                className="text-caption text-muted mt-1.5"
+              >
+                They cannot be suspended while the register needs them as an
+                administrator.
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -195,7 +230,7 @@ function MemberForm({
           Cancel
         </Button>
         <Button variant="brand" size="sm" type="submit" disabled={isSubmitting}>
-          {person ? "Save changes" : "Add member"}
+          {person ? "Save changes" : "Send the invitation"}
         </Button>
       </div>
     </form>
@@ -206,6 +241,7 @@ export function MemberPanel({
   open,
   person,
   takenEmails,
+  lastAdmins = false,
   onSave,
   onClose,
 }: {
@@ -213,6 +249,7 @@ export function MemberPanel({
   /** null adds somebody; a record edits them. */
   person: FamilyMember | null;
   takenEmails: string[];
+  lastAdmins?: boolean;
   onSave: (values: MemberEditValues) => void;
   onClose: () => void;
 }) {
@@ -223,7 +260,7 @@ export function MemberPanel({
       ref={ref}
       onClose={onClose}
       onCancel={onClose}
-      className="bg-surface open:animate-dialog-pop m-auto w-[min(36rem,calc(100vw-2rem))] rounded-lg p-0 shadow-xl backdrop:bg-black/50 motion-reduce:animate-none"
+      className="bg-surface open:animate-dialog-pop backdrop:bg-member-ink/50 m-auto w-[min(36rem,calc(100vw-2rem))] rounded-lg p-0 shadow-xl motion-reduce:animate-none"
     >
       {/* Keyed, so opening a different person rebuilds the fields rather
           than resetting them from an effect. */}
@@ -232,6 +269,7 @@ export function MemberPanel({
           key={person?.id ?? "new"}
           person={person}
           takenEmails={takenEmails}
+          lastAdmins={lastAdmins}
           onSave={onSave}
           onClose={onClose}
         />

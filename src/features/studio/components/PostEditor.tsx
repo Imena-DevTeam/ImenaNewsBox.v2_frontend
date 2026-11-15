@@ -1,12 +1,12 @@
 "use client";
 
+import type { ImageSource } from "@/types/media";
 import { useEffect, useState } from "react";
-import type { StaticImageData } from "next/image";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, Eye, PenLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toaster";
 import { BLOG_CATEGORIES, formatPostDate } from "@/features/blogs/data";
 import { cn } from "@/lib/cn";
 import { postSchema, type PostValues } from "../schemas";
@@ -29,7 +29,7 @@ export interface EditablePost {
   status: "draft" | "published";
   /** ISO, for the line in the rail saying where this post stands. */
   publishedOn: string;
-  cover?: StaticImageData;
+  cover?: ImageSource;
   coverAlt?: string;
 }
 
@@ -71,7 +71,7 @@ type Outcome =
 export function PostEditor({ post }: { post?: EditablePost }) {
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [preview, setPreview] = useState(false);
-  const [confirming, setConfirming] = useState(false);
+  const toast = useToast();
 
   /* A chosen file, held as an object URL so the preview can show it. The
      post's own cover stands in until she replaces it. */
@@ -192,6 +192,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
               {/* Set as a title rather than as a field: the top of the page
                   should look like the post being written, not like a form. */}
               <input
+                autoComplete="off"
                 id="post-title"
                 placeholder="A heart-warming family reunion"
                 aria-invalid={errors.title ? true : undefined}
@@ -208,7 +209,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
                 <p
                   id="post-title-error"
                   role="alert"
-                  className="text-danger mt-2 text-sm"
+                  className="text-danger text-body-sm mt-2"
                 >
                   {errors.title.message}
                 </p>
@@ -220,6 +221,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
                 The post
               </label>
               <textarea
+                autoComplete="off"
                 id="post-body"
                 placeholder="Leave a blank line between paragraphs."
                 aria-invalid={errors.body ? true : undefined}
@@ -462,6 +464,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
             Excerpt
           </label>
           <textarea
+            autoComplete="off"
             id="post-excerpt"
             rows={3}
             placeholder="One sentence for the card and the preview"
@@ -500,6 +503,7 @@ export function PostEditor({ post }: { post?: EditablePost }) {
             Publish on (optional)
           </label>
           <input
+            autoComplete="off"
             id="post-publish-on"
             type="date"
             aria-describedby="post-publish-on-hint"
@@ -518,29 +522,20 @@ export function PostEditor({ post }: { post?: EditablePost }) {
             variant="outline"
             type="button"
             className="border-danger text-danger"
-            onClick={() => setConfirming(true)}
+            onClick={() => {
+              const before = outcome;
+              setOutcome({ kind: "deleted", title: post.title });
+              toast({
+                message: `“${post.title}” deleted. Nothing was stored.`,
+                action: { label: "Undo", run: () => setOutcome(before) },
+              });
+            }}
           >
             <Trash2 aria-hidden className="size-4" />
             Delete this post
           </Button>
         ) : null}
       </aside>
-
-      {post ? (
-        <ConfirmDialog
-          open={confirming}
-          destructive
-          title={`Delete “${post.title}”?`}
-          description="It leaves the family archive and the blog. This cannot be undone, and moving it to the drafts instead takes it off the blog while keeping the writing."
-          confirmLabel="Delete the post"
-          cancelLabel="Keep it"
-          onCancel={() => setConfirming(false)}
-          onConfirm={() => {
-            setConfirming(false);
-            setOutcome({ kind: "deleted", title: post.title });
-          }}
-        />
-      ) : null}
     </form>
   );
 }

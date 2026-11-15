@@ -17,6 +17,33 @@ export const ENDPOINTS = {
     verify: "/auth/verify",
     logout: "/auth/logout",
     me: "/auth/me",
+
+    /* A locked-out administrator asks here; the backend tells the other
+       administrators. It never mails the link itself — approve does, and
+       only another administrator can call it. */
+    forgotPassword: "/auth/forgot-password",
+    resetRequests: "/auth/reset-requests",
+    approveReset: (id: string) => `/auth/reset-requests/${id}/approve`,
+    declineReset: (id: string) => `/auth/reset-requests/${id}/decline`,
+
+    /* The token is in the path rather than the body because it is the whole
+       credential: there is nothing else to send with it. */
+    resetPassword: (token: string) => `/auth/reset-password/${token}`,
+  },
+
+  /**
+   * Invitations.
+   *
+   * `one` is a **public** read: the person holding the link has no session
+   * yet, which is the point of the link. It answers with a name and a role
+   * or it refuses — never with anything else about the register.
+   */
+  invitations: {
+    list: "/invitations",
+    create: "/invitations",
+    one: (token: string) => `/invitations/${token}`,
+    accept: (token: string) => `/invitations/${token}/accept`,
+    resend: (id: string) => `/invitations/${id}/resend`,
   },
 
   members: {
