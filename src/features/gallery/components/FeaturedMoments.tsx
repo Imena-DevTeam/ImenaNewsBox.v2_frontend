@@ -7,7 +7,7 @@ import { Clock, Play, X } from "lucide-react";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { cn } from "@/lib/cn";
 import { MOMENTS } from "../data";
-import { CameraOrnament, HeartsOrnament } from "@/components/ui/Ornaments";
+import { CameraOrnament } from "@/components/ui/Ornaments";
 
 /**
  * Gathering moments and their video highlights: one wide card at a time,
@@ -40,11 +40,7 @@ export function FeaturedMoments() {
 
   return (
     <section aria-labelledby="featured-moments">
-      <SectionHeading
-        id="featured-moments"
-        before={<HeartsOrnament />}
-        after={<CameraOrnament />}
-      >
+      <SectionHeading id="featured-moments" after={<CameraOrnament />}>
         Gathering Moments &amp; Video Highlights
       </SectionHeading>
 

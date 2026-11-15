@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { HeartsOrnament, HouseOrnament } from "@/components/ui/Ornaments";
+import { HouseOrnament } from "@/components/ui/Ornaments";
 import Link from "next/link";
 import { AuthPhoto } from "@/features/auth/components/AuthPhoto";
 import { ROUTES } from "@/constants/routes";
@@ -14,7 +14,7 @@ type AuthShellProps = {
 /**
  * Login page layout: a white page with the form column on the left and a
  * blob-cut family photo near the top right. The photo and the lavender
- * hearts and house outlines only show on desktop.
+ * house outline only shows on desktop.
  */
 export function AuthShell({ title, children }: AuthShellProps) {
   return (
@@ -23,7 +23,6 @@ export function AuthShell({ title, children }: AuthShellProps) {
         {/* Was one fixed cut-out of a single photograph; now the same
             silhouette with the pictures changing behind it. */}
         <AuthPhoto className="auth-blob" />
-        <HeartsOrnament size="lg" className="auth-hearts" />
         <HouseOrnament size="lg" className="auth-house" />
       </div>
 

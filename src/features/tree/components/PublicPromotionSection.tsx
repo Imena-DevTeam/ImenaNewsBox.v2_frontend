@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
-import { HeartsOrnament, HouseOrnament } from "@/components/ui/Ornaments";
+import { HouseOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 import {
   PROMOTIONS_DATA,
@@ -223,10 +223,6 @@ export function PublicPromotionSection({
       id="promotion-section"
       className="relative scroll-mt-24 overflow-x-clip pt-12 pb-24 md:pt-16 md:pb-32"
     >
-      <HeartsOrnament
-        size="lg"
-        className="absolute top-12 left-12 hidden lg:block"
-      />
       <HouseOrnament
         size="lg"
         className="absolute top-1/3 right-12 hidden lg:block"

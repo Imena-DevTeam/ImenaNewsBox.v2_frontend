@@ -58,6 +58,11 @@
   --color-frame-accent: #87b2b5; /* the card outlined behind it */
   --color-stat: #7b4a94; /* the third milestone badge on the timeline */
   --color-slogan-card: #c9b8e6; /* the lavender slogan cards */
+  /* The round portrait's shadow: brown, tight against the lower edge and
+     gone by the top, so the circle reads as lifted off the page rather than
+     glowing. Two layers — the dark line at the rim, then the falloff. */
+  --shadow-portrait:
+    0 8px 8px -4px rgb(120 80 40 / 0.55), 0 18px 24px -6px rgb(140 95 50 / 0.8);
 
   /* Auth screens (login, admin login, verify). Sampled from the Figma auth
      frames, which use a violet brand fill. Text
@@ -759,12 +764,6 @@
   left: calc(55.5% - 72px);
   width: 700px;
   height: auto;
-}
-
-@utility auth-hearts {
-  position: absolute;
-  top: 18%;
-  left: 2.7%;
 }
 
 @utility auth-house {

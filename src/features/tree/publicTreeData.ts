@@ -247,7 +247,7 @@ export interface TreeCardData {
 }
 
 /*
- * Coordinates in a 960 x 1020 SVG viewBox matching the elongated vertical
+ * Coordinates in a 960 x 1100 SVG viewBox matching the elongated vertical
  * multi-tier layout in Image Two:
  * - Root ancestor: Benon
  * - 6 generations: strictly Grandpere & Grandmere couples
@@ -407,6 +407,22 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
     imageUrl: null,
   },
 ];
+
+/*
+ * The pair that follows 2025-2026, drawn so the tree visibly carries on.
+ * Nobody has been named for it yet, so it is two blank portraits and a label:
+ * it is not a PromotionYear and it opens nothing. When the people are known,
+ * move them into TREE_PORTRAIT_NODES and PROMOTIONS_DATA and delete this.
+ */
+export const TREE_NEXT_PAIR = {
+  label: "2026 – 2027",
+  r: 35,
+  nodes: [
+    { id: "next-grandpere", cx: 800, cy: 985 },
+    { id: "next-grandmere", cx: 880, cy: 990 },
+  ],
+  card: { x: 730, y: 1040, w: 215, h: 42 },
+} as const;
 
 /* Rounded rectangle cards with meaningful labels strictly matching Image Two */
 export const TREE_CARDS: TreeCardData[] = [
