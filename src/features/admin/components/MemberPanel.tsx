@@ -172,7 +172,7 @@ function MemberForm({
               {...register("role")}
             >
               <option value="member">Member</option>
-              <option value="blogger">Blogger</option>
+              <option value="social_media_manager">Social media manager</option>
               <option value="admin">Administrator</option>
             </select>
             {roleLocked ? (

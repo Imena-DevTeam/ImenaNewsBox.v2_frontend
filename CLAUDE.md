@@ -1914,7 +1914,7 @@ Each one is a PR on its own and leaves the gate green.
 | B2  | **backend**: the reset-request queue and the two-admin floor. **Done**, merged as #36 (decisions 77, 78)                                                                                       |
 | 0   | local stack. **Done**, see below                                                                                                                                                               |
 | 1   | transport: types generated from `/openapi.json`, `endpoints.ts` rewritten, `toError()` reading `{error: {code, message, details}}`, `Page` to `Paginated`, `Origin` and `User-Agent`. **Done** |
-| 2   | auth over the BFF; `blogger` becomes `social_media_manager`; `SignedInProvider` from `/users/me`                                                                                               |
+| 2   | auth over the BFF; `blogger` becomes `social_media_manager`; `SignedInProvider` from `/users/me`. **Done**, see below                                                                          |
 | 3   | invitations: one `/invitation` page reading `location.hash`; `/invite/[token]` and its `/signup` retired                                                                                       |
 | 4   | forgot password and the reset queue, against B2                                                                                                                                                |
 | 5   | the register and directory: `family_name` field, sub-family and promotion selects, **Remove** becomes **Deactivate**, **Undo** reactivates, **Send a new link**                                |
@@ -1999,6 +1999,76 @@ takes an optional `send` action, and says nothing was stored without one.
 
 **Gate:** typecheck, lint and format clean. **337 tests over 43 files**, up
 from 281. `pnpm build` compiles; shared first load is 213 kB.
+
+### Step 2, applied 17 Nov 2026: signing in through the Next server
+
+**Three modes, one switch** (`lib/auth-mode.ts`):
+
+| Mode      | When                                     | Who checks the code                             |
+| --------- | ---------------------------------------- | ----------------------------------------------- |
+| `backend` | `API_URL` is set                         | the backend: `/auth/login`, then `/auth/verify` |
+| `fixture` | no `API_URL`, and not a production build | nobody: any five digits, the sample register    |
+| `off`     | a production build with no `API_URL`     | nobody can sign in                              |
+
+The fixture mode is the user's choice (17 Nov 2026): it keeps offline work
+and the Playwright suite running without a backend. It is a door that
+opens for any five digits, so `auth-mode.test.ts`, `admin.test.ts` and
+`middleware.test.ts` hold that a production build and a configured backend
+each close it on their own.
+
+**The cookies**, all httpOnly and `lax`, all written by `lib/auth-cookies.ts`:
+
+| Cookie          | Holds                                                   | Lasts      |
+| --------------- | ------------------------------------------------------- | ---------- |
+| `imena_member`  | `v3`: role and user id, signed with `AUTH_SECRET`       | 90 days    |
+| `imena_access`  | the backend's access token (backend mode)               | its 15 min |
+| `imena_refresh` | the backend's refresh token (backend mode)              | 90 days    |
+| `imena_pending` | `p2`: the family name a code was sent for, and the door | 10 min     |
+
+**The flow.** `beginMemberLogin` / `beginAdminLogin` call `POST
+/auth/login` and hold the family name in `imena_pending`.
+`verifyLoginCode(code)` takes the code and nothing else, calls `POST
+/auth/verify`, keeps both tokens (the refresh token read out of the
+backend's `Set-Cookie`), asks `GET /users/me` for the role and id, and
+writes `imena_member`. `resendLoginCode` asks for another code for the
+member door; an administrator's needs the password again, so they are sent
+back to log in. `endMemberSession` calls `POST /auth/logout`, then clears
+everything whatever the backend said.
+
+**The middleware refreshes** (Node runtime, not edge: `lib/refresh.ts`
+shares one refresh between every request carrying the same token, in
+memory, for the backend's 30-second grace). It refreshes two minutes before
+the access token ends, writes the new tokens to the browser **and** to the
+request being rendered, and re-issues `imena_member` from `/users/me`, so a
+changed role reaches the rail within fifteen minutes. An ended session
+clears the cookies and goes to the login; a lost race or an unreachable
+backend carries on with the tokens it has.
+
+**Who is reading** is `lib/viewer.ts`: `getViewer()`, cached per request,
+is the backend's `/users/me` (or, in fixture mode, the sample person for the
+session's role). The member layout hands its person to `SignedInProvider`;
+the admin and studio layouts check its role, so somebody demoted a minute
+ago is turned away now, not at the next refresh. The admin and studio
+overviews greet it rather than a constant.
+
+**Roles are the backend's**: `member`, `social_media_manager`, `admin`.
+`blogger` is gone from code, data and tests. In the frames the role reads
+"Social Media Manager"; in the register and on a person's page, "Social
+media manager".
+
+**Gone:** `ADMIN_PASSWORD` (one shared secret, which per-person passwords
+replaced), `startMemberSession` (now `verifyLoginCode`), the v1/v2 session
+and p1 pending tokens (holders sign in again), and the 700 ms fake check on
+the verify screen. `features/auth/admin.ts` and `roles.ts` remain for the
+fixture mode only and refuse in any other.
+
+**Two behaviours that changed on purpose.** The administrators' door takes
+a password of any length, because the backend checks it and one set before
+the eight-character rule must still work. A wrong code clears the boxes
+and shows the backend's words; it costs one of the backend's five tries.
+
+**Not yet:** the profile still reads the sample register in fixture mode
+and nothing in backend mode (step 6); Google sign-in stays disabled.
 
 ### Stays on fixtures
 

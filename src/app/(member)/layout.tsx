@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { cookies } from "next/headers";
 import { Playfair_Display, Poppins } from "next/font/google";
 import { MemberSidebar } from "@/components/layout/MemberSidebar";
 import { SignedInProvider } from "@/components/layout/SignedIn";
@@ -8,7 +7,7 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { searchCommands } from "@/features/search/commands";
 import { MemberFooter } from "@/components/layout/MemberFooter";
-import { getSessionRole, SESSION_COOKIE } from "@/lib/session";
+import { requireViewer } from "@/lib/viewer";
 
 /* The member frames are set in their own faces. Loading them here rather
    than in the root layout keeps them off every other page, the same way
@@ -36,9 +35,9 @@ export default async function MemberLayout({
   /* The rail needs to know whether to offer the admin door, and the header
      needs to know whose name to show. Read here, in the one server component
      every member page already passes through, so no page has to think about
-     it. */
-  const store = await cookies();
-  const role = await getSessionRole(store.get(SESSION_COOKIE)?.value);
+     it. With a backend this is its answer to /users/me, asked once per
+     request (see lib/viewer.ts). */
+  const { role, person } = await requireViewer();
 
   return (
     <div
@@ -55,7 +54,7 @@ export default async function MemberLayout({
 
       <OfflineBanner />
 
-      <SignedInProvider role={role}>
+      <SignedInProvider person={person}>
         <ToastProvider>
           <MemberSidebar role={role} />
 

@@ -1,19 +1,23 @@
-import { cookies } from "next/headers";
 import { signedInPerson } from "@/constants/member";
 import { matchesName } from "@/features/auth/roles";
 import { FAMILY_REGISTER } from "@/features/members/data";
-import { getSessionRole, SESSION_COOKIE } from "@/lib/session";
+import { authMode } from "@/lib/auth-mode";
+import { getViewer } from "@/lib/viewer";
 
 /**
- * The register's row for whoever is signed in, found by name, because the
- * session carries a role and not an identity yet. Composed here, at the
- * route layer, because it joins three features.
+ * The sample register's row for whoever is signed in, in fixture mode only.
  *
- * TODO: read the id from the session once it carries one.
+ * With a backend there is no such row: the person is a real account, and the
+ * sample register is not theirs. So this answers undefined, and the profile
+ * shows what it can without one until step 6 of CLAUDE.md §23 reads the
+ * account itself.
+ *
+ * TODO: step 6 replaces this with `usersService.me`.
  */
 export async function signedInRecord() {
-  const store = await cookies();
-  const role = await getSessionRole(store.get(SESSION_COOKIE)?.value);
-  const person = signedInPerson(role);
+  if (authMode() !== "fixture") return undefined;
+  const viewer = await getViewer();
+  if (!viewer) return undefined;
+  const person = signedInPerson(viewer.role);
   return FAMILY_REGISTER.find((row) => matchesName(row.fullName, person.name));
 }

@@ -65,7 +65,7 @@ export function MemberSidebar({ role }: { role?: Role | null }) {
 
   const items = [
     ...MEMBER_NAV,
-    ...(role === "admin" || role === "blogger" ? STUDIO_NAV : []),
+    ...(role === "admin" || role === "social_media_manager" ? STUDIO_NAV : []),
     ...(role === "admin" ? ADMIN_NAV : []),
   ];
 

@@ -9,158 +9,96 @@ import { checkAdminCredential } from "./admin";
 const admin = FAMILY_REGISTER.find((one) => one.id === SIGNED_IN_ID)!;
 const second = FAMILY_REGISTER.find((one) => one.id === SECOND_ADMIN_ID)!;
 const notAdmin = FAMILY_REGISTER.find((one) => one.role === "member")!;
-const blogger = FAMILY_REGISTER.find((one) => one.role === "blogger")!;
+const manager = FAMILY_REGISTER.find(
+  (one) => one.role === "social_media_manager",
+)!;
 
-const PASSWORD = "a-test-password";
+const AGANZE = "aganze-dev-admin";
+const SHEMA = "shema-dev-admin";
 
 beforeEach(() => {
-  process.env.ADMIN_PASSWORD = PASSWORD;
+  vi.stubEnv("API_URL", "");
+  vi.stubEnv("NODE_ENV", "development");
 });
 
 afterEach(() => {
-  delete process.env.ADMIN_PASSWORD;
+  vi.unstubAllEnvs();
 });
 
 /**
- * The administrators' door.
+ * The administrators' door in fixture mode: no backend, never production.
  *
- * `AdminLoginForm` validated the shape of these two fields and then threw
- * them away — `handleSubmit(() => ...)` ignored its values entirely — and
- * pushed a URL that granted an admin session. Nothing ever read the
- * password. These tests hold the door shut.
- *
- * It takes a **name** again, as the design asks. The name alone proves
- * nothing — `/login` takes one with no password at all — so what these
- * tests check is that it takes both halves, and that neither half on its own
- * opens anything.
+ * It takes a **name** and a password. The name alone proves nothing —
+ * `/login` takes one with no password at all — so these hold that it needs
+ * both halves, that neither half on its own opens anything, and that the
+ * development passwords open nothing anywhere a backend answers instead.
  */
 describe("checkAdminCredential", () => {
-  it("lets an administrator in with the password", () => {
-    expect(checkAdminCredential(admin.fullName, PASSWORD)).toEqual({
-      ok: true,
-    });
+  it("lets each seeded administrator in with their own password", () => {
+    expect(checkAdminCredential(admin.fullName, AGANZE)).toEqual({ ok: true });
+    expect(checkAdminCredential(second.fullName, SHEMA).ok).toBe(true);
   });
 
-  it("does not care about the case of the name", () => {
-    expect(
-      checkAdminCredential(admin.fullName.toUpperCase(), PASSWORD).ok,
-    ).toBe(true);
-  });
-
-  /* The same rule the member door uses: either part of the name will do,
-     because nobody types both when one is what they are called. */
-  it("takes either part of the name", () => {
+  it("does not care about the case of the name, and takes either part", () => {
+    expect(checkAdminCredential(admin.fullName.toUpperCase(), AGANZE).ok).toBe(
+      true,
+    );
     const part = admin.fullName.split(/\s+/)[0]!;
-    expect(checkAdminCredential(part, PASSWORD).ok).toBe(true);
+    expect(checkAdminCredential(part, AGANZE).ok).toBe(true);
   });
 
-  it("refuses the right name with the wrong password", () => {
-    expect(checkAdminCredential(admin.fullName, "not-it")).toEqual({
+  /* The point of a password each: knowing one does not open the other's
+     door, so a reset is somebody else's to help with. */
+  it("does not let one administrator in with the other's password", () => {
+    expect(checkAdminCredential(admin.fullName, SHEMA)).toEqual({
       ok: false,
       reason: "rejected",
     });
+    expect(checkAdminCredential(second.fullName, AGANZE).ok).toBe(false);
   });
 
-  it("refuses an empty password", () => {
+  it("refuses an empty password, and an empty name", () => {
     expect(checkAdminCredential(admin.fullName, "").ok).toBe(false);
+    expect(checkAdminCredential("", AGANZE).ok).toBe(false);
   });
 
-  it("refuses an empty name", () => {
-    expect(checkAdminCredential("", PASSWORD).ok).toBe(false);
+  it("refuses a member who has learned a password", () => {
+    expect(checkAdminCredential(notAdmin.fullName, AGANZE).ok).toBe(false);
+    expect(checkAdminCredential(notAdmin.fullName, SHEMA).ok).toBe(false);
   });
 
-  /* Knowing the password is not enough: the name has to be an
-     administrator's. Seventy-three people are in the register and one of
-     them is. */
-  it("refuses a member who has somehow learned the password", () => {
-    expect(checkAdminCredential(notAdmin.fullName, PASSWORD)).toEqual({
-      ok: false,
-      reason: "rejected",
-    });
-  });
-
-  /* The blogger publishes; she does not keep the register. */
-  it("refuses the blogger", () => {
-    expect(checkAdminCredential(blogger.fullName, PASSWORD).ok).toBe(false);
+  /* The social media manager publishes; she does not keep the register. */
+  it("refuses the social media manager", () => {
+    expect(checkAdminCredential(manager.fullName, AGANZE).ok).toBe(false);
   });
 
   it("refuses a name nobody in the register has", () => {
-    expect(checkAdminCredential("Nobody Atall", PASSWORD).ok).toBe(false);
+    expect(checkAdminCredential("Nobody Atall", AGANZE).ok).toBe(false);
   });
 
-  /* A missing password is a missing secret, and a missing secret fails
-     closed rather than open. */
-  it("lets nobody in at all when no password is configured", () => {
-    vi.stubEnv("ADMIN_PASSWORD", "");
-    vi.stubEnv("NODE_ENV", "production");
+  /* `ADMIN_PASSWORD` was one secret every administrator shared. It is gone:
+     setting it opens nothing. */
+  it("ignores ADMIN_PASSWORD", () => {
+    vi.stubEnv("ADMIN_PASSWORD", "shared-secret");
+    expect(checkAdminCredential(admin.fullName, "shared-secret").ok).toBe(
+      false,
+    );
+  });
 
-    expect(checkAdminCredential(admin.fullName, PASSWORD)).toEqual({
+  /* The development passwords must never open a door anywhere real. */
+  it("opens nothing in a production build", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(checkAdminCredential(admin.fullName, AGANZE)).toEqual({
       ok: false,
       reason: "unavailable",
     });
-
-    vi.unstubAllEnvs();
-  });
-});
-
-/**
- * Two administrators, told apart by their password.
- *
- * The reset flow needs them: "one of them forgets his password" is not a
- * story you can walk through if both share one. These run with
- * `ADMIN_PASSWORD` **unset**, which is the only time the per-person
- * development passwords apply — setting it puts everybody back on one
- * value, which is the limitation the backend has to end.
- */
-describe("the two seeded administrators", () => {
-  beforeEach(() => {
-    vi.stubEnv("ADMIN_PASSWORD", "");
-    vi.stubEnv("NODE_ENV", "development");
   });
 
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it("lets each one in with their own password", () => {
-    expect(checkAdminCredential(admin.fullName, "aganze-dev-admin").ok).toBe(
-      true,
-    );
-    expect(checkAdminCredential(second.fullName, "shema-dev-admin").ok).toBe(
-      true,
-    );
-  });
-
-  /* The whole point of a password each: knowing one does not open the
-     other's door, so a reset is somebody else's problem to help with. */
-  it("does not let one of them in with the other's password", () => {
-    expect(checkAdminCredential(admin.fullName, "shema-dev-admin")).toEqual({
+  it("opens nothing when a backend is configured", () => {
+    vi.stubEnv("API_URL", "http://127.0.0.1:8000/api/v1");
+    expect(checkAdminCredential(admin.fullName, AGANZE)).toEqual({
       ok: false,
-      reason: "rejected",
+      reason: "unavailable",
     });
-    expect(checkAdminCredential(second.fullName, "aganze-dev-admin").ok).toBe(
-      false,
-    );
-  });
-
-  it("still refuses a member who has learned either of them", () => {
-    expect(checkAdminCredential(notAdmin.fullName, "aganze-dev-admin").ok).toBe(
-      false,
-    );
-    expect(checkAdminCredential(notAdmin.fullName, "shema-dev-admin").ok).toBe(
-      false,
-    );
-  });
-
-  /* ADMIN_PASSWORD wins and is shared, which is both how it has always
-     behaved and the reason it cannot survive per-person signup. */
-  it("puts them back on one password when ADMIN_PASSWORD is set", () => {
-    vi.stubEnv("ADMIN_PASSWORD", PASSWORD);
-
-    expect(checkAdminCredential(admin.fullName, PASSWORD).ok).toBe(true);
-    expect(checkAdminCredential(second.fullName, PASSWORD).ok).toBe(true);
-    expect(checkAdminCredential(admin.fullName, "aganze-dev-admin").ok).toBe(
-      false,
-    );
   });
 });

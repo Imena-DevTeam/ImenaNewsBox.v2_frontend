@@ -35,8 +35,8 @@ export function VerifyPanel() {
       : undefined;
 
   /* Which login sent you here, so "back" returns to the door you came
-     through. Cosmetic: the blogger comes through the member login, and so
-     does everybody whose breadcrumb is missing or made up. */
+     through. Cosmetic: a social media manager comes through the member login,
+     and so does everybody whose breadcrumb is missing or made up. */
   const back =
     params.get("from") === "admin" ? ROUTES.ADMIN_LOGIN : ROUTES.LOGIN;
 

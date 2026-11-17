@@ -6,6 +6,12 @@ const ASSET_CACHE = "public, max-age=604800, stale-while-revalidate=2592000";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  /* This folder, said outright. Next otherwise takes the nearest lockfile
+     above it for the workspace root, and a pnpm-lock.yaml in the home folder
+     made it watch the whole of it: compiles slow enough for the Playwright
+     suite to time out. */
+  turbopack: { root: process.cwd() },
+
   experimental: {
     /* How long the client router may reuse a page it has already fetched
        before going back to the server. Every page here is prerendered and

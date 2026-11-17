@@ -10,7 +10,7 @@ import { BLOG_PAGE_POSTS } from "@/features/blogs/data";
 import { TRINITY } from "@/features/families/data";
 import { FEATURED_ALBUMS } from "@/features/gallery/data";
 import { FAMILY_REGISTER } from "@/features/members/data";
-import type { Role } from "@/lib/session";
+import { mayUseStudio, type Role } from "@/lib/session";
 
 function pages(items: NavItem[], prefix = ""): Command[] {
   return items.map((item) => ({
@@ -34,7 +34,7 @@ function pages(items: NavItem[], prefix = ""): Command[] {
 export function searchCommands(role: Role | null): Command[] {
   const branchName = new Map(TRINITY.map((b) => [b.slug, b.name]));
   const isAdmin = role === "admin";
-  const mayWrite = role === "admin" || role === "blogger";
+  const mayWrite = role !== null && mayUseStudio(role);
 
   return [
     ...pages(MEMBER_NAV),

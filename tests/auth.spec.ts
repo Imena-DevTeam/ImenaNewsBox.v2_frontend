@@ -19,7 +19,9 @@ test.describe("the member door", () => {
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
-  test("the blogger is given the studio by name", async ({ page }) => {
+  test("the social media manager is given the studio by name", async ({
+    page,
+  }) => {
     await memberLogin(page, "Ngabe");
     await expect(page).toHaveURL(/\/dashboard/);
     await page.goto("/studio");

@@ -4,7 +4,7 @@ import { UserPlus } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { CountUp } from "@/components/ui/CountUp";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ADMINISTRATOR } from "@/constants/member";
+import { requireViewer } from "@/lib/viewer";
 import { ROUTES } from "@/constants/routes";
 import { ActivityList } from "@/features/admin/components/ActivityList";
 import { AdminBoard } from "@/features/admin/components/AdminBoard";
@@ -22,7 +22,8 @@ export const metadata: Metadata = {
   description: "What needs doing, and what has been done.",
 };
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const { person } = await requireViewer();
   const waiting = attentionItems();
 
   /* Administrators who cannot get in. This band is the other half of
@@ -58,10 +59,8 @@ export default function AdminPage() {
       {/* Band one: who you are, then the three things you came to do. */}
       <p className="text-body-sm text-muted mt-6 text-pretty">
         Signed in as{" "}
-        <span className="text-member-ink font-medium">
-          {ADMINISTRATOR.name}
-        </span>{" "}
-        · {ADMINISTRATOR.role}
+        <span className="text-member-ink font-medium">{person.name}</span> ·{" "}
+        {person.role}
       </p>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">

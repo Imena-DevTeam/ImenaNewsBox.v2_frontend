@@ -4,17 +4,19 @@ import { roleForName } from "./roles";
 
 describe("roleForName", () => {
   /* One login for the whole family: the name decides what you land with. */
-  it("signs the blogger in as the blogger", () => {
-    expect(roleForName("Ngabe")).toBe("blogger");
+  it("signs the social media manager in as one", () => {
+    expect(roleForName("Ngabe")).toBe("social_media_manager");
   });
 
   it("does not care about case or stray spaces", () => {
-    expect(roleForName("  nGaBe ")).toBe("blogger");
+    expect(roleForName("  nGaBe ")).toBe("social_media_manager");
   });
 
   it("takes her whole name too", () => {
-    const blogger = FAMILY_REGISTER.find((one) => one.role === "blogger")!;
-    expect(roleForName(blogger.fullName)).toBe("blogger");
+    const manager = FAMILY_REGISTER.find(
+      (one) => one.role === "social_media_manager",
+    )!;
+    expect(roleForName(manager.fullName)).toBe("social_media_manager");
   });
 
   it("signs everybody else in as a member", () => {

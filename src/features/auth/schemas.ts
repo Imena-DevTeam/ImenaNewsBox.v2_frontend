@@ -17,7 +17,9 @@ export const userLoginSchema = z.object({
  */
 export const adminLoginSchema = z.object({
   name: z.string().trim().min(1, "Family name is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  /* Any length: the backend checks it, and a password set before the
+     eight-character rule must still open the door. */
+  password: z.string().min(1, "Password is required"),
 });
 
 /** One-time password sent to the account's email. */

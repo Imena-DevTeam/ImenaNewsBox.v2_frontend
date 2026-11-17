@@ -1,7 +1,14 @@
+import type { Role } from "@/lib/session";
+import type { UserRead } from "@/types/wire";
+
 /**
- * The signed-in member. It arrives with the session once the auth API
- * exists; until then it is a sample, and it lives here rather than inside a
- * feature because every member frame's header shows it.
+ * The person the member frames greet: the header, the footer, the
+ * dashboard. It lives here rather than inside a feature because every member
+ * frame shows it.
+ *
+ * With a backend, `personFromAccount` makes it from the signed-in account.
+ * In fixture mode (no backend, never in production) it is one of the sample
+ * people below, chosen by the session's role.
  */
 export interface Person {
   name: string;
@@ -10,62 +17,74 @@ export interface Person {
   subfamily?: string;
 }
 
+/** How each role is named in the frames. */
+export const ROLE_TITLES: Record<Role, string> = {
+  member: "Family Member",
+  social_media_manager: "Social Media Manager",
+  admin: "Family Administrator",
+};
+
+/** HOPE, LIGHT and WIHOGORA, as the frames write them. */
+function subfamilyName(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+}
+
+/** The signed-in account, as the frames greet it. */
+export function personFromAccount(
+  account: Pick<UserRead, "display_name" | "role" | "sub_family">,
+): Person {
+  return {
+    name: account.display_name,
+    role: ROLE_TITLES[account.role],
+    subfamily: subfamilyName(account.sub_family.name),
+  };
+}
+
+/* The sample people, for fixture mode and the sample register. */
+
 export const MEMBER: Person = {
   name: "Aganze",
-  role: "Family Member",
+  role: ROLE_TITLES.member,
   subfamily: "Wihogora",
 };
 
 /**
- * The family's blogger.
+ * The family's social media manager.
  *
- * She signs in at the member login like everybody else; the register says
- * she is the blogger, and that is what opens the studio — see
- * features/auth/roles.ts. Her name lives here beside the member's for the
- * same reason: until the session carries an identity, the frames need
- * somebody to greet.
+ * She signs in at the member login like everybody else; in fixture mode the
+ * sample register says she holds the role, and that is what opens the
+ * studio — see features/auth/roles.ts.
  */
-export const BLOGGER: Person = {
+export const SOCIAL_MEDIA_MANAGER: Person = {
   name: "Ngabe",
-  role: "Family Blogger",
+  role: ROLE_TITLES.social_media_manager,
   subfamily: "Wihogora",
 };
 
 /** The administrator, who is the member with one extra door. */
 export const ADMINISTRATOR: Person = {
   name: MEMBER.name,
-  role: "Family Administrator",
+  role: ROLE_TITLES.admin,
   subfamily: MEMBER.subfamily,
 };
 
 /**
  * The second administrator.
  *
- * Named here rather than left as one of the generated rows, because the
- * password reset is the first feature that needs **two** people who can
- * actually sign in: one asks for a link and the other sends it. A reviewer
- * has to be able to log in as both, so both have names worth typing.
- *
- * Her surname is outside the register's two pools on purpose, the same way
- * Aganze's and Ngabe's are, so the seeded name cannot collide with a
- * generated one.
+ * Named rather than left as one of the generated rows, because the password
+ * reset needs **two** people who can sign in: one asks for a link and the
+ * other sends it. Her surname is outside the register's two pools on
+ * purpose, so the seeded name cannot collide with a generated one.
  */
 export const SECOND_ADMINISTRATOR: Person = {
   name: "Shema",
-  role: "Family Administrator",
+  role: ROLE_TITLES.admin,
   subfamily: "Hope",
 };
 
-/**
- * Who the session belongs to.
- *
- * The token carries a role and not an identity, so this is the nearest
- * honest answer until the auth API issues a real one. It lives here rather
- * than in a component so the header, the studio and the admin overview all
- * name the same person the same way.
- */
-export function signedInPerson(role?: string | null): Person {
-  if (role === "blogger") return BLOGGER;
+/** Fixture mode: the sample person a session's role stands for. */
+export function signedInPerson(role?: Role | null): Person {
+  if (role === "social_media_manager") return SOCIAL_MEDIA_MANAGER;
   if (role === "admin") return ADMINISTRATOR;
   return MEMBER;
 }

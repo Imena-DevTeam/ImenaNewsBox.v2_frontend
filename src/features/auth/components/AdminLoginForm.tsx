@@ -54,8 +54,6 @@ export function AdminLoginForm() {
   const next =
     requested.startsWith("/") && !requested.startsWith("//") ? requested : null;
 
-  // TODO: swap for the real auth call; the API will supply the address the
-  // one-time password was sent to, which /verify renders.
   const onSubmit = handleSubmit(async (values) => {
     setFailed(null);
 

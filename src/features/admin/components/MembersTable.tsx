@@ -36,7 +36,7 @@ const STAGGER_CAP = 8;
 
 const ROLE_LABEL: Record<string, string> = {
   member: "Member",
-  blogger: "Blogger",
+  social_media_manager: "Social media manager",
   admin: "Administrator",
 };
 

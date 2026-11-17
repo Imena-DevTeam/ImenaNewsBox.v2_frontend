@@ -1,4 +1,8 @@
-import { BLOGGER, MEMBER, SECOND_ADMINISTRATOR } from "@/constants/member";
+import {
+  SOCIAL_MEDIA_MANAGER,
+  MEMBER,
+  SECOND_ADMINISTRATOR,
+} from "@/constants/member";
 import { TRINITY } from "@/features/families/data";
 
 /**
@@ -81,7 +85,7 @@ export const SIGNED_IN_ID = "m-01";
 
 /** The family's blogger. Her role here is what opens the studio: the login
     looks her up rather than carrying a name in the code. */
-export const BLOGGER_ID = "m-02";
+export const SOCIAL_MEDIA_MANAGER_ID = "m-02";
 
 /**
  * The second administrator.
@@ -129,9 +133,9 @@ function register(): FamilyMember[] {
   /* The blogger. She signs in at the member login like everybody else, and
      this row is the whole of what makes her one — see auth/roles.ts. */
   const ngabe = people[1]!;
-  ngabe.fullName = `${BLOGGER.name} Uwase`;
-  ngabe.email = `${BLOGGER.name}@imenafamily.rw`.toLowerCase();
-  ngabe.role = "blogger";
+  ngabe.fullName = `${SOCIAL_MEDIA_MANAGER.name} Uwase`;
+  ngabe.email = `${SOCIAL_MEDIA_MANAGER.name}@imenafamily.rw`.toLowerCase();
+  ngabe.role = "social_media_manager";
   ngabe.status = "active";
   ngabe.bornOn = "1996-09-02";
   ngabe.photo = "/images/elder-1.webp";

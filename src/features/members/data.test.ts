@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { TRINITY } from "@/features/families/data";
 import {
   administrators,
-  BLOGGER_ID,
+  SOCIAL_MEDIA_MANAGER_ID,
   countByBranch,
   FAMILY_REGISTER,
   findByEmail,
@@ -94,10 +94,10 @@ describe("the family register", () => {
      blogger. */
   it("holds one blogger, and she is Ngabe", () => {
     const bloggers = FAMILY_REGISTER.filter(
-      (person) => person.role === "blogger",
+      (person) => person.role === "social_media_manager",
     );
     expect(bloggers).toHaveLength(1);
-    expect(bloggers[0]!.id).toBe(BLOGGER_ID);
+    expect(bloggers[0]!.id).toBe(SOCIAL_MEDIA_MANAGER_ID);
     expect(bloggers[0]!.fullName).toMatch(/^Ngabe/);
   });
 

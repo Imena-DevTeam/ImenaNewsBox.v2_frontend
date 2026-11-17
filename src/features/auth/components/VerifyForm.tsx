@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { startMemberSession } from "@/app/actions/session";
+import { resendLoginCode, verifyLoginCode } from "@/app/actions/session";
 import { ROUTES } from "@/constants/routes";
 import { useCountdown } from "../hooks/useCountdown";
 import { OTP_LENGTH, verifySchema } from "../schemas";
@@ -12,25 +12,21 @@ import { AuthHeading } from "./AuthHeading";
 import { OtpInput } from "./OtpInput";
 import { SuccessBadge } from "./SuccessBadge";
 
-const RESEND_SECONDS = 34;
+/** The backend's wait between two codes (`CODE_RESEND_COOLDOWN`). */
+const RESEND_SECONDS = 60;
 
 type Status = "idle" | "verifying" | "verified";
-
-// TODO: swap for the real verification call once the auth API exists.
-async function verifyCode(code: string) {
-  await new Promise((resolve) => setTimeout(resolve, 700));
-  return code.length === OTP_LENGTH;
-}
 
 /**
  * Email OTP step shown after a successful login. There is no submit button:
  * the code is checked as soon as the last digit lands, and a correct code
  * takes you into the site.
  *
- * What the code is worth is decided elsewhere. startMemberSession takes no
- * arguments: it reads the role out of the signed cookie the login step set,
- * so arriving at this screen without going through a login grants nothing
- * and says so.
+ * What the code is worth is decided on the server. `verifyLoginCode` takes
+ * the code and nothing else: the family name it is checked against comes
+ * from the signed cookie the login step set, so arriving at this screen
+ * without going through a login grants nothing and says so. With a backend,
+ * the backend checks the code; a wrong one costs one of its five tries.
  */
 export function VerifyForm({
   email,
@@ -59,33 +55,52 @@ export function VerifyForm({
     }
 
     setStatus("verifying");
-    if (!(await verifyCode(value))) {
+    let outcome: Awaited<ReturnType<typeof verifyLoginCode>>;
+    try {
+      outcome = await verifyLoginCode(value);
+    } catch {
+      outcome = {
+        ok: false,
+        message: "We could not check the code. Try again in a moment.",
+      };
+    }
+
+    if (!outcome.ok) {
       setStatus("idle");
-      setError("That code isn't right. Check your email and try again.");
+      /* A wrong code is cleared so the next one can be typed straight in. */
+      setCode("");
+      setError(outcome.message);
+      if (outcome.restart) setExpired(true);
       return;
     }
 
+    setStatus("verified");
+    /* Everyone lands on the same dashboard, admins included: the admin door
+       is in the rail, not a separate home. `replace` keeps the code step out
+       of history, and returnTo carries whoever was bounced here back to
+       where they were going. */
+    router.replace(returnTo ?? ROUTES.DASHBOARD);
+  };
+
+  const resend = async () => {
+    setError(null);
+    restart();
+    let outcome: Awaited<ReturnType<typeof resendLoginCode>>;
     try {
-      setStatus("verified");
-
-      /* The gate the middleware reads. Until the auth API exists this is the
-         whole of the session; see @/lib/session. The code itself still does
-         not prove anything — the login step did, and the role it decided is
-         in a cookie this call reads for itself. */
-      await startMemberSession();
-
-      /* Everyone lands on the same dashboard, admins included: the admin
-         door is in the rail, not a separate home. `replace` keeps the code
-         step out of history, and returnTo carries whoever was bounced here
-         back to where they were going. */
-      router.replace(returnTo ?? ROUTES.DASHBOARD);
+      outcome = await resendLoginCode();
     } catch {
-      setStatus("idle");
-      setExpired(true);
-      setError(
-        "This code can't be used — the login it belongs to has expired, or you came straight to this page.",
-      );
+      outcome = {
+        ok: false,
+        message: "We could not send a code. Try again in a moment.",
+      };
     }
+    if (!outcome.ok) {
+      restart(0);
+      setError(outcome.message);
+      if (outcome.restart) setExpired(true);
+      return;
+    }
+    restart(outcome.resendAfter);
   };
 
   const handleChange = (next: string) => {
@@ -157,7 +172,7 @@ export function VerifyForm({
         {isComplete ? (
           <button
             type="button"
-            onClick={restart}
+            onClick={() => void resend()}
             className="text-brand hover:text-brand-hover transition-fast text-h4 underline underline-offset-2"
           >
             Resend code

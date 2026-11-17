@@ -35,7 +35,7 @@ export function memberEditSchema(takenEmails: string[]) {
       ),
     branch: z.enum(BRANCH_SLUGS, { message: "Choose a family branch" }),
     bornOn: z.string(),
-    role: z.enum(["member", "admin", "blogger"], {
+    role: z.enum(["member", "social_media_manager", "admin"], {
       message: "Choose a role",
     }),
     status: z.enum(["active", "invited", "suspended"], {

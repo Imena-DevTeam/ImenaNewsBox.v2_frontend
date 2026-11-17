@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 const ROLE_LABEL = {
   member: "Family member",
-  blogger: "Family blogger",
+  social_media_manager: "Social media manager",
   admin: "Administrator",
 } as const;
 
