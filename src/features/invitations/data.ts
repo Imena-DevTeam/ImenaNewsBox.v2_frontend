@@ -1,5 +1,3 @@
-import { hasApi } from "@/lib/env";
-import { invitationsService } from "@/services/invitations.service";
 import type { InvitationCheck, ResetRequest } from "@/types/invitation";
 import {
   administrators,
@@ -16,16 +14,17 @@ import {
  * reads the **shape** of the token and answers from the register.
  *
  * > [!IMPORTANT]
- * > **It is off the moment an API is configured.** `readInvitation` asks
- * > `hasApi()` first, so setting `NEXT_PUBLIC_API_URL` hands every token to
- * > the backend and a hand-written one gets the backend's refusal.
+ * > **It answers whether or not `API_URL` is set**, until step 3 of
+ * > CLAUDE.md §23 replaces these pages with `/invitation`. The backend's
+ * > link is `/invitation#token=…` and its check is a POST, so these pages
+ * > have nothing they could ask it.
  * >
- * > And it is not a back door either way: **the invitation pages issue no
- * > session.** The member's page renders a name; the administrator's posts a
- * > password to a service that stores nothing. There is no path from a
- * > guessed token to a session, which is the only property that matters.
+ * > And it is not a back door: **the invitation pages issue no session.**
+ * > The member's page renders a name; the administrator's form stores
+ * > nothing. There is no path from a guessed token to a session, which is
+ * > the only property that matters.
  *
- * TODO: delete this file on the day `GET /invitations/:token` answers.
+ * TODO: delete this file in step 3.
  */
 
 /** The tokens the stand-in recognises, for walking through the four states
@@ -96,7 +95,7 @@ export function previewInvitation(token: string): InvitationCheck {
 }
 
 /**
- * What a link is worth: the backend's answer, or the stand-in's.
+ * What a link is worth, by the stand-in.
  *
  * Called from a server component, so a token never reaches the browser's
  * JavaScript at all — the page renders the name and the token stays in the
@@ -104,8 +103,7 @@ export function previewInvitation(token: string): InvitationCheck {
  */
 export async function readInvitation(token: string): Promise<InvitationCheck> {
   if (!token.trim()) return { ok: false, reason: "unknown" };
-  if (!hasApi()) return previewInvitation(token);
-  return invitationsService.check(token);
+  return previewInvitation(token);
 }
 
 /**

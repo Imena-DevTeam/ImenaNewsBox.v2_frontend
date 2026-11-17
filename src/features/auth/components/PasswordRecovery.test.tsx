@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { ApiError } from "@/types/api";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { SetPasswordForm } from "./SetPasswordForm";
 
@@ -105,11 +106,17 @@ describe("SetPasswordForm", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  /* With no API there is nowhere for a password to go, and the screen says
-     so rather than letting a thrown "NEXT_PUBLIC_API_URL is not set" land
-     in front of somebody who was only asked to choose one. */
+  /* With no action to send it to there is nowhere for a password to go,
+     and the screen says so rather than pretending. */
   it("does not pretend to have stored it", async () => {
-    const send = mount();
+    render(
+      <SetPasswordForm
+        intro={<p>Choose a password.</p>}
+        submitLabel="Set password"
+        doneTitle="Your password is set."
+        doneBody="Sign in with your name and the password you just chose."
+      />,
+    );
     type("Password", "correct-horse");
     type("Confirm password", "correct-horse");
     fireEvent.click(screen.getByText("Set password"));
@@ -118,6 +125,37 @@ describe("SetPasswordForm", () => {
       await screen.findByText("Your password is set."),
     ).toBeInTheDocument();
     expect(screen.getByText(/Nothing was stored/)).toBeInTheDocument();
-    expect(send).not.toHaveBeenCalled();
+  });
+
+  it("sends the password, and says nothing about it not being stored", async () => {
+    const send = mount();
+    type("Password", "correct-horse");
+    type("Confirm password", "correct-horse");
+    fireEvent.click(screen.getByText("Set password"));
+
+    expect(
+      await screen.findByText("Your password is set."),
+    ).toBeInTheDocument();
+    expect(send).toHaveBeenCalledWith("correct-horse");
+    expect(screen.queryByText(/Nothing was stored/)).not.toBeInTheDocument();
+  });
+
+  it("shows the server's refusal and stays on the form", async () => {
+    mount(
+      vi.fn().mockRejectedValue(
+        new ApiError(400, {
+          code: "invalid_invitation",
+          message: "This invitation link is wrong, used or expired.",
+        }),
+      ),
+    );
+    type("Password", "correct-horse");
+    type("Confirm password", "correct-horse");
+    fireEvent.click(screen.getByText("Set password"));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "This invitation link is wrong, used or expired.",
+    );
+    expect(screen.queryByText("Your password is set.")).not.toBeInTheDocument();
   });
 });

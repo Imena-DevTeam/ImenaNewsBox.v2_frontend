@@ -1,178 +1,188 @@
 import { ApiError, type ApiFailure } from "@/types/api";
-import { DEFAULT_TIMEOUT_MS, apiBaseUrl, serverEnv } from "@/lib/env";
+import {
+  DEFAULT_TIMEOUT_MS,
+  apiBaseUrl,
+  frontendOrigin,
+  serverEnv,
+} from "@/lib/env";
 
 /**
  * The one way this frontend talks to the backend.
  *
- * Everything goes through here so that the base URL, the credentials, the
- * timeout, and above all the **shape of a failure** are decided once. A
- * service calls `api.get<Member[]>("/members")` and either gets members or
- * an `ApiError`; it never sees a `Response`, never checks `res.ok`, and
- * never has to guess what the body looks like when something went wrong.
+ * **Server-only.** It runs in server components, server actions, route
+ * handlers and the middleware, never in the browser: the Next server holds
+ * the tokens and makes every call (CLAUDE.md §23, BFF). A client component
+ * that needs data gets it as props or through a server action.
  *
- * It runs on both sides. On the server it is called from server components
- * and server actions; in the browser it is called through TanStack Query.
- * The only difference is where the credential comes from, which is the one
- * thing below that the backend's own scheme will decide.
- *
- * > [!IMPORTANT]
- * > **Two credential mechanisms are wired up and one of them is wrong.**
- * > `credentials: "include"` suits a backend that sets its own cookie;
- * > `Authorization: Bearer` suits one that returns a token. Which it is
- * > depends on the API, and when that is known the other should be deleted
- * > rather than left as a second way in. See `withAuth` below.
+ * Everything goes through here so that the base URL, the headers, the
+ * timeout and above all the **shape of a failure** are decided once. A
+ * service calls `api.get<UserRead>("/users/me", { token })` and either gets
+ * the body typed or an `ApiError`; it never checks `res.ok`, and never has
+ * to guess what a refusal looks like.
  */
 
 type Query = Record<string, string | number | boolean | undefined | null>;
 
 export interface RequestOptions {
-  /** Appended as a query string; undefined and null entries are dropped. */
+  /** Appended as a query string; undefined, null and "" are dropped. */
   query?: Query;
-  /** A bearer token, when the backend wants one. */
+  /** The access token, sent as `Authorization: Bearer`. */
   token?: string;
+  /**
+   * The browser's own `User-Agent`. The backend names a device after it in
+   * the sessions list, so a login without it would be called "node".
+   */
+  userAgent?: string;
   /** Overrides the default, for an endpoint known to be slow. */
   timeoutMs?: number;
-  /** Next's fetch cache controls, for server-side calls. */
-  cache?: RequestCache;
-  next?: { revalidate?: number | false; tags?: string[] };
   signal?: AbortSignal;
   headers?: Record<string, string>;
 }
 
-function buildUrl(path: string, query?: Query): string {
-  const base = apiBaseUrl();
-  const url = new URL(`${base}${path.startsWith("/") ? path : `/${path}`}`);
+/** A body and the headers it came with, for the calls that need both: a
+    login's `Set-Cookie` carries the refresh token. */
+export interface Exchange<T> {
+  data: T;
+  headers: Headers;
+}
 
+function buildUrl(path: string, query?: Query): string {
+  const url = new URL(
+    `${apiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`,
+  );
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value === undefined || value === null || value === "") continue;
     url.searchParams.set(key, String(value));
   }
-
   return url.toString();
 }
 
-function withAuth(
-  headers: Record<string, string>,
-  token?: string,
-): Record<string, string> {
-  if (!token) return headers;
-  return { ...headers, Authorization: `Bearer ${token}` };
+/** `body.family_name` → `family_name`: the location is FastAPI's, the field
+    name is what a form knows. */
+function fieldName(location: string): string {
+  const [first, ...rest] = location.split(".");
+  return ["body", "query", "path"].includes(first ?? "") && rest.length
+    ? rest.join(".")
+    : location;
 }
 
 /**
- * Turns anything that went wrong into one `ApiError`.
+ * Turns a refusal into one `ApiError`.
  *
- * A backend that returns `{ code, message }` is used as-is. One that returns
- * a bare string, HTML, or nothing at all still produces an error with a
- * sentence in it, because the alternative is "Unexpected token < in JSON".
+ * The backend always answers `{"error": {code, message, details?}}`, with
+ * `details` only on a 422. Anything else — an HTML page from a proxy, an
+ * empty body — still becomes an error with a sentence in it, because the
+ * alternative is "Unexpected token < in JSON".
  */
 async function toError(response: Response): Promise<ApiError> {
-  let failure: ApiFailure = {
+  const failure: ApiFailure = {
     code: `http_${response.status}`,
     message: `The server returned ${response.status}.`,
   };
 
   try {
     const body: unknown = await response.json();
-    if (body && typeof body === "object") {
-      const shape = body as Partial<ApiFailure> & { error?: string };
-      failure = {
-        code: shape.code ?? failure.code,
-        message: shape.message ?? shape.error ?? failure.message,
-        fields: shape.fields,
+    const error =
+      body && typeof body === "object" && "error" in body
+        ? (body as { error: unknown }).error
+        : undefined;
+    if (error && typeof error === "object") {
+      const { code, message, details } = error as {
+        code?: unknown;
+        message?: unknown;
+        details?: unknown;
       };
+      if (typeof code === "string") failure.code = code;
+      if (typeof message === "string") failure.message = message;
+      if (Array.isArray(details)) {
+        const fields: Record<string, string> = {};
+        for (const detail of details) {
+          const { field, message: said } = (detail ?? {}) as {
+            field?: unknown;
+            message?: unknown;
+          };
+          if (typeof field !== "string" || typeof said !== "string") continue;
+          fields[fieldName(field)] ??= said;
+        }
+        if (Object.keys(fields).length) failure.fields = fields;
+      }
     }
   } catch {
     /* Not JSON. The status-based message above stands. */
   }
 
-  if (response.status === 401) {
-    failure.message = "Your session has ended. Please sign in again.";
-  }
-
   return new ApiError(response.status, failure);
 }
 
-async function request<T>(
+async function call(
   method: string,
   path: string,
   body: unknown,
-  options: RequestOptions = {},
-): Promise<T> {
+  options: RequestOptions,
+): Promise<Response> {
   const {
     query,
     token,
+    userAgent,
     timeoutMs = serverEnv().API_TIMEOUT_MS ?? DEFAULT_TIMEOUT_MS,
-    cache,
-    next,
     signal,
     headers = {},
   } = options;
 
+  /* Built before the try, deliberately: an unset API_URL is a configuration
+     mistake, and swallowing it into the catch below would tell somebody to
+     check their connection about a missing .env. */
+  const url = buildUrl(path, query);
+  const origin = frontendOrigin();
+
   /* A request with no ceiling is a page that hangs for ever. The caller's
      own signal still aborts it; this only adds a limit. */
   const timeout = AbortSignal.timeout(timeoutMs);
-  const abort = signal ? AbortSignal.any([signal, timeout]) : timeout;
-
   const isForm = body instanceof FormData;
+
   const sent: RequestInit = {
     method,
-    signal: abort,
-    /* For a backend that authenticates with its own cookie. */
-    credentials: "include",
-    headers: withAuth(
-      {
-        Accept: "application/json",
-        ...(isForm
-          ? {}
-          : body !== undefined
-            ? { "Content-Type": "application/json" }
-            : {}),
-        ...headers,
-      },
-      token,
-    ),
-    ...(cache ? { cache } : {}),
-    ...(next ? { next } : {}),
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+    /* Member data is never cached by Next: the backend says `no-store` on
+       every answer, and this agrees with it. */
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      ...(body !== undefined && !isForm
+        ? { "Content-Type": "application/json" }
+        : {}),
+      ...(origin ? { Origin: origin } : {}),
+      ...(userAgent ? { "User-Agent": userAgent } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...headers,
+    },
   };
-
-  if (body !== undefined) {
-    sent.body = isForm ? body : JSON.stringify(body);
-  }
-
-  /* Built before the try, deliberately: an unset base URL is a
-     configuration mistake, and swallowing it into the catch below would
-     tell somebody to check their connection about a missing .env. */
-  const url = buildUrl(path, query);
+  if (body !== undefined) sent.body = isForm ? body : JSON.stringify(body);
 
   let response: Response;
   try {
     response = await fetch(url, sent);
   } catch (cause) {
-    /* Never reached the server: offline, DNS, CORS, or the timeout above.
-       Status 0 is what tells the caller retrying may actually help. */
+    /* Never reached the server: offline, DNS, or the timeout above. Status
+       0 is what tells the caller retrying may actually help. */
     const timedOut = cause instanceof Error && cause.name === "TimeoutError";
     throw new ApiError(0, {
       code: timedOut ? "timeout" : "network",
       message: timedOut
         ? "The server took too long to answer. Please try again."
-        : "We could not reach the server. Check your connection and try again.",
+        : "We could not reach the server. Please try again in a moment.",
     });
   }
 
   if (!response.ok) throw await toError(response);
+  return response;
+}
 
+async function readBody<T>(response: Response): Promise<T> {
   /* 204, and any other answer with nothing in it. */
-  if (
-    response.status === 204 ||
-    response.headers.get("content-length") === "0"
-  ) {
-    return undefined as T;
-  }
-
+  if (response.status === 204) return undefined as T;
   const text = await response.text();
   if (!text) return undefined as T;
-
   try {
     return JSON.parse(text) as T;
   } catch {
@@ -181,6 +191,15 @@ async function request<T>(
       message: "The server's answer could not be read.",
     });
   }
+}
+
+async function request<T>(
+  method: string,
+  path: string,
+  body: unknown,
+  options: RequestOptions = {},
+): Promise<T> {
+  return readBody<T>(await call(method, path, body, options));
 }
 
 export const api = {
@@ -194,4 +213,20 @@ export const api = {
     request<T>("PATCH", path, body, options),
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>("DELETE", path, undefined, options),
+
+  /** A POST whose answer's headers matter as well as its body: login,
+      verify and refresh, whose `Set-Cookie` holds the refresh token. */
+  exchange: async <T>(
+    path: string,
+    body?: unknown,
+    options: RequestOptions = {},
+  ): Promise<Exchange<T>> => {
+    const response = await call("POST", path, body, options);
+    return { data: await readBody<T>(response), headers: response.headers };
+  },
+
+  /** The response itself, unread, for a body to be streamed on: the family's
+      PDFs. A refusal still throws an `ApiError`. */
+  stream: (path: string, options: RequestOptions = {}) =>
+    call("GET", path, undefined, options),
 };

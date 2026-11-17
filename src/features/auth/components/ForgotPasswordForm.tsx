@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
-import { hasApi } from "@/lib/env";
-import { authService } from "@/services/auth.service";
 import { forgotPasswordSchema, type ForgotPasswordValues } from "../schemas";
 import { AuthButton, AuthButtonLink } from "./AuthButton";
 import { AuthSwitch } from "./AuthSwitch";
@@ -28,10 +26,13 @@ import { AuthSwitch } from "./AuthSwitch";
  * It answers the same way whoever asks, so it cannot be used to find out
  * which of seventy-three people is an administrator. The register is
  * readable by anyone who can see the site; which rows hold the role is not.
+ *
+ * TODO: step 4 of CLAUDE.md §23 sends the name through a server action to
+ * `POST /auth/reset-requests`. The browser never calls the backend itself,
+ * so until then nothing is stored.
  */
 export function ForgotPasswordForm() {
   const [asked, setAsked] = useState(false);
-  const [stored, setStored] = useState(false);
 
   const {
     register,
@@ -42,21 +43,10 @@ export function ForgotPasswordForm() {
     defaultValues: { name: "" },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    /* Deliberately no error branch worth showing. A refusal here would say
-       something about the name, and the one thing this screen must not do
-       is tell a stranger whether a name is an administrator's. */
-    if (hasApi()) {
-      try {
-        await authService.forgotPassword(values.name);
-        setStored(true);
-      } catch {
-        /* Same answer either way. A reset that failed on the server is
-           reported by the silence: no link arrives, and the administrator
-           asks in person, which is what this flow was always going to come
-           down to. */
-      }
-    }
+  /* Deliberately no error branch. A refusal here would say something about
+     the name, and the one thing this screen must not do is tell a stranger
+     whether a name is an administrator's. */
+  const onSubmit = handleSubmit(() => {
     setAsked(true);
   });
 
@@ -72,12 +62,10 @@ export function ForgotPasswordForm() {
             you a reset link. It goes to the address already on your record —
             not to one typed here — so check that inbox.
           </p>
-          {!stored ? (
-            <p className="text-muted text-body mt-3">
-              Nothing was stored and no email was sent: the auth service does
-              not exist yet.
-            </p>
-          ) : null}
+          <p className="text-muted text-body mt-3">
+            Nothing was stored and no email was sent: this screen is not
+            connected to the server yet.
+          </p>
         </div>
 
         <AuthButtonLink variant="outline" href={ROUTES.ADMIN_LOGIN}>

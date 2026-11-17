@@ -76,21 +76,18 @@ describe("readInvitation", () => {
     });
   });
 
-  it("uses the stand-in while no API is configured", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "");
-    vi.stubEnv("API_URL", "");
-    await expect(readInvitation(SAMPLE_TOKENS.member)).resolves.toMatchObject({
-      ok: true,
-    });
-  });
-
-  /* The property that stops the stand-in being a back door: once there is a
-     backend, a hand-written token goes to it and gets its refusal. This
-     one cannot reach the host, so it fails rather than being waved through
-     — which is the correct direction to fail in. */
-  it("stops standing in the moment an API is configured", async () => {
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.invalid.test");
-    await expect(readInvitation(SAMPLE_TOKENS.member)).rejects.toThrow();
+  /* Until step 3 of CLAUDE.md §23 replaces these pages, the stand-in answers
+     whatever API_URL says: the backend's link is a different page with a
+     different check, so there is nothing here to hand a token to. What keeps
+     it from being a back door is that these pages issue no session, which
+     no-session.test.ts holds. */
+  it("answers by the stand-in whether or not an API is configured", async () => {
+    for (const url of ["", "http://127.0.0.1:8000/api/v1"]) {
+      vi.stubEnv("API_URL", url);
+      await expect(readInvitation(SAMPLE_TOKENS.member)).resolves.toMatchObject(
+        { ok: true },
+      );
+    }
   });
 });
 

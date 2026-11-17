@@ -21,6 +21,6 @@ export default defineConfig({
     url: "http://localhost:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
-    env: { NEXT_PUBLIC_API_URL: "", API_URL: "" },
+    env: { API_URL: "", FRONTEND_ORIGIN: "http://localhost:3100" },
   },
 });

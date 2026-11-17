@@ -16,16 +16,10 @@ export const metadata: Metadata = {
  * used it would answer questions about other people's resets. So the form
  * renders for any token, and a bad one is refused on submit.
  */
-export default async function AdminResetPasswordPage({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
-  const { token } = await params;
-
+export default function AdminResetPasswordPage() {
   return (
     <AuthShell title={["Set a new", "password"]}>
-      <ResetPasswordForm token={token} />
+      <ResetPasswordForm />
     </AuthShell>
   );
 }

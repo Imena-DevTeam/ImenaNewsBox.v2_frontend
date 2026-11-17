@@ -1,7 +1,6 @@
 "use client";
 
 import { SetPasswordForm } from "@/features/auth/components/SetPasswordForm";
-import { invitationsService } from "@/services/invitations.service";
 
 /**
  * An invited administrator choosing their password, for the first time.
@@ -13,13 +12,14 @@ import { invitationsService } from "@/services/invitations.service";
  * This screen is the reason `ADMIN_PASSWORD` has to go: one shared secret in
  * the environment cannot be set per person, so it cannot be set here. See
  * CLAUDE.md §21.
+ *
+ * TODO: step 3 of CLAUDE.md §23 replaces this page with `/invitation`, whose
+ * server action accepts the invitation. Until then nothing is stored.
  */
 export function AdminSignupForm({
-  token,
   fullName,
   email,
 }: {
-  token: string;
   fullName: string;
   email: string;
 }) {
@@ -28,7 +28,6 @@ export function AdminSignupForm({
       submitLabel="Set password"
       doneTitle="Your password is set."
       doneBody="Sign in with your name and the password you just chose."
-      send={(password) => invitationsService.accept(token, password)}
       intro={
         <div>
           <p className="text-muted text-body">

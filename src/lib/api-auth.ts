@@ -1,25 +1,29 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { SESSION_COOKIE } from "@/lib/session";
 
 /**
- * The credential this frontend sends to the backend.
+ * What every call to the backend carries on the signed-in person's behalf.
  *
- * **Server-only.** It reads the session cookie, which is httpOnly, so it
- * cannot be called from a client component — and should not be: a token in
- * the browser is a token in the page source.
+ * **Server-only.** It reads an httpOnly cookie and the request's headers, so
+ * it runs in server components, server actions and route handlers, and the
+ * token never reaches the browser's JavaScript.
  *
  * > [!IMPORTANT]
- * > **This is the seam the real backend lands on.** Today the cookie holds
- * > a token *this* frontend signed, which the backend has never seen and
- * > will not accept. When its auth is connected, the login step stores the
- * > backend's token instead and this function returns that — and nothing
- * > else changes, because every service already takes its token from here.
- *
- * Client components do not call services directly for the same reason.
- * They call a server action, or a route handler, which calls the service
- * with this token.
+ * > **This is the seam the backend's login lands on.** Today the cookie
+ * > holds a token this frontend signed, which the backend will refuse. Step
+ * > 2 of CLAUDE.md §23 stores the backend's access token instead, and this
+ * > function returns that; no service changes, because every one of them
+ * > takes its credentials from here.
  */
-export async function apiToken(): Promise<string | undefined> {
-  const store = await cookies();
-  return store.get(SESSION_COOKIE)?.value;
+export interface ApiAuth {
+  token?: string;
+  userAgent?: string;
+}
+
+export async function apiAuth(): Promise<ApiAuth> {
+  const [store, incoming] = await Promise.all([cookies(), headers()]);
+  return {
+    token: store.get(SESSION_COOKIE)?.value,
+    userAgent: incoming.get("user-agent") ?? undefined,
+  };
 }

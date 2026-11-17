@@ -10,9 +10,9 @@ import { ApiError } from "@/types/api";
  * - **A minute of staleness is fine.** Nobody needs a second-fresh count of
  *   the albums, and refetching on every focus makes a phone feel busy.
  * - **A failed request is retried twice — unless retrying cannot help.**
- *   There is no point asking a 401, a 403 or a 422 again: the session is
- *   gone, you are not allowed, or what was sent was wrong. `ApiError`
- *   carries the status so this is one line rather than a guess.
+ *   There is no point asking any 4xx again: the session is gone, you are not
+ *   allowed, what was sent was wrong, or the backend asked you to wait.
+ *   `ApiError` carries the status so this is one line rather than a guess.
  */
 function makeQueryClient(): QueryClient {
   return new QueryClient({
@@ -22,9 +22,12 @@ function makeQueryClient(): QueryClient {
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,
         retry: (failures, error) => {
-          if (error instanceof ApiError) {
-            if (error.isUnauthorized || error.isForbidden || error.isValidation)
-              return false;
+          if (
+            error instanceof ApiError &&
+            error.status >= 400 &&
+            error.status < 500
+          ) {
+            return false;
           }
           return failures < 2;
         },

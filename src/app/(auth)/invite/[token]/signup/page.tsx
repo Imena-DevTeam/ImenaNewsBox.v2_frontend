@@ -48,7 +48,6 @@ export default async function InviteSignupPage({
   return (
     <AuthShell title={["Dear Admin,", "set your password"]}>
       <AdminSignupForm
-        token={token}
         fullName={checked.invitation.fullName}
         email={checked.invitation.email}
       />

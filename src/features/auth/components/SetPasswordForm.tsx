@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
-import { hasApi } from "@/lib/env";
 import { ApiError } from "@/types/api";
 import { setPasswordSchema, type SetPasswordValues } from "../schemas";
 import { AuthButton, AuthButtonLink } from "./AuthButton";
@@ -39,8 +38,13 @@ export function SetPasswordForm({
   submitLabel: string;
   doneTitle: string;
   doneBody: string;
-  /** The service call. Only reached when a backend is configured. */
-  send: (password: string) => Promise<unknown>;
+  /**
+   * A server action that stores the password. Absent, the form says that
+   * nothing was stored: the browser never calls the backend itself
+   * (CLAUDE.md §23), so until steps 3 and 4 hand these screens an action,
+   * there is nowhere for a password to go.
+   */
+  send?: (password: string) => Promise<unknown>;
 }) {
   const [done, setDone] = useState(false);
   const [stored, setStored] = useState(false);
@@ -58,10 +62,9 @@ export function SetPasswordForm({
   const onSubmit = handleSubmit(async (values) => {
     setFailed(null);
 
-    /* With no backend there is nowhere for a password to go. Saying so is
-       better than a thrown "NEXT_PUBLIC_API_URL is not set" in front of
-       somebody who was asked to choose a password and did. */
-    if (!hasApi()) {
+    /* With nowhere for a password to go, saying so is better than an error
+       in front of somebody who was asked to choose a password and did. */
+    if (!send) {
       setStored(false);
       setDone(true);
       return;

@@ -1,0 +1,4570 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Imena NewsBox API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login",
+        "description": "Step one on a new device: email a login code. Admins also send their password.",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeSent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Verify",
+        "description": "Step two: the emailed code logs this device in and sets the refresh cookie.",
+        "operationId": "verify_api_v1_auth_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Google",
+        "description": "Log this device in with Google instead of an emailed code. Admins add their password.",
+        "operationId": "google_api_v1_auth_google_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/invitations/check": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Check Invitation",
+        "description": "Who an invitation link is for, and whether accepting it needs a password (admins).\nChanges nothing. A POST, so the token never appears in a URL.",
+        "operationId": "check_invitation_api_v1_auth_invitations_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationCheck"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/invitations/accept": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Accept Invitation",
+        "description": "Accept an invitation: it confirms the email address, and admins set their password\n(at least 8 characters). The link then stops working. It doesn't log in; the user logs\nin afterwards as usual.",
+        "operationId": "accept_invitation_api_v1_auth_invitations_accept_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationAccept"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-requests": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "List Reset Requests",
+        "description": "Admins: other admins' open password reset requests, oldest first. Never your own, which\nanother admin answers. Short, so not paginated.",
+        "operationId": "list_reset_requests_api_v1_auth_reset_requests_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ResetRequestRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Reset Requests Api V1 Auth Reset Requests Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": ["auth"],
+        "summary": "Request Password Reset",
+        "description": "An admin who can't log in asks the other admins for a new password. No login. The\nsame answer whoever asks; the other admins are emailed after the response.",
+        "operationId": "request_password_reset_api_v1_auth_reset_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetRequestCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetRequested"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-requests/{request_id}/approve": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Approve Reset Request",
+        "description": "Admins: email the requester a link to set a new password, to the address already on\ntheir account, and close the request. Never your own.",
+        "operationId": "approve_reset_request_api_v1_auth_reset_requests__request_id__approve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-requests/{request_id}/decline": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Decline Reset Request",
+        "description": "Admins: close a request without sending anything, e.g. when they didn't ask. Never your\nown.",
+        "operationId": "decline_reset_request_api_v1_auth_reset_requests__request_id__decline_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Refresh",
+        "description": "A new access token for this device, from the refresh cookie (which rotates).\n\nOn 409 `refresh_conflict`, another tab refreshed at the same moment: retry once.",
+        "operationId": "refresh_api_v1_auth_refresh_post",
+        "parameters": [
+          {
+            "name": "refresh_token",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Refresh Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Logout",
+        "description": "Log this device out: revoke its session and clear the cookie. Always succeeds.",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "parameters": [
+          {
+            "name": "refresh_token",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Refresh Token"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/sessions": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "List Sessions",
+        "description": "Your logged-in devices, most recently used first. Admins can pass `user_id` to see\nanyone's.",
+        "operationId": "list_sessions_api_v1_auth_sessions_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Admins only: list this user's sessions instead of yours.",
+              "title": "User Id"
+            },
+            "description": "Admins only: list this user's sessions instead of yours."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_SessionRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/sessions/{session_id}": {
+      "delete": {
+        "tags": ["auth"],
+        "summary": "Revoke Session",
+        "description": "Sign one of your devices out (admins: anyone's). To sign out the device you're on,\nuse `POST /logout`, which also clears its cookie.",
+        "operationId": "revoke_session_api_v1_auth_sessions__session_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": ["users"],
+        "summary": "List Users",
+        "description": "The member directory: active members in alphabetical order of display name.",
+        "operationId": "list_users_api_v1_users_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_UserPublicRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["users"],
+        "summary": "Create User",
+        "description": "Admins: register a member and email them an invitation link. Accepting it confirms\ntheir email, and admins choose their password with it. If the email fails, the member is\nstill created with `invited_at` null: send it again with `POST /users/{id}/invitation`.",
+        "operationId": "create_user_api_v1_users_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Get Me",
+        "description": "Your own account, with the private fields.",
+        "operationId": "get_me_api_v1_users_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": ["users"],
+        "summary": "Update Me",
+        "description": "Change your own display name, birthday or bio. Admins change everything else.",
+        "operationId": "update_me_api_v1_users_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me/email/resend": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Resend Email Confirmation",
+        "description": "Email a new code to confirm your address (after an admin changed it, say).",
+        "operationId": "resend_email_confirmation_api_v1_users_me_email_resend_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeSent"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me/email/verify": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Confirm Email",
+        "description": "Confirm your email address with the code sent to it.",
+        "operationId": "confirm_email_api_v1_users_me_email_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailConfirm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/accounts": {
+      "get": {
+        "tags": ["users"],
+        "summary": "List Accounts",
+        "description": "Admins: every account with its private fields, for managing users.",
+        "operationId": "list_accounts_api_v1_users_accounts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          },
+          {
+            "name": "include_deactivated",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Also list deactivated users.",
+              "default": false,
+              "title": "Include Deactivated"
+            },
+            "description": "Also list deactivated users."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_UserRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/sub-families": {
+      "get": {
+        "tags": ["users"],
+        "summary": "List Sub Families",
+        "description": "The fixed list of sub-families. Short and fixed, so not paginated.",
+        "operationId": "list_sub_families_api_v1_users_sub_families_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SubFamilyRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Sub Families Api V1 Users Sub Families Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/promotions": {
+      "get": {
+        "tags": ["users"],
+        "summary": "List Promotions",
+        "description": "The fixed list of promotions. Short and fixed, so not paginated.",
+        "operationId": "list_promotions_api_v1_users_promotions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PromotionRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Promotions Api V1 Users Promotions Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/{user_id}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Get User",
+        "description": "One active member, as every member sees them.",
+        "operationId": "get_user_api_v1_users__user_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPublicRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["users"],
+        "summary": "Update User",
+        "description": "Admins: change any of a user's fields. Send only what changes. A new email\naddress gets a confirmation code.",
+        "operationId": "update_user_api_v1_users__user_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/account": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Get Account",
+        "description": "One account with its private fields: your own, or anyone's for admins (deactivated\nusers included).",
+        "operationId": "get_account_api_v1_users__user_id__account_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/deactivate": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Deactivate User",
+        "description": "Admins: block a user's logins and sign them out of every device straight away.",
+        "operationId": "deactivate_user_api_v1_users__user_id__deactivate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/reactivate": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Reactivate User",
+        "description": "Admins: let a deactivated user log in again (on each device, from scratch).",
+        "operationId": "reactivate_user_api_v1_users__user_id__reactivate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/invitation": {
+      "post": {
+        "tags": ["users"],
+        "summary": "Invite User",
+        "description": "Admins: email a new invitation link, which replaces the old one. For members who\nhaven't accepted theirs yet, and for any admin: their link sets a new password, so it\nalso resets a forgotten one.",
+        "operationId": "invite_user_api_v1_users__user_id__invitation_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/sanity-author": {
+      "put": {
+        "tags": ["users"],
+        "summary": "Link Sanity Author",
+        "description": "Admins: credit a user's blog posts to an existing Sanity author (`null` unlinks), so\nsomeone who wrote posts in the Studio keeps one author. Each author links to one user.",
+        "operationId": "link_sanity_author_api_v1_users__user_id__sanity_author_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthorLink"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/photo": {
+      "put": {
+        "tags": ["users"],
+        "summary": "Set Photo",
+        "description": "Upload a profile photo (multipart field `photo`: JPEG, PNG, WebP or HEIC, at most\n5 MB): your own, or anyone's for admins. The photo it replaces is deleted afterwards.",
+        "operationId": "set_photo_api_v1_users__user_id__photo_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_set_photo_api_v1_users__user_id__photo_put"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["users"],
+        "summary": "Remove Photo",
+        "description": "Remove a profile photo: your own, or anyone's for admins.",
+        "operationId": "remove_photo_api_v1_users__user_id__photo_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wishes": {
+      "post": {
+        "tags": ["wishes"],
+        "summary": "Send Wish",
+        "description": "Wish a member a happy birthday: when their birthday is today or in the next 30 days,\nonce per birthday, and never yourself.",
+        "operationId": "send_wish_api_v1_wishes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WishCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WishRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/wishes/upcoming-birthdays": {
+      "get": {
+        "tags": ["wishes"],
+        "summary": "List Upcoming Birthdays",
+        "description": "Active members whose birthday is today or in the next 30 days, soonest first, and\nwhether you've wished them yet. A month of birthdays is short, so it's not paginated.",
+        "operationId": "list_upcoming_birthdays_api_v1_wishes_upcoming_birthdays_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UpcomingBirthday"
+                  },
+                  "type": "array",
+                  "title": "Response List Upcoming Birthdays Api V1 Wishes Upcoming Birthdays Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/wishes/received": {
+      "get": {
+        "tags": ["wishes"],
+        "summary": "List Received",
+        "description": "Wishes sent to you, newest first; `year` keeps one birthday's. Admins can pass\n`user_id` to see anyone's.",
+        "operationId": "list_received_api_v1_wishes_received_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Admins only: list this user's wishes instead of yours.",
+              "title": "User Id"
+            },
+            "description": "Admins only: list this user's wishes instead of yours."
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only wishes for that year's birthday.",
+              "title": "Year"
+            },
+            "description": "Only wishes for that year's birthday."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_WishRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wishes/sent": {
+      "get": {
+        "tags": ["wishes"],
+        "summary": "List Sent",
+        "description": "Wishes you sent, newest first; `year` keeps one birthday's. Admins can pass `user_id`\nto see anyone's.",
+        "operationId": "list_sent_api_v1_wishes_sent_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Admins only: list this user's wishes instead of yours.",
+              "title": "User Id"
+            },
+            "description": "Admins only: list this user's wishes instead of yours."
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only wishes for that year's birthday.",
+              "title": "Year"
+            },
+            "description": "Only wishes for that year's birthday."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_WishRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wishes/{wish_id}": {
+      "patch": {
+        "tags": ["wishes"],
+        "summary": "Update Wish",
+        "description": "Change the message of a wish you sent. Only its sender can, not admins.",
+        "operationId": "update_wish_api_v1_wishes__wish_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Wish Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WishUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WishRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["wishes"],
+        "summary": "Delete Wish",
+        "description": "Delete a wish you sent (admins: any wish).",
+        "operationId": "delete_wish_api_v1_wishes__wish_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "wish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Wish Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/posts": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "List Posts",
+        "description": "Published posts, newest first, without their body. `category` keeps one category's.",
+        "operationId": "list_posts_api_v1_posts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only posts in this category (exact match).",
+              "title": "Category"
+            },
+            "description": "Only posts in this category (exact match)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PostSummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["posts"],
+        "summary": "Create Post",
+        "description": "Social media managers and admins: publish a post, credited to you. Every field is\nrequired except `slug` (made from the title) and `published_at` (now).",
+        "operationId": "create_post_api_v1_posts_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/posts/images": {
+      "post": {
+        "tags": ["posts"],
+        "summary": "Upload Image",
+        "description": "Social media managers and admins: upload a post's image (multipart field `image`:\nJPEG, PNG or WebP, at most 5 MB), then send its `asset_id` with the post.",
+        "operationId": "upload_image_api_v1_posts_images_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_image_api_v1_posts_images_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostImageUploaded"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/posts/webhook": {
+      "post": {
+        "tags": ["posts"],
+        "summary": "Sanity Webhook",
+        "description": "Called by Sanity when a post or author changes (e.g. in the Studio): clears the posts\ncache. No login: the call is checked by its signature instead. The body is never used,\nonly signed, so a valid call can do nothing but clear the cache.",
+        "operationId": "sanity_webhook_api_v1_posts_webhook_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/v1/posts/authors": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "List Authors",
+        "description": "Admins: the Sanity authors and the member each is linked to, for linking them\n(`PUT /users/{id}/sanity-author`). Declared before `/{slug}`, so it's never read as a\npost's slug.",
+        "operationId": "list_authors_api_v1_posts_authors_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuthorRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Authors Api V1 Posts Authors Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/posts/{slug}": {
+      "get": {
+        "tags": ["posts"],
+        "summary": "Get Post",
+        "description": "One published post, with its body, by its slug.",
+        "operationId": "get_post_api_v1_posts__slug__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/posts/{post_id}": {
+      "patch": {
+        "tags": ["posts"],
+        "summary": "Update Post",
+        "description": "Social media managers and admins: change any post's fields; send only what changes.\nIts author stays the original writer.",
+        "operationId": "update_post_api_v1_posts__post_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["posts"],
+        "summary": "Delete Post",
+        "description": "Social media managers and admins: delete any post.",
+        "operationId": "delete_post_api_v1_posts__post_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "post_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "title": "Post Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/resources": {
+      "get": {
+        "tags": ["resources"],
+        "summary": "List Resources",
+        "description": "The family's documents, newest first. `category` and `featured` narrow the list.",
+        "operationId": "list_resources_api_v1_resources_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "At most 100.",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "At most 100."
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ResourceCategory"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this category's documents.",
+              "title": "Category"
+            },
+            "description": "Only this category's documents."
+          },
+          {
+            "name": "featured",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "true: only featured documents; false: only the others.",
+              "title": "Featured"
+            },
+            "description": "true: only featured documents; false: only the others."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ResourceRead_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["resources"],
+        "summary": "Upload Resource",
+        "description": "Social media managers and admins: share a PDF (at most 10 MB), sent as\n`multipart/form-data` with `file`, `title`, `category`, and optionally `description` and\n`featured`.",
+        "operationId": "upload_resource_api_v1_resources_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceUpload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/resources/{resource_id}": {
+      "get": {
+        "tags": ["resources"],
+        "summary": "Get Resource",
+        "description": "One document's details.",
+        "operationId": "get_resource_api_v1_resources__resource_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["resources"],
+        "summary": "Update Resource",
+        "description": "Social media managers and admins: change a document's details. Send only what\nchanges.",
+        "operationId": "update_resource_api_v1_resources__resource_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["resources"],
+        "summary": "Delete Resource",
+        "description": "Social media managers and admins: delete a document and, afterwards, its file.",
+        "operationId": "delete_resource_api_v1_resources__resource_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/resources/{resource_id}/file": {
+      "get": {
+        "tags": ["resources"],
+        "summary": "Download File",
+        "description": "The PDF itself, streamed from private storage: shown in the browser, or saved with\n`?download=true`. It needs the `Authorization` header like every other call, so the\nfrontend fetches it and shows it from a blob.",
+        "operationId": "download_file_api_v1_resources__resource_id__file_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resource Id"
+            }
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "true asks the browser to save the file instead of showing it.",
+              "default": false,
+              "title": "Download"
+            },
+            "description": "true asks the browser to save the file instead of showing it."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The PDF.",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["resources"],
+        "summary": "Replace File",
+        "description": "Social media managers and admins: replace a document's PDF (multipart field `file`,\nat most 10 MB), keeping its details. The old file is deleted afterwards.",
+        "operationId": "replace_file_api_v1_resources__resource_id__file_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Resource Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_replace_file_api_v1_resources__resource_id__file_put"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["health"],
+        "summary": "Health",
+        "description": "Liveness check for UptimeRobot. Must stay cheap and never touch the database.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessToken": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "const": "bearer",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Seconds until the access token expires."
+          }
+        },
+        "type": "object",
+        "required": ["access_token", "expires_in"],
+        "title": "AccessToken",
+        "description": "Sent with every login and refresh. The refresh token is only ever in the cookie."
+      },
+      "AuthorLink": {
+        "properties": {
+          "author_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["author_id"],
+        "title": "AuthorLink",
+        "description": "`author_id`: a Sanity author's ID (from `GET /posts/authors`), or null to unlink."
+      },
+      "AuthorRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "AuthorRead",
+        "description": "A Sanity author, and the member it's linked to (if any)."
+      },
+      "Block": {
+        "properties": {
+          "_type": {
+            "type": "string",
+            "const": "block",
+            "title": "Type"
+          },
+          "_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key"
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "h1",
+              "h2",
+              "h3",
+              "h4",
+              "h5",
+              "h6",
+              "blockquote"
+            ],
+            "title": "Style",
+            "default": "normal"
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/Span"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Children"
+          },
+          "markDefs": {
+            "items": {
+              "$ref": "#/components/schemas/LinkMark"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Markdefs"
+          },
+          "listItem": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["bullet", "number"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Listitem"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10,
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["_type", "children"],
+        "title": "Block",
+        "description": "One paragraph, heading, quote or list item: text spans, with bold and the like as\n`marks`, and links as `markDefs` that spans point to by key."
+      },
+      "Body_replace_file_api_v1_resources__resource_id__file_put": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_replace_file_api_v1_resources__resource_id__file_put"
+      },
+      "Body_set_photo_api_v1_users__user_id__photo_put": {
+        "properties": {
+          "photo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Photo"
+          }
+        },
+        "type": "object",
+        "required": ["photo"],
+        "title": "Body_set_photo_api_v1_users__user_id__photo_put"
+      },
+      "Body_upload_image_api_v1_posts_images_post": {
+        "properties": {
+          "image": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Image"
+          }
+        },
+        "type": "object",
+        "required": ["image"],
+        "title": "Body_upload_image_api_v1_posts_images_post"
+      },
+      "CodeSent": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Seconds until the code expires."
+          },
+          "resend_after": {
+            "type": "integer",
+            "title": "Resend After",
+            "description": "Seconds before another code can be requested."
+          }
+        },
+        "type": "object",
+        "required": ["message", "expires_in", "resend_after"],
+        "title": "CodeSent",
+        "description": "The same answer whether or not the account exists."
+      },
+      "EmailConfirm": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{5}$",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": ["code"],
+        "title": "EmailConfirm"
+      },
+      "GoogleLoginRequest": {
+        "properties": {
+          "id_token": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1,
+            "format": "password",
+            "title": "Id Token",
+            "writeOnly": true
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1,
+                "format": "password",
+                "writeOnly": true
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": ["id_token"],
+        "title": "GoogleLoginRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InvitationAccept": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "format": "password",
+            "title": "Token",
+            "writeOnly": true
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 8,
+                "format": "password",
+                "writeOnly": true
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password",
+            "description": "Admins only, and required for them. Ignored for members."
+          }
+        },
+        "type": "object",
+        "required": ["token"],
+        "title": "InvitationAccept"
+      },
+      "InvitationCheck": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "format": "password",
+            "title": "Token",
+            "writeOnly": true
+          }
+        },
+        "type": "object",
+        "required": ["token"],
+        "title": "InvitationCheck",
+        "description": "The token from the invitation link (after `#token=`)."
+      },
+      "InvitationRead": {
+        "properties": {
+          "family_name": {
+            "type": "string",
+            "title": "Family Name",
+            "description": "What they log in with."
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "needs_password": {
+            "type": "boolean",
+            "title": "Needs Password",
+            "description": "Admins must choose a password (at least 8 characters) to accept."
+          }
+        },
+        "type": "object",
+        "required": ["family_name", "display_name", "needs_password"],
+        "title": "InvitationRead",
+        "description": "What the invitation page shows before it's accepted. Only the invited person has the\nlink, so it's their own details."
+      },
+      "LinkMark": {
+        "properties": {
+          "_type": {
+            "type": "string",
+            "const": "link",
+            "title": "Type"
+          },
+          "_key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Key"
+          },
+          "href": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Href"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["_type", "_key", "href"],
+        "title": "LinkMark"
+      },
+      "LoginRequest": {
+        "properties": {
+          "family_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Family Name"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256,
+                "minLength": 1,
+                "format": "password",
+                "writeOnly": true
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": ["family_name"],
+        "title": "LoginRequest"
+      },
+      "MonthDay": {
+        "properties": {
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "day": {
+            "type": "integer",
+            "title": "Day"
+          }
+        },
+        "type": "object",
+        "required": ["month", "day"],
+        "title": "MonthDay",
+        "description": "A birthday without its year, which only the user and admins may see."
+      },
+      "Page_PostSummary_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PostSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "limit"],
+        "title": "Page[PostSummary]"
+      },
+      "Page_ResourceRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResourceRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "limit"],
+        "title": "Page[ResourceRead]"
+      },
+      "Page_SessionRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SessionRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "limit"],
+        "title": "Page[SessionRead]"
+      },
+      "Page_UserPublicRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserPublicRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "limit"],
+        "title": "Page[UserPublicRead]"
+      },
+      "Page_UserRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "limit"],
+        "title": "Page[UserRead]"
+      },
+      "Page_WishRead_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WishRead"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": ["items", "total", "page", "limit"],
+        "title": "Page[WishRead]"
+      },
+      "PostAuthor": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "PostAuthor"
+      },
+      "PostCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Summary"
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Category"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "image_asset_id": {
+            "type": "string",
+            "maxLength": 128,
+            "pattern": "^image-[A-Za-z0-9]+-\\d+x\\d+-[a-z0-9]+$",
+            "title": "Image Asset Id"
+          },
+          "body": {
+            "items": {
+              "$ref": "#/components/schemas/Block"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["title", "summary", "category", "image_asset_id", "body"],
+        "title": "PostCreate",
+        "description": "A new post: every field is required, except `slug` (made from the title) and\n`published_at` (now). Upload the image first with `POST /posts/images`."
+      },
+      "PostImage": {
+        "properties": {
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "hotspot": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hotspot"
+          },
+          "crop": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Crop"
+          }
+        },
+        "type": "object",
+        "title": "PostImage"
+      },
+      "PostImageUploaded": {
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": ["asset_id", "url"],
+        "title": "PostImageUploaded",
+        "description": "Send `asset_id` as the post's `image_asset_id`."
+      },
+      "PostRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostImage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "author": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostAuthor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "body": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Body",
+            "description": "Portable Text blocks, as Sanity stores them."
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "PostRead"
+      },
+      "PostSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostImage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "author": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostAuthor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "PostSummary",
+        "description": "A post in the list: everything but the body."
+      },
+      "PostUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "image_asset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^image-[A-Za-z0-9]+-\\d+x\\d+-[a-z0-9]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Asset Id"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Block"
+                },
+                "type": "array",
+                "maxItems": 500,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PostUpdate",
+        "description": "Send only what changes. Nothing can be cleared: every post field stays required."
+      },
+      "ProfileUpdate": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "birthday": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthday"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ProfileUpdate",
+        "description": "What members may change about themselves. Send only what changes; `birthday` and\n`bio` can be null to clear them. Everything else is for admins (`UserUpdate`)."
+      },
+      "PromotionRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name"],
+        "title": "PromotionRead"
+      },
+      "ResetRequestCreate": {
+        "properties": {
+          "family_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Family Name"
+          }
+        },
+        "type": "object",
+        "required": ["family_name"],
+        "title": "ResetRequestCreate",
+        "description": "An admin who can't log in, asking the others for a new password."
+      },
+      "ResetRequestRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "user": {
+            "$ref": "#/components/schemas/ResetRequester"
+          }
+        },
+        "type": "object",
+        "required": ["id", "requested_at", "user"],
+        "title": "ResetRequestRead"
+      },
+      "ResetRequested": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": ["message"],
+        "title": "ResetRequested",
+        "description": "The same answer whoever asks, so it never says who is an admin."
+      },
+      "ResetRequester": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "family_name": {
+            "type": "string",
+            "title": "Family Name"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email",
+            "description": "Where the link goes: the address already on the account."
+          }
+        },
+        "type": "object",
+        "required": ["id", "family_name", "display_name", "email"],
+        "title": "ResetRequester"
+      },
+      "ResourceCategory": {
+        "type": "string",
+        "enum": [
+          "documents",
+          "guides",
+          "family_resources",
+          "educational_materials"
+        ],
+        "title": "ResourceCategory",
+        "description": "The fixed list of categories, from the frontend's Resources page. Changed by a PR (and\na migration for the check constraint), never by users."
+      },
+      "ResourceRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ResourceCategory"
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured"
+          },
+          "file_name": {
+            "type": "string",
+            "title": "File Name",
+            "description": "The name it downloads under; always ends in .pdf."
+          },
+          "file_size": {
+            "type": "integer",
+            "title": "File Size",
+            "description": "In bytes."
+          },
+          "uploaded_by": {
+            "$ref": "#/components/schemas/UploaderRead"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "When it was published."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "category",
+          "featured",
+          "file_name",
+          "file_size",
+          "uploaded_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ResourceRead",
+        "description": "A document's details. The file itself comes from `GET /resources/{id}/file`; its\nstorage ID never leaves the server."
+      },
+      "ResourceUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResourceCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "featured": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Featured"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ResourceUpdate",
+        "description": "Send only what changes. `description` can be null (or blank) to clear it; the other\nfields can't be null. The file is replaced with `PUT /resources/{id}/file`."
+      },
+      "ResourceUpload": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "The PDF, at most 10 MB."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ResourceCategory"
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["file", "title", "category"],
+        "title": "ResourceUpload",
+        "description": "A new document, sent as `multipart/form-data`: the PDF in `file`, and the rest as\nform fields."
+      },
+      "Role": {
+        "type": "string",
+        "enum": ["member", "social_media_manager", "admin"],
+        "title": "Role",
+        "description": "Roles are cumulative: each one can do everything the roles before it can.\n\nCheck them with `role.at_least(...)` (or the `require_role` dependency), never with `<`\nor `>`: a `StrEnum` compares alphabetically, not by rank."
+      },
+      "SessionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "device_label": {
+            "type": "string",
+            "title": "Device Label"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Used At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current",
+            "description": "True for the device making this request."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "device_label",
+          "created_at",
+          "last_used_at",
+          "expires_at",
+          "current"
+        ],
+        "title": "SessionRead",
+        "description": "One logged-in device, as its owner (or an admin) sees it. Never includes token hashes."
+      },
+      "Span": {
+        "properties": {
+          "_type": {
+            "type": "string",
+            "const": "span",
+            "title": "Type"
+          },
+          "_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 10000,
+            "title": "Text"
+          },
+          "marks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Marks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["_type", "text"],
+        "title": "Span"
+      },
+      "SubFamilyRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name"],
+        "title": "SubFamilyRead"
+      },
+      "UpcomingBirthday": {
+        "properties": {
+          "member": {
+            "$ref": "#/components/schemas/UserPublicRead"
+          },
+          "falls_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Falls On",
+            "description": "The birthday's next date (its year, not the birth year)."
+          },
+          "days_until": {
+            "type": "integer",
+            "title": "Days Until",
+            "description": "0 on the day itself."
+          },
+          "wished": {
+            "type": "boolean",
+            "title": "Wished",
+            "description": "Whether you've already wished them for this birthday."
+          }
+        },
+        "type": "object",
+        "required": ["member", "falls_on", "days_until", "wished"],
+        "title": "UpcomingBirthday"
+      },
+      "UploaderRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          }
+        },
+        "type": "object",
+        "required": ["id", "display_name"],
+        "title": "UploaderRead"
+      },
+      "UserCreate": {
+        "properties": {
+          "family_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Family Name"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Display Name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "sub_family_id": {
+            "type": "integer",
+            "title": "Sub Family Id"
+          },
+          "promotion_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Id"
+          },
+          "birthday": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthday"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role",
+            "default": "member"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["family_name", "display_name", "email", "sub_family_id"],
+        "title": "UserCreate",
+        "description": "Admins only: there's no self-signup. The new user is emailed an invitation link, and\nadmins choose their own password with it."
+      },
+      "UserPublicRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "family_name": {
+            "type": "string",
+            "title": "Family Name"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          },
+          "sub_family": {
+            "$ref": "#/components/schemas/SubFamilyRead"
+          },
+          "promotion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PromotionRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthday": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MonthDay"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "family_name",
+          "display_name",
+          "photo_url",
+          "sub_family",
+          "promotion",
+          "birthday",
+          "bio"
+        ],
+        "title": "UserPublicRead"
+      },
+      "UserRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "family_name": {
+            "type": "string",
+            "title": "Family Name"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          },
+          "sub_family": {
+            "$ref": "#/components/schemas/SubFamilyRead"
+          },
+          "promotion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PromotionRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthday": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthday"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "email_verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Verified At"
+          },
+          "invited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invited At",
+            "description": "When the latest invitation email went out; null if none ever did."
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "has_password": {
+            "type": "boolean",
+            "title": "Has Password",
+            "description": "Admins can't log in until they set one with their invitation link."
+          },
+          "sanity_author_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sanity Author Id",
+            "description": "The Sanity author their blog posts are credited to, once linked."
+          },
+          "deactivated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deactivated At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "family_name",
+          "display_name",
+          "photo_url",
+          "sub_family",
+          "promotion",
+          "birthday",
+          "bio",
+          "email",
+          "email_verified_at",
+          "invited_at",
+          "role",
+          "has_password",
+          "sanity_author_id",
+          "deactivated_at",
+          "created_at"
+        ],
+        "title": "UserRead",
+        "description": "The whole account: for the user themselves and for admins. Never the password hash."
+      },
+      "UserUpdate": {
+        "properties": {
+          "family_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Name"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "sub_family_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Family Id"
+          },
+          "promotion_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Id"
+          },
+          "birthday": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthday"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Role"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "UserUpdate",
+        "description": "Admins: send only the fields that change. `promotion_id`, `birthday` and `bio` can be\nset to null to clear them; the other fields can't be null."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      },
+      "VerifyRequest": {
+        "properties": {
+          "family_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Family Name"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{5}$",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": ["family_name", "code"],
+        "title": "VerifyRequest"
+      },
+      "WishCreate": {
+        "properties": {
+          "recipient_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Recipient Id"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["recipient_id", "message"],
+        "title": "WishCreate",
+        "description": "The year isn't sent: the server picks the recipient's next birthday."
+      },
+      "WishRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/UserPublicRead"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/UserPublicRead"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sender",
+          "recipient",
+          "year",
+          "message",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "WishRead",
+        "description": "Sender and recipient as every member sees them: no birth year."
+      },
+      "WishUpdate": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["message"],
+        "title": "WishUpdate"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
