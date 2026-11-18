@@ -134,11 +134,6 @@ describe("isAdminPath", () => {
     expect(isAdminPublicPath("/admin/forgot-password")).toBe(true);
   });
 
-  it("lets a reset link through, token and all", () => {
-    expect(isAdminPath("/admin/reset-password/abc123")).toBe(false);
-    expect(isAdminPublicPath("/admin/reset-password/abc123")).toBe(true);
-  });
-
   /* The exemptions are exact paths, never prefixes. A prefix would open
      everything under a name anybody can type. */
   it("gates anything hiding under an exempt name", () => {
@@ -147,9 +142,10 @@ describe("isAdminPath", () => {
     expect(isAdminPath("/admin/forgot-password/members")).toBe(true);
   });
 
-  /* Nothing to do on it, so it is not public. */
-  it("gates a reset path with no token", () => {
-    expect(isAdminPath("/admin/reset-password/")).toBe(true);
+  /* The reset link is the backend's invitation link now (/invitation), so
+     the old token path is gated like any other: nothing answers there. */
+  it("gates the retired reset-password path", () => {
+    expect(isAdminPath("/admin/reset-password/abc123")).toBe(true);
     expect(isAdminPath("/admin/reset-password")).toBe(true);
   });
 });

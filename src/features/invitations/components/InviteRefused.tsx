@@ -1,57 +1,68 @@
-import { AuthButtonLink } from "@/features/auth/components/AuthButton";
+import {
+  AuthButton,
+  AuthButtonLink,
+} from "@/features/auth/components/AuthButton";
 import { ROUTES } from "@/constants/routes";
-import type { TokenRefusal } from "@/types/invitation";
+
+/** Why the invitation page cannot go on. */
+export type Refusal =
+  /** The backend refused the token: wrong, used, replaced or expired. */
+  | { kind: "invalid" }
+  /** The address arrived without `#token=…`, usually cut by a mail app. */
+  | { kind: "incomplete" }
+  /** The backend could not be asked, or answered with something else. */
+  | { kind: "failed"; message: string; retry: () => void };
 
 /**
- * A link that is no good, and what to do about it.
+ * A link that cannot be used, and what to do about it.
  *
- * Three refusals rather than one message, because the next step differs: an
- * expired link needs a new one, a spent one means you already have an
- * account, and an unrecognised one is usually a link that was cut in half by
- * an email client.
- *
- * None of them says whether the token ever existed, which is why "unknown"
- * reads as a broken link rather than "no such invitation".
+ * The backend gives one answer for every bad link, so this page cannot say
+ * which it was, and does not guess: a used link and an expired one read the
+ * same. Somebody who already accepted theirs can simply log in.
  */
-const SAID: Record<TokenRefusal, { title: string; body: string }> = {
-  expired: {
-    title: "This invitation has expired.",
-    body: "Invitations last ten days. Ask whoever invited you to send another one, and it will come to the same address.",
-  },
-  used: {
-    title: "This invitation has already been used.",
-    body: "Your account exists, so you can sign in. If it was not you who used it, tell an administrator.",
-  },
-  unknown: {
-    title: "This link does not work.",
-    body: "It may have been cut in half on its way to you. Try opening it again from the email, and ask an administrator for a new one if it still fails.",
-  },
-};
-
-export function InviteRefused({
-  reason,
-  signIn = false,
-}: {
-  reason: TokenRefusal;
-  /** A spent invitation means there is an account to sign in to. */
-  signIn?: boolean;
-}) {
-  const said = SAID[reason];
+export function InviteRefused({ refusal }: { refusal: Refusal }) {
+  if (refusal.kind === "failed") {
+    return (
+      <div className="flex flex-col gap-7">
+        <p role="alert" className="text-text text-body">
+          {refusal.message}
+        </p>
+        <AuthButton onClick={refusal.retry}>Try again</AuthButton>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-7">
-      <div>
-        <p className="text-text text-h4 font-medium">{said.title}</p>
-        <p className="text-muted text-body mt-3">{said.body}</p>
-      </div>
-
-      {signIn || reason === "used" ? (
-        <AuthButtonLink href={ROUTES.LOGIN}>Go to login</AuthButtonLink>
+      {refusal.kind === "invalid" ? (
+        <div>
+          <p className="text-text text-h4 font-medium">
+            This link no longer works.
+          </p>
+          <p className="text-muted text-body mt-3">
+            An invitation link works once, for seven days, and only the newest
+            one sent to you. If you have already used it, you can log in. If
+            not, ask an administrator to send you a new one.
+          </p>
+        </div>
       ) : (
-        <AuthButtonLink variant="outline" href={ROUTES.HOME}>
-          Back to home
-        </AuthButtonLink>
+        <div>
+          <p className="text-text text-h4 font-medium">
+            This link is incomplete.
+          </p>
+          <p className="text-muted text-body mt-3">
+            Part of it was lost on the way here. Open it again from the email,
+            or copy the whole address into your browser.
+          </p>
+        </div>
       )}
+
+      <AuthButtonLink
+        href={ROUTES.LOGIN}
+        variant={refusal.kind === "invalid" ? "primary" : "outline"}
+      >
+        Go to login
+      </AuthButtonLink>
     </div>
   );
 }

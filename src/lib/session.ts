@@ -50,6 +50,12 @@ export const SESSION_MAX_AGE = 60 * 60 * 24 * 90;
 /** Where a signed-out visitor is sent back to after logging in. */
 export const RETURN_PARAM = "next";
 
+/** The family name a login form starts with, after an invitation is
+    accepted. Family names are not secret (the backend's auth.md), and it
+    only fills a field: the code, and an administrator's password, still
+    decide everything. */
+export const NAME_PARAM = "name";
+
 export const ADMIN_PREFIX = "/admin";
 
 /**
@@ -70,19 +76,8 @@ export const ADMIN_PUBLIC_PATHS = [
   "/admin/forgot-password",
 ] as const;
 
-/* The one that cannot be an exact path, because the token is in it. The
-   token itself proves nothing: the page behind this renders a form, and the
-   backend decides whether the token is worth anything. */
-const ADMIN_PUBLIC_PREFIX = "/admin/reset-password/";
-
 export function isAdminPublicPath(pathname: string): boolean {
-  if (ADMIN_PUBLIC_PATHS.some((path) => path === pathname)) return true;
-  /* Longer than the prefix, so a bare /admin/reset-password/ with no token
-     is gated rather than public: there is nothing to do on it. */
-  return (
-    pathname.startsWith(ADMIN_PUBLIC_PREFIX) &&
-    pathname.length > ADMIN_PUBLIC_PREFIX.length
-  );
+  return ADMIN_PUBLIC_PATHS.some((path) => path === pathname);
 }
 
 /** Everything under /admin except the pages a signed-out visitor needs. */

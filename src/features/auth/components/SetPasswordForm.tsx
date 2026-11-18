@@ -4,50 +4,42 @@ import { useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/ui/TextField";
-import { ROUTES } from "@/constants/routes";
-import { ApiError } from "@/types/api";
 import { setPasswordSchema, type SetPasswordValues } from "../schemas";
 import { AuthButton, AuthButtonLink } from "./AuthButton";
 
+/** What sending the password came to. A server action cannot throw an
+    error the browser can read, so a refusal is a value. */
+export type PasswordSent = { ok: true } | { ok: false; message: string };
+
 /**
- * Choosing a password: on an administrator's invitation, and on a reset.
- *
- * One component, because they are one act. The two screens differ only in
- * what they say above the fields and what they say when it worked, and
- * those are props — a second copy of this form would be a second place for
- * the confirmation field, the lockout warning and the API-less case to
- * drift apart.
- *
- * > [!IMPORTANT]
- * > The token is sent **as it arrived**. Nothing here reads what is inside
- * > it, and the name shown above the fields came from the server, which
- * > asked the backend what the token was worth. A role read out of a URL is
- * > a role the caller chose — see §17.
+ * Choosing an administrator's password, from an invitation link: the first
+ * one, or a new one after a reset request (the backend sends the same link
+ * for both).
  *
  * It issues no session. Setting a password is not signing in: the
- * administrators' door asks for both halves and this form only ever had one.
+ * administrators' door asks for the password and an emailed code, and this
+ * form only ever had the first.
  */
 export function SetPasswordForm({
   intro,
   submitLabel,
   doneTitle,
   doneBody,
+  doneHref,
+  doneLabel,
   send,
 }: {
   intro: ReactNode;
   submitLabel: string;
   doneTitle: string;
   doneBody: string;
-  /**
-   * A server action that stores the password. Absent, the form says that
-   * nothing was stored: the browser never calls the backend itself
-   * (CLAUDE.md §23), so until steps 3 and 4 hand these screens an action,
-   * there is nowhere for a password to go.
-   */
-  send?: (password: string) => Promise<unknown>;
+  /** Where the person goes next: the administrators' login. */
+  doneHref: string;
+  doneLabel: string;
+  /** A server action that stores the password. */
+  send: (password: string) => Promise<PasswordSent>;
 }) {
   const [done, setDone] = useState(false);
-  const [stored, setStored] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
 
   const {
@@ -61,25 +53,12 @@ export function SetPasswordForm({
 
   const onSubmit = handleSubmit(async (values) => {
     setFailed(null);
-
-    /* With nowhere for a password to go, saying so is better than an error
-       in front of somebody who was asked to choose a password and did. */
-    if (!send) {
-      setStored(false);
-      setDone(true);
-      return;
-    }
-
     try {
-      await send(values.password);
-      setStored(true);
-      setDone(true);
-    } catch (error) {
-      setFailed(
-        error instanceof ApiError
-          ? error.message
-          : "The password could not be set. Try again in a moment.",
-      );
+      const sent = await send(values.password);
+      if (sent.ok) setDone(true);
+      else setFailed(sent.message);
+    } catch {
+      setFailed("The password could not be set. Try again in a moment.");
     }
   });
 
@@ -88,26 +67,16 @@ export function SetPasswordForm({
       <div className="flex flex-col gap-7">
         {/* No rosette here, deliberately, though /verify has one and this is
             the same kind of moment. SuccessBadge pulls Motion into the
-            bundle, and these two pages are **public** and opened once, from
-            a link, by somebody who may be on a phone on mobile data: it
-            cost 43 kB of first load to say what one sentence and a button
-            already say. The rosette stays where it is the climax of
-            something — the one-time password — rather than the preamble to
-            a link. */}
-        <div>
+            bundle, and this page is **public** and opened once, from a
+            link, by somebody who may be on a phone on mobile data: it cost
+            43 kB of first load to say what one sentence and a button
+            already say. */}
+        <div role="status">
           <p className="text-text text-h4 font-medium">{doneTitle}</p>
           <p className="text-muted text-body mt-2">{doneBody}</p>
-          {!stored ? (
-            <p className="text-muted text-body mt-3">
-              Nothing was stored: the auth service does not exist yet, so this
-              password was not saved and no account was changed.
-            </p>
-          ) : null}
         </div>
 
-        <AuthButtonLink href={ROUTES.ADMIN_LOGIN}>
-          Go to admin login
-        </AuthButtonLink>
+        <AuthButtonLink href={doneHref}>{doneLabel}</AuthButtonLink>
       </div>
     );
   }

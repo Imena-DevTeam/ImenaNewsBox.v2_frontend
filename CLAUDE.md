@@ -1915,7 +1915,7 @@ Each one is a PR on its own and leaves the gate green.
 | 0   | local stack. **Done**, see below                                                                                                                                                               |
 | 1   | transport: types generated from `/openapi.json`, `endpoints.ts` rewritten, `toError()` reading `{error: {code, message, details}}`, `Page` to `Paginated`, `Origin` and `User-Agent`. **Done** |
 | 2   | auth over the BFF; `blogger` becomes `social_media_manager`; `SignedInProvider` from `/users/me`. **Done**, see below                                                                          |
-| 3   | invitations: one `/invitation` page reading `location.hash`; `/invite/[token]` and its `/signup` retired                                                                                       |
+| 3   | invitations: one `/invitation` page reading `location.hash`; `/invite/[token]` and its `/signup` retired. **Done**, see below                                                                  |
 | 4   | forgot password and the reset queue, against B2                                                                                                                                                |
 | 5   | the register and directory: `family_name` field, sub-family and promotion selects, **Remove** becomes **Deactivate**, **Undo** reactivates, **Send a new link**                                |
 | 6   | profile: display name, birthday, bio, photo; confirming a changed email; devices from `/auth/sessions`                                                                                         |
@@ -1924,6 +1924,7 @@ Each one is a PR on its own and leaves the gate green.
 | 9   | studio posts: image upload, then create, patch or delete by Sanity id; drafts stay on the device                                                                                               |
 | 10  | resources: list, a route handler streaming the PDF, an upload screen for social media managers and admins                                                                                      |
 | 11  | fixtures retired where the API answers; Playwright against a seeded backend; hosting variables                                                                                                 |
+| 12  | Google sign-in, once everything else works end to end (the user's call, 18 Nov 2026). See below                                                                                                |
 
 ### B2: the reset-request queue, as built
 
@@ -1991,11 +1992,9 @@ names the backend's shapes; `endpoints.test.ts` fails if any path in
   becomes field errors, and every refusal keeps the backend's own words.
   `grep` finds none of the layer in `.next/static`.
 
-**The holding state until steps 3 and 4.** The invitation, admin-signup,
-reset and forgot-password screens answer from their stand-ins whatever
-`API_URL` says. They used to call the backend from the browser, which the
-BFF forbids, and their pages are replaced in those steps. `SetPasswordForm`
-takes an optional `send` action, and says nothing was stored without one.
+**The holding state until step 4.** The forgot-password screen and the
+reset band on `/admin` answer from their stand-ins whatever `API_URL` says.
+(The invitation screens were in the same state until step 3.)
 
 **Gate:** typecheck, lint and format clean. **337 tests over 43 files**, up
 from 281. `pnpm build` compiles; shared first load is 213 kB.
@@ -2105,6 +2104,70 @@ refreshes an access token that has only run out, keeps the cookies when the
 session still works or the backend cannot be reached, and clears them only
 when the backend agrees the session is over. It never takes the page's word
 for it, because a cookie-clearing link is one any other site could send.
+
+### Step 3, applied 18 Nov 2026: the invitation link
+
+The backend emails one link, `/invitation#token=…`, to a new member, a new
+administrator, somebody promoted to administrator, and an administrator
+whose reset request another one answered. So there is one page.
+
+- **The token is after the `#`**, which never reaches the Next server.
+  `InvitationFlow` reads it from `location.hash` (`useSyncExternalStore`, so
+  the prerendered page shows "Checking your link…" until the browser has
+  looked) and passes it to the server actions in `actions/invitation.ts`,
+  which post it to `/auth/invitations/check` and `/accept`.
+- **Opening the page only asks.** `check` changes nothing; the link is
+  used when the person presses the button, so a mail scanner that opens it
+  uses nothing up.
+- **A member** sees the family name they log in with and **Go to login**,
+  which accepts (confirming their address) and opens `/login?name=…`.
+  **An administrator** chooses a password with `SetPasswordForm` (8 to 256
+  characters, the backend's rule, checked again in the action), then **Go
+  to admin login** opens `/admin/login?name=…`. Both forms fill the name
+  from `NAME_PARAM`; family names are not secret, and the field decides
+  nothing.
+- **One refusal.** The backend answers every bad link with 400
+  `invalid_invitation` (wrong, used, replaced, expired, deactivated), so
+  the page says the link no longer works, and that somebody who used it
+  can log in. A link with no token is "incomplete". An unreachable backend
+  is neither, and offers **Try again**.
+- **No session, in any mode.** `no-session.test.ts` reads the page, the
+  flow and the actions for the session machinery by name.
+- **Fixture mode** answers `#token=member-demo` and `#token=admin-demo`
+  (`features/invitations/fixture.ts`) and refuses anything else; nothing is
+  stored. A production build with no backend answers nobody.
+
+**Retired:** `/invite/[token]`, `/invite/[token]/signup`,
+`/admin/reset-password/[token]` (and its exemption from the admin gate),
+`AdminSignupForm`, `InviteWelcome`, `ResetPasswordForm`, the token-shape
+stand-in, and `SetPasswordForm`'s "nothing was stored" branch: it now
+always has an action to send to. `features/invitations/data.ts` keeps only
+the sample reset requests, which step 4 replaces.
+
+The backend's `FRONTEND_URL` must be this frontend's address (locally
+`http://localhost:3000`), or its emails link somewhere else.
+
+**Gate:** typecheck, lint and format clean. **400 tests over 51 files.**
+`pnpm build` compiles; `/invitation` is 340 kB first load, like the other
+auth pages. The six invitation Playwright tests pass.
+
+### Step 12, later: Google sign-in
+
+Deferred by the user until everything else works end to end. What it takes:
+
+- **Google Cloud console**: a Web application OAuth client; this site's
+  origins under "Authorized JavaScript origins" (`http://localhost:3000`
+  and the production address); test users while the consent screen is in
+  testing.
+- **`NEXT_PUBLIC_GOOGLE_CLIENT_ID`**, equal to the backend's
+  `GOOGLE_CLIENT_ID`: the backend checks the ID token's audience against
+  it.
+- **The button**: Google Identity Services' button posts its `credential`
+  to a server action, which calls `POST /auth/google` (with the password,
+  for an administrator) and keeps the tokens as `verifyLoginCode` does.
+  `GoogleButton` is disabled until then.
+- **Leftovers to remove**: `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in
+  `.env.example`, and the unused `next-auth` dependency.
 
 ### Stays on fixtures
 

@@ -35,19 +35,27 @@ export const verifySchema = z.object({
 });
 
 /**
- * Setting a password: on an administrator's invitation, and on a reset.
+ * A new administrator password: 8 to 256 characters, the backend's rule for
+ * accepting an invitation (`POST /auth/invitations/accept`). The server
+ * action checks it again, since anyone can call one.
+ */
+export const newPasswordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .max(256, "Password must be at most 256 characters");
+
+/**
+ * Setting a password, from an administrator's invitation link. The backend
+ * sends the same link when another administrator answers a reset request,
+ * so this is also how a forgotten password is replaced.
  *
- * The same schema for both, because they are the same act — choosing a
- * password nobody else has ever known. The confirmation field is not
- * ceremony: this is the only time the password is typed before it is needed,
- * so a typo here is a lockout that needs the other administrator to undo.
- *
- * Eight characters, matching the login's floor. A password this accepts and
- * that door rejects would be a trap, and the two agree on purpose.
+ * The confirmation field is not ceremony: this is the only time the
+ * password is typed before it is needed, so a typo here is a lockout that
+ * needs another administrator to undo.
  */
 export const setPasswordSchema = z
   .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: newPasswordSchema,
     confirm: z.string().min(1, "Type the password again"),
   })
   /* On the confirmation field, so the message appears under the field that

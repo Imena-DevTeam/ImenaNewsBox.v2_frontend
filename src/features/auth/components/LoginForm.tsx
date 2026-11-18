@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
-import { RETURN_PARAM } from "@/lib/session";
+import { NAME_PARAM, RETURN_PARAM } from "@/lib/session";
 import { beginMemberLogin } from "@/app/actions/session";
 import { userLoginSchema, type UserLoginValues } from "../schemas";
 import { AuthButton } from "./AuthButton";
@@ -34,7 +34,7 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<UserLoginValues>({
     resolver: zodResolver(userLoginSchema),
-    defaultValues: { name: "" },
+    defaultValues: { name: params.get(NAME_PARAM) ?? "" },
   });
 
   /* Carry on to wherever the member was headed when the gate stopped them.

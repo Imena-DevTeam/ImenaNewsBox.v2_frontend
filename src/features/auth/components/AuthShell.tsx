@@ -6,10 +6,25 @@ import { AuthPhoto } from "@/features/auth/components/AuthPhoto";
 import { ROUTES } from "@/constants/routes";
 
 type AuthShellProps = {
-  /** Heading lines, each on its own line. */
-  title: string[];
+  /** Heading lines, each on its own line. Left out, the children bring
+      their own `AuthTitle`: a page whose heading depends on what the
+      browser finds, such as /invitation. */
+  title?: string[];
   children: ReactNode;
 };
+
+/** The auth frames' heading, one line per entry. */
+export function AuthTitle({ lines }: { lines: string[] }) {
+  return (
+    <h1 className="font-auth-heading text-auth-title mb-8">
+      {lines.map((line) => (
+        <span key={line} className="block">
+          {line}
+        </span>
+      ))}
+    </h1>
+  );
+}
 
 /**
  * Login page layout: a white page with the form column on the left and a
@@ -42,15 +57,8 @@ export function AuthShell({ title, children }: AuthShellProps) {
 
       <div className="lg:pl-auth-inset relative flex flex-1 items-center py-10 lg:py-6">
         <div className="max-w-auth-form page-enter mx-auto w-full lg:mx-0">
-          <h1 className="font-auth-heading text-auth-title">
-            {title.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
-
-          <div className="mt-8">{children}</div>
+          {title ? <AuthTitle lines={title} /> : null}
+          {children}
         </div>
       </div>
     </main>

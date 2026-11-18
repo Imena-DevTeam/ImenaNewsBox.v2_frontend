@@ -1,30 +1,46 @@
 import { expect, test } from "@playwright/test";
 
+/* Fixture mode: the two sample links in features/invitations/fixture.ts. */
 test.describe("invitation links", () => {
-  test("a member's link shows the name to sign in with", async ({ page }) => {
-    await page.goto("/invite/member-demo");
-    await expect(page.getByRole("link", { name: "Go to login" })).toBeVisible();
-  });
-
-  test("an administrator's link goes on to set a password", async ({
+  test("a member's link shows the name, then fills it in at the login", async ({
     page,
   }) => {
-    await page.goto("/invite/admin-demo");
-    await expect(page).toHaveURL(/\/invite\/admin-demo\/signup/);
-    await expect(page.getByLabel(/password/i).first()).toBeVisible();
+    await page.goto("/invitation#token=member-demo");
+    await expect(page.getByText("Aganze", { exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "Go to login" }).click();
+    await expect(page).toHaveURL(/\/login\?name=Aganze$/);
+    await expect(page.getByLabel("Name")).toHaveValue("Aganze");
   });
 
-  for (const token of ["expired-demo", "used-demo"]) {
-    test(`a ${token.split("-")[0]} link is refused`, async ({ page }) => {
-      await page.goto(`/invite/${token}`);
-      await expect(
-        page.getByRole("heading", { name: "About this invitation" }),
-      ).toBeVisible();
-    });
-  }
+  test("an administrator's link asks for a password", async ({ page }) => {
+    await page.goto("/invitation#token=admin-demo");
+    await page.getByLabel("Password", { exact: true }).fill("correct-horse");
+    await page.getByLabel("Confirm password").fill("correct-horse");
+    await page.getByRole("button", { name: "Set password" }).click();
+
+    await page.getByRole("link", { name: "Go to admin login" }).click();
+    await expect(page).toHaveURL(/\/admin\/login\?name=Shema$/);
+    await expect(page.getByLabel("Name")).toHaveValue("Shema");
+  });
+
+  test("a link the server refuses says so", async ({ page }) => {
+    await page.goto("/invitation#token=guessed");
+    await expect(page.getByText("This link no longer works.")).toBeVisible();
+  });
+
+  test("a link with no token says it is incomplete", async ({ page }) => {
+    await page.goto("/invitation");
+    await expect(page.getByText("This link is incomplete.")).toBeVisible();
+  });
 
   test("none of them signs anybody in", async ({ page }) => {
-    await page.goto("/invite/admin-demo/signup");
+    await page.goto("/invitation#token=admin-demo");
+    await page.getByLabel("Password", { exact: true }).fill("correct-horse");
+    await page.getByLabel("Confirm password").fill("correct-horse");
+    await page.getByRole("button", { name: "Set password" }).click();
+    await expect(page.getByText("Your password is set.")).toBeVisible();
+
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/admin\/login/);
   });

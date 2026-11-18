@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
-import { RETURN_PARAM } from "@/lib/session";
+import { NAME_PARAM, RETURN_PARAM } from "@/lib/session";
 import { beginAdminLogin } from "@/app/actions/session";
 import { adminLoginSchema, type AdminLoginValues } from "../schemas";
 import { AuthButton } from "./AuthButton";
@@ -46,7 +46,7 @@ export function AdminLoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<AdminLoginValues>({
     resolver: zodResolver(adminLoginSchema),
-    defaultValues: { name: "", password: "" },
+    defaultValues: { name: params.get(NAME_PARAM) ?? "", password: "" },
   });
 
   /* Only ever a path on this site, checked again in VerifyPanel. */

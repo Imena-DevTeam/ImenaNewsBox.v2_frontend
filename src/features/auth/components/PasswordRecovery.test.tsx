@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { ApiError } from "@/types/api";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { SetPasswordForm } from "./SetPasswordForm";
 
@@ -68,13 +67,15 @@ describe("ForgotPasswordForm", () => {
 });
 
 describe("SetPasswordForm", () => {
-  const mount = (send = vi.fn().mockResolvedValue(undefined)) => {
+  const mount = (send = vi.fn().mockResolvedValue({ ok: true })) => {
     render(
       <SetPasswordForm
         intro={<p>Choose a password.</p>}
         submitLabel="Set password"
         doneTitle="Your password is set."
-        doneBody="Sign in with your name and the password you just chose."
+        doneBody="Log in with your family name and this password."
+        doneHref="/admin/login?name=Shema"
+        doneLabel="Go to admin login"
         send={send}
       />,
     );
@@ -92,6 +93,20 @@ describe("SetPasswordForm", () => {
     ).toBeInTheDocument();
   });
 
+  /* The backend's ceiling, so the form says it rather than the backend. */
+  it("refuses a password over 256 characters", async () => {
+    const send = mount();
+    const long = "x".repeat(257);
+    type("Password", long);
+    type("Confirm password", long);
+    fireEvent.click(screen.getByText("Set password"));
+
+    expect(
+      await screen.findByText("Password must be at most 256 characters"),
+    ).toBeInTheDocument();
+    expect(send).not.toHaveBeenCalled();
+  });
+
   /* A typo here is a lockout that needs the other administrator to undo,
      which is the whole reason for the second field. */
   it("refuses two passwords that are not the same", async () => {
@@ -106,28 +121,7 @@ describe("SetPasswordForm", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  /* With no action to send it to there is nowhere for a password to go,
-     and the screen says so rather than pretending. */
-  it("does not pretend to have stored it", async () => {
-    render(
-      <SetPasswordForm
-        intro={<p>Choose a password.</p>}
-        submitLabel="Set password"
-        doneTitle="Your password is set."
-        doneBody="Sign in with your name and the password you just chose."
-      />,
-    );
-    type("Password", "correct-horse");
-    type("Confirm password", "correct-horse");
-    fireEvent.click(screen.getByText("Set password"));
-
-    expect(
-      await screen.findByText("Your password is set."),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/Nothing was stored/)).toBeInTheDocument();
-  });
-
-  it("sends the password, and says nothing about it not being stored", async () => {
+  it("sends the password, then offers the way to log in", async () => {
     const send = mount();
     type("Password", "correct-horse");
     type("Confirm password", "correct-horse");
@@ -137,24 +131,24 @@ describe("SetPasswordForm", () => {
       await screen.findByText("Your password is set."),
     ).toBeInTheDocument();
     expect(send).toHaveBeenCalledWith("correct-horse");
-    expect(screen.queryByText(/Nothing was stored/)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Go to admin login" }),
+    ).toHaveAttribute("href", "/admin/login?name=Shema");
   });
 
   it("shows the server's refusal and stays on the form", async () => {
     mount(
-      vi.fn().mockRejectedValue(
-        new ApiError(400, {
-          code: "invalid_invitation",
-          message: "This invitation link is wrong, used or expired.",
-        }),
-      ),
+      vi.fn().mockResolvedValue({
+        ok: false,
+        message: "Too many sign-ins at once.",
+      }),
     );
     type("Password", "correct-horse");
     type("Confirm password", "correct-horse");
     fireEvent.click(screen.getByText("Set password"));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "This invitation link is wrong, used or expired.",
+      "Too many sign-ins at once.",
     );
     expect(screen.queryByText("Your password is set.")).not.toBeInTheDocument();
   });

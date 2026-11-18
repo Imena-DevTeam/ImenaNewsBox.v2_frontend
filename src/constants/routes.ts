@@ -33,19 +33,17 @@ export const ROUTES = {
   ADMIN_MEMBERS: "/admin/members",
   ADMIN_MEMBER_NEW: "/admin/members/new",
 
-  /* The two /admin pages a signed-out visitor may reach, beside the login.
-     They exist for an administrator who has lost their password, so they
-     cannot sit behind the gate that asks for it — see ADMIN_PUBLIC_PATHS in
-     lib/session.ts, which is what actually lets them through. */
+  /* The /admin page a signed-out visitor may reach, beside the login. It
+     exists for an administrator who has lost their password, so it cannot
+     sit behind the gate that asks for it — see ADMIN_PUBLIC_PATHS in
+     lib/session.ts, which is what actually lets it through. */
   ADMIN_FORGOT_PASSWORD: "/admin/forgot-password",
-  adminResetPassword: (token: string) => `/admin/reset-password/${token}`,
 
-  /* An invitation link. Public, because the person holding it has no account
-     yet — that is the point of it. It grants no session: the member’s
-     landing page tells them the name they sign in with, and the
-     administrator’s asks them to set a password. */
-  invite: (token: string) => `/invite/${token}`,
-  inviteSignup: (token: string) => `/invite/${token}/signup`,
+  /* The backend's invitation link: /invitation#token=…. Public, because the
+     person holding it may have no account yet. One page for members and
+     administrators, and for an administrator's new password too: the
+     backend sends the same link for a reset. It grants no session. */
+  INVITATION: "/invitation",
 
   /* The studio: the blogger's area. Everything the family reads is written
      and arranged here, which is why it is not under /admin — the person who

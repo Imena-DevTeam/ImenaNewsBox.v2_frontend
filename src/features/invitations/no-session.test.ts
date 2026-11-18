@@ -10,22 +10,25 @@ import { describe, expect, it } from "vitest";
  * record of how expensive that mistake is when the server signs whatever it
  * is handed.
  *
- * So this reads the four public pages and refuses to let them grow a
- * session. It is a crude test on purpose: it cannot be fooled by a helper
+ * So this reads the public pages, and the code behind the invitation
+ * page, and refuses to let them grow a session. It is a crude test on purpose: it cannot be fooled by a helper
  * three files away, because it looks for the session machinery by name
  * rather than for its effect.
  */
 const PUBLIC_PAGES = [
-  "src/app/(auth)/invite/[token]/page.tsx",
-  "src/app/(auth)/invite/[token]/signup/page.tsx",
+  "src/app/(auth)/invitation/page.tsx",
+  "src/features/invitations/components/InvitationFlow.tsx",
+  "src/app/actions/invitation.ts",
   "src/app/(auth)/admin/forgot-password/page.tsx",
-  "src/app/(auth)/admin/reset-password/[token]/page.tsx",
 ];
 
 /* Everything that can put a session in front of somebody, and the pending
    cookie too: holding a login in progress is half of becoming one. */
 const FORBIDDEN = [
-  "startMemberSession",
+  "verifyLoginCode",
+  "writeSessionCookies",
+  "ACCESS_COOKIE",
+  "REFRESH_COOKIE",
   "SESSION_COOKIE",
   "PENDING_COOKIE",
   "createSessionToken",
