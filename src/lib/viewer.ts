@@ -66,13 +66,15 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
 });
 
 /**
- * The viewer, for a page or layout that cannot be shown without one: with
- * none, the person goes to the login. The middleware sends a missing
- * session there first, so this only catches a session the backend has
- * ended since the cookie was written.
+ * The viewer, for a page or layout that cannot be shown without one.
+ *
+ * The middleware sends a missing session to the login first, so this only
+ * catches a session the backend has ended since the cookie was written. Those
+ * cookies have to go before the login is shown, because a signed-in device is
+ * sent on past it: /session-ended asks the backend, then clears them.
  */
 export async function requireViewer(): Promise<Viewer> {
   const viewer = await getViewer();
-  if (!viewer) redirect(ROUTES.LOGIN);
+  if (!viewer) redirect(ROUTES.SESSION_ENDED);
   return viewer;
 }

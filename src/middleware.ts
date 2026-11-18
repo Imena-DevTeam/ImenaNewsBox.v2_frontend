@@ -40,6 +40,10 @@ import {
  */
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  if (pathname === ROUTES.LOGIN || pathname === ROUTES.ADMIN_LOGIN) {
+    return pastTheLogin(request);
+  }
+
   const admin = isAdminPath(pathname);
   const studio = isStudioPath(pathname);
   if (!admin && !studio && !isMemberPath(pathname)) return NextResponse.next();
@@ -107,6 +111,47 @@ export async function middleware(request: NextRequest) {
 
   if (renewed) writeSessionCookies(response.cookies, renewed);
   return response;
+}
+
+/**
+ * A device that is signed in is not shown the login again: it goes on to
+ * where it was headed, or to its home. Logging in once per device is the
+ * whole design; a second code for a device that already has a session is
+ * a chore that teaches people to ignore the emails.
+ *
+ * The administrators' door only lets an administrator past: somebody signed
+ * in as a member may be handing the device to an administrator.
+ *
+ * A session the backend has ended since is not caught here: the cookies are
+ * only read, not checked with the backend. The page that finds out sends
+ * the person to /session-ended, which clears them, so this never loops.
+ */
+async function pastTheLogin(request: NextRequest) {
+  const mode = authMode();
+  if (mode === "off") return NextResponse.next();
+
+  const session = await readSession(request.cookies.get(SESSION_COOKIE)?.value);
+  if (!session) return NextResponse.next();
+  if (mode === "backend" && !request.cookies.get(REFRESH_COOKIE)) {
+    return NextResponse.next();
+  }
+
+  const adminDoor = request.nextUrl.pathname === ROUTES.ADMIN_LOGIN;
+  if (adminDoor && session.role !== "admin") return NextResponse.next();
+
+  /* Only ever a plain path on this site, and never a login page itself. */
+  const requested = request.nextUrl.searchParams.get(RETURN_PARAM) ?? "";
+  const next =
+    requested.startsWith("/") &&
+    !requested.startsWith("//") &&
+    !requested.startsWith("/\\") &&
+    !requested.startsWith(ROUTES.LOGIN) &&
+    !requested.startsWith(ROUTES.ADMIN_LOGIN)
+      ? requested
+      : adminDoor
+        ? ROUTES.ADMIN
+        : ROUTES.DASHBOARD;
+  return NextResponse.redirect(new URL(next, request.url));
 }
 
 /** The request's headers with the renewed cookies in place of the old ones,

@@ -223,3 +223,82 @@ describe("middleware, production with no backend", () => {
     expect(location(response)).toContain("/login");
   });
 });
+
+/**
+ * Logging in once per device: a device with a session is not shown the
+ * login again. Asking it for a second code was the bug (18 Nov 2026).
+ */
+describe("middleware, a signed-in device at the login", () => {
+  beforeEach(() => {
+    vi.stubEnv("API_URL", "http://api.test/api/v1");
+  });
+
+  const signedIn = async (role: Role) => ({
+    [SESSION_COOKIE]: await session(role),
+    [ACCESS_COOKIE]: access(600),
+    [REFRESH_COOKIE]: "r1",
+  });
+
+  it("goes on to its home instead", async () => {
+    const response = await middleware(
+      await request("/login", await signedIn("member")),
+    );
+    expect(location(response)).toBe("http://localhost:3000/dashboard");
+  });
+
+  it("goes on to where it was headed", async () => {
+    const response = await middleware(
+      await request(
+        "/login?next=%2Fgallery%3Falbum%3Da",
+        await signedIn("member"),
+      ),
+    );
+    expect(location(response)).toBe("http://localhost:3000/gallery?album=a");
+  });
+
+  it("is never sent off the site, or back to a login", async () => {
+    for (const next of [
+      "//evil.example",
+      "https://evil.example",
+      /* A browser reads a backslash as a slash, so this is //evil.example. */
+      String.raw`/\evil.example`,
+      "/login",
+    ]) {
+      const response = await middleware(
+        await request(
+          `/login?next=${encodeURIComponent(next)}`,
+          await signedIn("member"),
+        ),
+      );
+      expect(location(response)).toBe("http://localhost:3000/dashboard");
+    }
+  });
+
+  it("takes an administrator past their own door to the admin area", async () => {
+    const response = await middleware(
+      await request("/admin/login", await signedIn("admin")),
+    );
+    expect(location(response)).toBe("http://localhost:3000/admin");
+  });
+
+  /* The device may be being handed to an administrator. */
+  it("still shows the administrators' door to a member", async () => {
+    const response = await middleware(
+      await request("/admin/login", await signedIn("member")),
+    );
+    expect(location(response)).toBeNull();
+  });
+
+  it("shows the login to a device with no session, or no refresh token", async () => {
+    expect(location(await middleware(await request("/login")))).toBeNull();
+    const response = await middleware(
+      await request("/login", { [SESSION_COOKIE]: await session("member") }),
+    );
+    expect(location(response)).toBeNull();
+  });
+
+  it("never asks the backend: it only reads the cookies", async () => {
+    await middleware(await request("/login", await signedIn("admin")));
+    expect(refreshSession).not.toHaveBeenCalled();
+  });
+});

@@ -9,6 +9,9 @@ export const ROUTES = {
   ADMIN_LOGIN: "/admin/login",
   VERIFY: "/verify",
   SIGNUP: "/signup",
+  /* Not a page: a route that ends a session the backend has already ended,
+     so the login does not send the person straight back. */
+  SESSION_ENDED: "/session-ended",
 
   /* Member area. FAMILY_TREE above is the public invitation to the tree;
      TREE is the member one, and they are different pages on purpose — the
