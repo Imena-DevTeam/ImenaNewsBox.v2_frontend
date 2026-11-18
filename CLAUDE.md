@@ -2070,6 +2070,17 @@ and shows the backend's words; it costs one of the backend's five tries.
 **Not yet:** the profile still reads the sample register in fixture mode
 and nothing in backend mode (step 6); Google sign-in stays disabled.
 
+### Waiting for an email, 18 Nov 2026
+
+The first real login sent no code. Gmail took about 7.5 seconds here just
+to connect, start TLS and say hello, so the backend's 5 seconds per attempt
+ran out every time, and this frontend's 10-second wait would have too. The
+backend now gives each email one 25-second budget (its decision 43,
+`fix/smtp-time-budget`), and every call that makes it send one waits
+`EMAIL_TIMEOUT_MS` (40 s, `lib/env.ts`): `login`, `approveReset`,
+`resendEmailCode`, `create`, `update`, `invite`. Everything else keeps the
+10-second limit. `email-wait.test.ts` holds both halves.
+
 ### Stays on fixtures
 
 Albums and the gallery (and the studio's album tools), likes and comments,

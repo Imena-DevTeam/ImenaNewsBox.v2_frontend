@@ -1,4 +1,5 @@
 import type { ApiAuth } from "@/lib/api-auth";
+import { EMAIL_TIMEOUT_MS } from "@/lib/env";
 import { api, type Exchange } from "@/lib/api-client";
 import type { ListQuery, Paginated } from "@/types/api";
 import type {
@@ -63,7 +64,10 @@ export const authService = {
   /** Step one on a new device. The same answer whether or not the family
       name exists; administrators also send their password. */
   login: (body: LoginRequest, auth: ApiAuth = {}) =>
-    api.post<CodeSent>(ENDPOINTS.auth.login, body, auth),
+    api.post<CodeSent>(ENDPOINTS.auth.login, body, {
+      ...auth,
+      timeoutMs: EMAIL_TIMEOUT_MS,
+    }),
 
   /** Step two: the emailed code. The answer's `Set-Cookie` holds the
       refresh token. */
@@ -125,7 +129,10 @@ export const authService = {
 
   /** Sends the requester a password link, to the address on their account. */
   approveReset: (requestId: string, auth: ApiAuth) =>
-    api.post<void>(ENDPOINTS.auth.approveReset(requestId), undefined, auth),
+    api.post<void>(ENDPOINTS.auth.approveReset(requestId), undefined, {
+      ...auth,
+      timeoutMs: EMAIL_TIMEOUT_MS,
+    }),
 
   /** Closes a request and sends nothing. */
   declineReset: (requestId: string, auth: ApiAuth) =>

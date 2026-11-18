@@ -1,5 +1,6 @@
 import type { ApiAuth } from "@/lib/api-auth";
 import { api } from "@/lib/api-client";
+import { EMAIL_TIMEOUT_MS } from "@/lib/env";
 import type { ListQuery, Paginated } from "@/types/api";
 import type {
   AuthorLink,
@@ -45,7 +46,10 @@ export const usersService = {
     api.patch<UserRead>(ENDPOINTS.users.me, changes, auth),
 
   resendEmailCode: (auth: ApiAuth) =>
-    api.post<CodeSent>(ENDPOINTS.users.resendEmailCode, undefined, auth),
+    api.post<CodeSent>(ENDPOINTS.users.resendEmailCode, undefined, {
+      ...auth,
+      timeoutMs: EMAIL_TIMEOUT_MS,
+    }),
 
   verifyEmail: (code: string, auth: ApiAuth) =>
     api.post<UserRead>(ENDPOINTS.users.verifyEmail, { code }, auth),
@@ -70,11 +74,18 @@ export const usersService = {
 
   /** Adds somebody and emails them their invitation. */
   create: (person: UserCreate, auth: ApiAuth) =>
-    api.post<UserRead>(ENDPOINTS.users.list, person, auth),
+    api.post<UserRead>(ENDPOINTS.users.list, person, {
+      ...auth,
+      timeoutMs: EMAIL_TIMEOUT_MS,
+    }),
 
-  /** Send only what changes. */
+  /** Send only what changes. A new email address or a promotion to
+      administrator emails them, so this waits as long as an email can take. */
   update: (userId: string, changes: UserUpdate, auth: ApiAuth) =>
-    api.patch<UserRead>(ENDPOINTS.users.one(userId), changes, auth),
+    api.patch<UserRead>(ENDPOINTS.users.one(userId), changes, {
+      ...auth,
+      timeoutMs: EMAIL_TIMEOUT_MS,
+    }),
 
   deactivate: (userId: string, auth: ApiAuth) =>
     api.post<UserRead>(ENDPOINTS.users.deactivate(userId), undefined, auth),
@@ -84,7 +95,10 @@ export const usersService = {
 
   /** A new invitation link, replacing the old one. */
   invite: (userId: string, auth: ApiAuth) =>
-    api.post<UserRead>(ENDPOINTS.users.invitation(userId), undefined, auth),
+    api.post<UserRead>(ENDPOINTS.users.invitation(userId), undefined, {
+      ...auth,
+      timeoutMs: EMAIL_TIMEOUT_MS,
+    }),
 
   linkAuthor: (userId: string, link: AuthorLink, auth: ApiAuth) =>
     api.put<UserRead>(ENDPOINTS.users.sanityAuthor(userId), link, auth),

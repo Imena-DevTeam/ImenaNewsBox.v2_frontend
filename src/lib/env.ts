@@ -44,6 +44,19 @@ export function serverEnv(): ServerEnv {
 export const DEFAULT_TIMEOUT_MS = 10_000;
 
 /**
+ * How long to wait for a request that makes the backend send an email: a
+ * login code, an invitation, a password link.
+ *
+ * The backend sends during the request and gives each email up to 25
+ * seconds (its decision 43), and an administrator's login can first wait up
+ * to 5 seconds for a password check. Giving up before the backend does
+ * would tell somebody their code failed while it is still on its way, and
+ * the minute before another can be asked for would then turn them away.
+ * Over a slow link to Gmail a send was measured at well over 10 seconds.
+ */
+export const EMAIL_TIMEOUT_MS = 40_000;
+
+/**
  * Where the backend is, with its `/api/v1` prefix and no trailing slash, so
  * every path can be written with a leading one.
  */
