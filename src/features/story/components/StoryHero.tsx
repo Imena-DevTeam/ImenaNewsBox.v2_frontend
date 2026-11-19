@@ -19,7 +19,7 @@ export function StoryHero() {
         delay={1}
         className="absolute top-14 right-3 md:top-30 md:right-12"
       >
-        <SunOrnament className="text-gallery-ornament motion-safe:animate-float-slow size-12 md:size-28 lg:size-36" />
+        <SunOrnament className="text-ornament size-12 md:size-28 lg:size-36" />
       </Reveal>
 
       <Container className="relative">

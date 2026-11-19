@@ -1,18 +1,21 @@
 import Image from "next/image";
-import Link from "next/link";
 import { CalendarDays, Heart, MessageCircle } from "lucide-react";
+import { TransitionLink } from "@/components/ui/TransitionLink";
 import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/cn";
+import { coverTransitionName } from "@/lib/transition-names";
 import { formatPostDate, type BlogPagePost } from "../data";
 
 export function BlogCard({ post }: { post: BlogPagePost }) {
   return (
-    <article className="border-member-border bg-surface shadow-member overflow-hidden rounded-lg border">
-      <Link
+    <article className="border-member-border bg-surface shadow-member @container overflow-hidden rounded-lg border">
+      <TransitionLink
         href={`${ROUTES.BLOGS}/${post.slug}`}
-        className="group focus-visible:outline-brand block"
+        className="group focus-visible:outline-brand block @xl:grid @xl:grid-cols-2"
       >
-        <div className="relative aspect-[1.8] overflow-hidden">
+        <div
+          className="relative aspect-9/5 overflow-hidden @xl:aspect-auto @xl:h-full"
+          style={{ viewTransitionName: coverTransitionName(post.slug) }}
+        >
           <Image
             src={post.cover}
             alt={post.coverAlt}
@@ -26,14 +29,14 @@ export function BlogCard({ post }: { post: BlogPagePost }) {
           </span>
         </div>
 
-        <div className="p-4 sm:p-5">
+        <div className="p-4 @sm:p-5 @xl:p-6">
           <p className="text-caption text-brand flex items-center gap-2 font-bold tracking-wide uppercase">
             {post.tag}
             <span className="text-muted normal-case">
               · {post.minutes} min read
             </span>
           </p>
-          <h3 className="font-member-serif text-member-ink mt-3 text-xl leading-tight font-bold">
+          <h3 className="font-member-serif text-member-ink text-h4 mt-3 leading-tight font-bold">
             {post.title}
           </h3>
           <p className="text-body-sm text-muted mt-3 line-clamp-3">
@@ -51,12 +54,10 @@ export function BlogCard({ post }: { post: BlogPagePost }) {
                 {post.comments}
               </span>
             </div>
-            <span className={cn("text-caption text-primary font-bold")}>
-              Read Full ›
-            </span>
+            <span className="text-caption text-brand font-bold">Read more</span>
           </div>
         </div>
-      </Link>
+      </TransitionLink>
     </article>
   );
 }

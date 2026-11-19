@@ -11,7 +11,7 @@ import { storyCta } from "@/lib/images";
 
 export function StoryCta() {
   return (
-    <section className="from-primary to-primary/55 text-surface gradient-drift overflow-hidden bg-linear-to-r">
+    <section className="bg-brand text-surface overflow-hidden">
       <div className="grid items-center md:grid-cols-[1fr_minmax(0,34rem)]">
         <div className="mx-auto w-full max-w-xl px-4 py-14 md:px-8 md:py-20">
           <SplitText

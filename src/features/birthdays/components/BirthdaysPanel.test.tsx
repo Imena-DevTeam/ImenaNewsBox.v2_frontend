@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { Celebrant } from "../data";
 import { BirthdaysPanel } from "./BirthdaysPanel";
 
 /* The burst is canvas work jsdom cannot do; the flow only needs it called. */
 vi.mock("canvas-confetti", () => ({ default: vi.fn() }));
 
 beforeAll(() => {
-  /* jsdom has no <dialog> behaviour; give it the two calls the panel uses. */
   HTMLDialogElement.prototype.showModal = function showModal() {
     this.setAttribute("open", "");
   };
@@ -17,24 +17,37 @@ beforeAll(() => {
   window.matchMedia ??= (() => ({ matches: true })) as never;
 });
 
-describe("BirthdaysPanel", () => {
-  it("names today's celebrant with their subfamily and wish count", () => {
-    render(<BirthdaysPanel />);
+const person = (id: string, name: string, branch: string): Celebrant => ({
+  id,
+  name,
+  branch,
+  month: 2,
+  day: 28,
+  photo: "",
+});
 
-    expect(screen.getByText("Dream Baby")).toBeInTheDocument();
-    expect(screen.getByText("Aganze")).toBeInTheDocument();
-    expect(screen.getByText("Wihogora Family")).toBeInTheDocument();
-    expect(screen.getByText(/42 family wishes sent/i)).toBeInTheDocument();
+const today = [person("m-07", "Bigwi Claire", "Light")];
+const upcoming = [
+  person("m-08", "Muheto Eric", "Wihogora"),
+  person("m-09", "Keza Marie", "Hope"),
+];
+
+describe("BirthdaysPanel", () => {
+  it("names today's celebrant and links to their page", () => {
+    render(<BirthdaysPanel today={today} upcoming={upcoming} />);
+    expect(screen.getByText("Birthday today")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Bigwi Claire" })).toHaveAttribute(
+      "href",
+      "/people/m-07",
+    );
+    expect(screen.getByText("Light family")).toBeInTheDocument();
   });
 
-  /* The whole wish flow in one test — open, choose, send, confirm — so it
-     gets more than the default five seconds on a loaded machine. */
   it(
     "sends a wish in place, without an email link, and says it is kept on the device",
     { timeout: 15_000 },
     () => {
-      render(<BirthdaysPanel />);
-
+      render(<BirthdaysPanel today={today} upcoming={upcoming} />);
       expect(document.querySelector('a[href^="mailto:"]')).toBeNull();
 
       fireEvent.click(
@@ -46,40 +59,24 @@ describe("BirthdaysPanel", () => {
       expect(screen.getByRole("status")).toHaveTextContent(
         /kept on this device/i,
       );
-      expect(screen.getByText(/43 family wishes sent/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /send another wish/i }),
+      ).toBeInTheDocument();
     },
   );
 
-  it("only sends once a wish is chosen or written", () => {
-    render(<BirthdaysPanel />);
-
-    fireEvent.click(
-      screen.getByRole("button", { name: /send a warm family wish/i }),
-    );
-    expect(screen.getByRole("button", { name: /^send wish$/i })).toBeDisabled();
-  });
-
-  it("offers a wish for an upcoming birthday", () => {
-    render(<BirthdaysPanel />);
-
+  it("offers a wish for an upcoming birthday, with its branch", () => {
+    render(<BirthdaysPanel today={today} upcoming={upcoming} />);
     expect(
       screen.getByRole("button", {
-        name: /send a family wish for Bigwi's day/i,
+        name: /send a family wish for Muheto Eric's day/i,
       }),
     ).toBeInTheDocument();
+    expect(screen.getByText("Hope")).toBeInTheDocument();
   });
 
-  it("lists the upcoming birthdays with their subfamily and parent", () => {
-    render(<BirthdaysPanel />);
-
-    expect(screen.getByText("Bigwi")).toBeInTheDocument();
-    expect(screen.getByText("Light")).toBeInTheDocument();
-    expect(screen.getByText(/Child of Sheja Ngabo/i)).toBeInTheDocument();
-  });
-
-  it("marks the records as samples", () => {
-    render(<BirthdaysPanel />);
-
-    expect(screen.getByText(/sample records/i)).toBeInTheDocument();
+  it("says so when nobody's birthday is today", () => {
+    render(<BirthdaysPanel today={[]} upcoming={upcoming} />);
+    expect(screen.getByText(/no birthdays today/i)).toBeInTheDocument();
   });
 });

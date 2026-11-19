@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import type { ImageSource } from "@/types/media";
 import type { BlogArticleDetail, BlogAuthor } from "./types";
 import {
   blogReunion,
@@ -26,7 +26,7 @@ export interface FeaturedPost {
   excerpt: string;
   likes: number;
   comments: number;
-  cover: StaticImageData;
+  cover: ImageSource;
   coverAlt: string;
 }
 
@@ -369,7 +369,7 @@ function toArticle(post: BlogPagePost, index: number): BlogArticleDetail {
       : (BODIES[post.slug] ?? SAMPLE_PARAGRAPHS),
     secondaryImage: (isReunion
       ? dashboardFamilyGathering
-      : secondary[index % secondary.length]) as StaticImageData,
+      : secondary[index % secondary.length]) as ImageSource,
     secondaryImageAlt: isReunion
       ? "Generations of the family gathered and smiling together outside a brick building"
       : post.coverAlt,

@@ -4,20 +4,46 @@ import {
   createPendingToken,
   readPendingToken,
 } from "./pending";
+import { editTokenData } from "./token-test-utils";
 
 /**
- * The cookie that replaced `/verify?role=admin`.
+ * The login in progress, between the login screen and the code.
  *
  * Until 12 Nov 2026 the role a login was for travelled in the query string
  * and the action that signed the session believed it, so typing that URL and
- * any five digits made you an administrator. These tests hold the line that
- * replaced it: the role is signed by the server, short-lived, and nothing a
- * caller writes is taken for it.
+ * any five digits made you an administrator. Now the server holds the
+ * family name the code was sent for in this signed, short-lived cookie, and
+ * nothing a caller writes is taken for it.
  */
 describe("the pending login", () => {
-  it("carries the role it was given back again", async () => {
-    const token = await createPendingToken("blogger");
-    expect(await readPendingToken(token!)).toBe("blogger");
+  it("carries back what it was given", async () => {
+    const token = await createPendingToken({
+      familyName: "RWEMA",
+      admin: true,
+    });
+    expect(await readPendingToken(token!)).toEqual({
+      familyName: "RWEMA",
+      admin: true,
+    });
+  });
+
+  it("carries a fixture role when it was given one", async () => {
+    const token = await createPendingToken({
+      familyName: "Ngabe",
+      admin: false,
+      role: "social_media_manager",
+    });
+    expect((await readPendingToken(token!))?.role).toBe("social_media_manager");
+  });
+
+  it("keeps a name outside ASCII intact", async () => {
+    const token = await createPendingToken({
+      familyName: "Mukamazimpaka Ñ",
+      admin: false,
+    });
+    expect((await readPendingToken(token!))?.familyName).toBe(
+      "Mukamazimpaka Ñ",
+    );
   });
 
   it("is nothing without a token", async () => {
@@ -25,36 +51,46 @@ describe("the pending login", () => {
     expect(await readPendingToken("")).toBeNull();
   });
 
-  /* The whole point: a token somebody wrote by hand is not a login. */
+  /* A token somebody wrote by hand is not a login. */
   it("refuses a token that was not signed here", async () => {
-    const forged = `p1.admin.${Date.now()}.notarealsignature`;
-    expect(await readPendingToken(forged)).toBeNull();
+    expect(await readPendingToken("p2.eyJuIjoiUldFTUEifQ.forged")).toBeNull();
   });
 
-  /* Lifting the signature off a member token and pasting it onto an admin
-     one changes the payload, so the signature no longer matches it. */
-  it("refuses a token whose role has been edited", async () => {
+  /* Editing the cookie changes the data, so the signature no longer
+     matches it: neither the name nor the door can be swapped. */
+  it("refuses a token whose name or door has been edited", async () => {
     const now = Date.now();
-    const asMember = (await createPendingToken("member", now))!;
-    const signature = asMember.split(".")[3];
-    const asAdmin = `p1.admin.${now}.${signature}`;
+    const token = (await createPendingToken(
+      { familyName: "Uwase", admin: false },
+      now,
+    ))!;
 
-    expect(await readPendingToken(asMember, now)).toBe("member");
+    const otherName = editTokenData(token, (data) => ({ ...data, n: "RWEMA" }));
+    const asAdmin = editTokenData(token, (data) => ({ ...data, a: true }));
+    const withRole = editTokenData(token, (data) => ({ ...data, r: "admin" }));
+
+    expect(await readPendingToken(token, now)).not.toBeNull();
+    expect(await readPendingToken(otherName, now)).toBeNull();
     expect(await readPendingToken(asAdmin, now)).toBeNull();
+    expect(await readPendingToken(withRole, now)).toBeNull();
   });
 
-  it("refuses a role that is not one of the three", async () => {
+  /* The old shape carried a role and no name; it is not read at all. */
+  it("refuses the old p1 token", async () => {
     expect(
-      await readPendingToken(`p1.owner.${Date.now()}.whatever`),
+      await readPendingToken(`p1.admin.${Date.now()}.whatever`),
     ).toBeNull();
   });
 
-  it("expires, so a login left open overnight is not still open", async () => {
+  it("expires, so a login left open is not still open later", async () => {
     const issued = Date.now();
-    const token = (await createPendingToken("admin", issued))!;
+    const token = (await createPendingToken(
+      { familyName: "RWEMA", admin: true },
+      issued,
+    ))!;
 
     const justInside = issued + PENDING_MAX_AGE * 1000 - 1000;
-    expect(await readPendingToken(token, justInside)).toBe("admin");
+    expect(await readPendingToken(token, justInside)).not.toBeNull();
 
     const justOutside = issued + PENDING_MAX_AGE * 1000 + 1000;
     expect(await readPendingToken(token, justOutside)).toBeNull();
@@ -62,13 +98,16 @@ describe("the pending login", () => {
 
   it("refuses a token issued in the future", async () => {
     const now = Date.now();
-    const token = (await createPendingToken("admin", now + 60_000))!;
+    const token = (await createPendingToken(
+      { familyName: "RWEMA", admin: true },
+      now + 60_000,
+    ))!;
     expect(await readPendingToken(token, now)).toBeNull();
   });
 
-  /* Ten minutes: long enough to read an email and type five digits. A
-     session lasts a week; this must not. */
-  it("is far shorter than a session", async () => {
-    expect(PENDING_MAX_AGE).toBeLessThanOrEqual(60 * 15);
+  /* The backend's code lasts ten minutes; the login holding it should not
+     outlive it. */
+  it("lasts no longer than the code", () => {
+    expect(PENDING_MAX_AGE).toBe(60 * 10);
   });
 });

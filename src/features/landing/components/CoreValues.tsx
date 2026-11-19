@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { MaskReveal } from "@/components/motion/MaskReveal";
-import { Parallax } from "@/components/motion/Parallax";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { coreValues } from "@/lib/images";
@@ -32,10 +31,10 @@ export function CoreValues() {
         <SectionTitle title="Core Family Values" />
 
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16">
-          <Parallax distance={-30} className="mx-auto w-full max-w-sm">
+          <div className="mx-auto w-full max-w-sm">
             <MaskReveal
               from="top"
-              className="border-primary/15 overflow-hidden rounded-md border"
+              className="border-brand/15 overflow-hidden rounded-md border"
             >
               <Image
                 src={coreValues}
@@ -45,7 +44,7 @@ export function CoreValues() {
                 className="w-full object-cover"
               />
             </MaskReveal>
-          </Parallax>
+          </div>
 
           {/* The four values come in one by one, each from the outside edge
               of its column, so the pairs close in toward the middle. */}

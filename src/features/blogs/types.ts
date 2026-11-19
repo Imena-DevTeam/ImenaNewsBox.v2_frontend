@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import type { ImageSource } from "@/types/media";
 import type { BlogCategory } from "./data";
 
 export interface BlogAuthor {
@@ -6,7 +6,7 @@ export interface BlogAuthor {
   name: string;
   role: string;
   subfamily: string;
-  avatar: StaticImageData;
+  avatar: ImageSource;
 }
 
 /**
@@ -23,12 +23,12 @@ export interface BlogArticleDetail {
   publishedAt: string;
   readMinutes: number;
   author: BlogAuthor;
-  coverImage?: StaticImageData;
+  coverImage?: ImageSource;
   coverAlt: string;
   /** The lead: one editorial sentence that sets the story up. */
   excerpt: string;
   contentParagraphs: string[];
-  secondaryImage: StaticImageData;
+  secondaryImage: ImageSource;
   secondaryImageAlt: string;
   secondaryImageCaption: string;
   /** How many paragraphs are read before the photograph appears. */

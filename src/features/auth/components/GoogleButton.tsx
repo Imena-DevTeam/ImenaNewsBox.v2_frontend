@@ -33,7 +33,7 @@ export function GoogleButton({ onClick }: { onClick?: () => void }) {
       {ready ? null : (
         <p
           id="google-unavailable"
-          className="text-muted mt-2 text-center text-sm"
+          className="text-muted text-body-sm mt-2 text-center"
         >
           Google sign-in is not connected yet. Use your family name above.
         </p>

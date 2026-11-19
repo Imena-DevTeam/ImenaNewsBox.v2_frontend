@@ -29,7 +29,7 @@ vi.mock("@/app/actions/session", () => ({
 }));
 
 const logIn = () =>
-  fireEvent.click(screen.getByRole("button", { name: "Log In" }));
+  fireEvent.click(screen.getByRole("button", { name: "Log in" }));
 
 beforeEach(() => {
   push.mockClear();
@@ -184,9 +184,7 @@ describe("AdminLoginForm", () => {
     });
     logIn();
 
-    expect(
-      await screen.findByText("Password must be at least 8 characters"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Password is required")).toBeInTheDocument();
     expect(beginAdminLogin).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
   });

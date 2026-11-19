@@ -23,10 +23,10 @@ export function StoryIntro() {
         <div className="relative isolate mr-6 mb-5 md:mr-8 md:mb-6">
           <span
             aria-hidden
-            className="border-frame-accent bg-frame-accent/20 absolute inset-0 -z-10 translate-x-6 translate-y-5 rounded-3xl border-2 md:translate-x-8 md:translate-y-6"
+            className="border-frame-accent bg-frame-accent/20 absolute inset-0 -z-10 translate-x-6 translate-y-5 rounded-lg border-2 md:translate-x-8 md:translate-y-6"
           />
           <MaskReveal from="left">
-            <div className="border-frame bg-frame overflow-hidden rounded-3xl border-12 md:border-16">
+            <div className="border-frame bg-frame overflow-hidden rounded-lg border-12 md:border-16">
               <Image
                 src={storyIntro}
                 alt="Four members of the IMENA family together outside a family home"

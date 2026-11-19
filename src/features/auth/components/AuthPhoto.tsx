@@ -21,7 +21,7 @@ const STEP = -24 / PHOTOS.length;
 export function AuthPhoto({ className }: { className?: string }) {
   return (
     <div className={className}>
-      <div className="auth-photo-mask bg-band relative aspect-[1036/1008] size-full">
+      <div className="auth-photo-mask bg-band relative aspect-259/252 size-full">
         {PHOTOS.map((photo, i) => (
           <Image
             key={photo.src}

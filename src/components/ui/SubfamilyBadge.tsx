@@ -10,10 +10,10 @@ export interface SubfamilyBadgeProps {
 /**
  * Standardized Subfamily Pill Badge across the entire application.
  *
- * - LIGHT: Pink background bg-pink-100 text-pink-700
- * - WIHOGORA: Golden/amber badge bg-amber-100 text-amber-800
- * - SANCTUARY: Emerald badge bg-emerald-100 text-emerald-800
- * - HOPE: Sky blue badge bg-sky-100 text-sky-800
+ * - LIGHT: Pink background bg-member-heart text-member-heart
+ * - WIHOGORA: Golden/amber badge bg-light-tint text-light-ink
+ * - SANCTUARY: Emerald badge bg-window-green text-window-green
+ * - HOPE: Sky blue badge bg-hope-tint text-hope-ink
  */
 export function SubfamilyBadge({
   subfamily,
@@ -23,22 +23,22 @@ export function SubfamilyBadge({
 }: SubfamilyBadgeProps) {
   const norm = subfamily.toUpperCase();
 
-  let style = "bg-purple-100 text-purple-700 border-purple-200/60";
+  let style = "bg-member-tint text-brand border-member-border/60";
   if (norm.includes("LIGHT")) {
-    style = "bg-pink-100 text-pink-700 border-pink-200/60";
+    style = "bg-member-heart text-member-heart border-member-heart/60";
   } else if (norm.includes("WIHOGORA")) {
-    style = "bg-amber-100 text-amber-800 border-amber-200/60";
+    style = "bg-light-tint text-light-ink border-light-ink/60";
   } else if (norm.includes("SANCTUARY")) {
-    style = "bg-emerald-100 text-emerald-800 border-emerald-200/60";
+    style = "bg-window-green text-window-green border-window-green/60";
   } else if (norm.includes("HOPE")) {
-    style = "bg-sky-100 text-sky-800 border-sky-200/60";
+    style = "bg-hope-tint text-hope-ink border-hope-edge/60";
   }
 
   return (
     <span
       className={cn(
         "inline-flex items-center rounded-full border font-bold tracking-wider",
-        size === "sm" ? "text-caption px-2 py-0.5" : "px-3 py-0.5 text-xs",
+        size === "sm" ? "text-caption px-2 py-0.5" : "text-caption px-3 py-0.5",
         uppercase && "uppercase",
         style,
         className,

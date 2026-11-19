@@ -35,8 +35,8 @@ export function VerifyPanel() {
       : undefined;
 
   /* Which login sent you here, so "back" returns to the door you came
-     through. Cosmetic: the blogger comes through the member login, and so
-     does everybody whose breadcrumb is missing or made up. */
+     through. Cosmetic: a social media manager comes through the member login,
+     and so does everybody whose breadcrumb is missing or made up. */
   const back =
     params.get("from") === "admin" ? ROUTES.ADMIN_LOGIN : ROUTES.LOGIN;
 
@@ -47,7 +47,7 @@ export function VerifyPanel() {
       <Link
         href={back}
         aria-label="Back to log in"
-        className="group transition-base -my-2.75 -ml-1.25 inline-flex size-9 items-center justify-center self-start rounded-full border border-transparent hover:border-black hover:bg-black"
+        className="group transition-base hover:border-member-ink hover:bg-member-ink -my-2.75 -ml-1.25 inline-flex size-9 items-center justify-center self-start rounded-full border border-transparent"
       >
         <Image
           src="/icons/arrow-left.svg"

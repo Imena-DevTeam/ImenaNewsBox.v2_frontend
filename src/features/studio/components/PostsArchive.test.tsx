@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/components/ui/Toaster";
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { BLOG_PAGE_POSTS } from "@/features/blogs/data";
@@ -10,7 +11,9 @@ const dayNumbers = () =>
 
 describe("PostsArchive", () => {
   it("puts the newest entry first, and turns round on request", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     const newest = dayNumbers();
 
@@ -24,7 +27,9 @@ describe("PostsArchive", () => {
   /* A published post is the norm, so only the unfinished ones carry a mark.
      Ten badges would say nothing; three say what is waiting. */
   it("marks only the drafts", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     const drafts = BLOG_PAGE_POSTS.filter((post) => post.status === "draft");
     expect(drafts.length).toBeGreaterThan(0);
@@ -38,7 +43,9 @@ describe("PostsArchive", () => {
   });
 
   it("narrows to the drafts, and says how many of how many", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     fireEvent.change(screen.getByLabelText("Filter by status"), {
       target: { value: "draft" },
@@ -51,7 +58,9 @@ describe("PostsArchive", () => {
   });
 
   it("says what to do when a search matches nothing", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     fireEvent.change(screen.getByLabelText("Search posts"), {
       target: { value: "zzzznothing" },
@@ -62,7 +71,9 @@ describe("PostsArchive", () => {
   });
 
   it("offers the bulk verbs only once something is selected", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     expect(
       screen.queryByRole("button", { name: "Publish" }),
@@ -79,7 +90,9 @@ describe("PostsArchive", () => {
   /* The guard that matters: a selection made before filtering must not let
      a bulk action reach posts the reader can no longer see. */
   it("drops a selection that the filters have hidden", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     fireEvent.click(screen.getByLabelText("Select all shown"));
 
@@ -92,7 +105,9 @@ describe("PostsArchive", () => {
   });
 
   it("reports the outcome of a bulk action instead of going quiet", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     fireEvent.click(screen.getByLabelText("Select all shown"));
     fireEvent.click(screen.getByRole("button", { name: "Publish" }));
@@ -104,7 +119,9 @@ describe("PostsArchive", () => {
   /* The title is the way into the editor, not out of the admin area. Reading
      the published post is the small link below it. */
   it("opens every entry for correction, and offers the published post too", () => {
-    render(<PostsArchive posts={BLOG_PAGE_POSTS} />);
+    render(<PostsArchive posts={BLOG_PAGE_POSTS} />, {
+      wrapper: ToastProvider,
+    });
 
     const first = BLOG_PAGE_POSTS.find(
       (post) => post.publishedOn === "2026-05-31",

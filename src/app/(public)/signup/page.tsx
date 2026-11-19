@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, ChevronLeft, Send, Sparkles } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Send } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/constants/routes";
@@ -48,16 +48,16 @@ export default function JoinasaMemberPage() {
       <Container className="max-w-2xl">
         <Link
           href={ROUTES.HOME}
-          className="text-muted hover:text-heading mb-8 inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
+          className="text-muted hover:text-heading text-caption mb-8 inline-flex items-center gap-1.5 font-medium transition-colors"
         >
           <ChevronLeft className="size-4" aria-hidden />
           Back to IMENA home
         </Link>
 
-        <div className="border-border bg-surface shadow-subtle rounded-3xl border p-8 md:p-12">
+        <div className="border-border bg-surface shadow-subtle rounded-lg border p-8 md:p-12">
           {submitted ? (
             <div className="flex flex-col items-center py-6 text-center">
-              <div className="mb-6 grid size-16 place-items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600">
+              <div className="border-window-green bg-window-green text-window-green mb-6 grid size-16 place-items-center rounded-full border">
                 <CheckCircle2 className="size-8" />
               </div>
 
@@ -65,7 +65,7 @@ export default function JoinasaMemberPage() {
                 Request Submitted
               </h1>
 
-              <p className="text-muted mt-3 max-w-md text-sm leading-relaxed">
+              <p className="text-muted text-body-sm mt-3 max-w-md leading-relaxed">
                 Murakoze. Your request to join the permanent IMENA family record
                 has been received. An elder from your subfamily will verify your
                 lineage details and send your access credentials.
@@ -81,14 +81,13 @@ export default function JoinasaMemberPage() {
           ) : (
             <div>
               <div className="mb-8">
-                <span className="border-border bg-surface-elevated text-brand mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold tracking-wider uppercase">
-                  <Sparkles className="size-3.5" aria-hidden />
+                <span className="border-border bg-member-panel text-brand text-caption mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold tracking-wider uppercase">
                   Family Registry
                 </span>
                 <h1 className="text-h2-m md:text-h2 text-heading font-serif font-bold">
                   Request a Place in the Family Record
                 </h1>
-                <p className="text-muted mt-2 text-sm">
+                <p className="text-muted text-body-sm mt-2">
                   Add your name, university promotion cohort, and chapter
                   lineage to the permanent IMENA archive.
                 </p>
@@ -99,33 +98,35 @@ export default function JoinasaMemberPage() {
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="full-name"
-                      className="text-heading text-xs font-semibold"
+                      className="text-heading text-caption font-semibold"
                     >
                       Full Name *
                     </label>
                     <input
+                      autoComplete="name"
                       id="full-name"
                       name="fullName"
                       required
                       placeholder="e.g. Christian Aganze"
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
+                      className="border-border bg-member-panel text-heading focus:border-brand text-body-sm rounded-md border px-3.5 py-2.5 transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="email"
-                      className="text-heading text-xs font-semibold"
+                      className="text-heading text-caption font-semibold"
                     >
                       Email Address *
                     </label>
                     <input
+                      autoComplete="email"
                       id="email"
                       name="email"
                       type="email"
                       required
                       placeholder="you@domain.com"
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
+                      className="border-border bg-member-panel text-heading focus:border-brand text-body-sm rounded-md border px-3.5 py-2.5 transition-all"
                     />
                   </div>
                 </div>
@@ -134,7 +135,7 @@ export default function JoinasaMemberPage() {
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="promotion"
-                      className="text-heading text-xs font-semibold"
+                      className="text-heading text-caption font-semibold"
                     >
                       Promotion Cohort *
                     </label>
@@ -142,7 +143,7 @@ export default function JoinasaMemberPage() {
                       id="promotion"
                       name="promotion"
                       required
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
+                      className="border-border bg-member-panel text-heading focus:border-brand text-body-sm rounded-md border px-3.5 py-2.5 transition-all"
                     >
                       <option value="">Select your cohort...</option>
                       {PROMOTIONS.map((p) => (
@@ -156,7 +157,7 @@ export default function JoinasaMemberPage() {
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="subfamily"
-                      className="text-heading text-xs font-semibold"
+                      className="text-heading text-caption font-semibold"
                     >
                       Subfamily Branch *
                     </label>
@@ -164,7 +165,7 @@ export default function JoinasaMemberPage() {
                       id="subfamily"
                       name="subfamily"
                       required
-                      className="border-border bg-surface-elevated text-heading focus:border-brand rounded-xl border px-3.5 py-2.5 text-sm transition-all"
+                      className="border-border bg-member-panel text-heading focus:border-brand text-body-sm rounded-md border px-3.5 py-2.5 transition-all"
                     >
                       <option value="">Select branch...</option>
                       {BRANCHES.map((b) => (
@@ -179,23 +180,24 @@ export default function JoinasaMemberPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="message"
-                    className="text-heading text-xs font-semibold"
+                    className="text-heading text-caption font-semibold"
                   >
                     Family Connection &amp; Notes
                   </label>
                   <textarea
+                    autoComplete="off"
                     id="message"
                     name="message"
                     rows={3}
                     placeholder="Mention your university chapter (e.g. UR Huye, UR Nyarugenge) or your elders."
-                    className="border-border bg-surface-elevated text-heading focus:border-brand resize-none rounded-xl border px-3.5 py-2.5 text-sm transition-all"
+                    className="border-border bg-member-panel text-heading focus:border-brand text-body-sm resize-none rounded-md border px-3.5 py-2.5 transition-all"
                   />
                 </div>
 
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="mt-3 min-h-[46px] w-full"
+                  className="mt-3 min-h-11.5 w-full"
                 >
                   <Send className="size-4" aria-hidden />
                   {loading
@@ -203,7 +205,7 @@ export default function JoinasaMemberPage() {
                     : "Submit Registry Request"}
                 </Button>
 
-                <p className="text-muted text-center text-xs">
+                <p className="text-muted text-caption text-center">
                   Already registered?{" "}
                   <Link
                     href={ROUTES.LOGIN}

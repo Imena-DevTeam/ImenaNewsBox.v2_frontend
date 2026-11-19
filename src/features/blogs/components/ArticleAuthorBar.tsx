@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 import { Bookmark, Heart, MessageCircle, Share2 } from "lucide-react";
+import { useToast } from "@/components/ui/Toaster";
 import { useStoredValue } from "@/hooks/useStoredValue";
 import { cn } from "@/lib/cn";
 import type { BlogArticleDetail } from "../types";
+import { useArticleComments } from "./ArticleComments";
 
 const BUTTON =
   "rounded-pill text-caption transition-fast focus-visible:outline-brand inline-flex items-center gap-1.5 px-3 py-2";
@@ -13,22 +14,16 @@ const IDLE = "bg-member-tint text-muted hover:bg-brand/15";
 
 /**
  * Who wrote it and when, and what a reader can do about it: like, save,
- * share. Likes and saves are kept on this device until the blog API exists.
+ * comment, share. Likes, saves and comments are kept on this device until
+ * the blog API exists.
  */
 export function ArticleAuthorBar({ article }: { article: BlogArticleDetail }) {
   const { author, slug, title } = article;
   const [liked, setLiked] = useStoredValue(`imena.blog.liked.${slug}`, "0");
   const [saved, setSaved] = useStoredValue(`imena.blog.saved.${slug}`, "0");
-  const [note, setNote] = useState("");
-  const timer = useRef<number | undefined>(undefined);
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const tell = (message: string) => {
-    setNote(message);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setNote(""), 3000);
-  };
+  const { all: comments } = useArticleComments(slug);
+  const toast = useToast();
+  const tell = (message: string) => toast({ message });
 
   const share = async () => {
     const url = window.location.href;
@@ -49,7 +44,7 @@ export function ArticleAuthorBar({ article }: { article: BlogArticleDetail }) {
     }
     try {
       await navigator.clipboard.writeText(url);
-      tell("Article link copied to clipboard!");
+      tell("Link copied");
     } catch {
       tell("Could not copy the link. Copy it from the address bar.");
     }
@@ -103,13 +98,14 @@ export function ArticleAuthorBar({ article }: { article: BlogArticleDetail }) {
           {likes}
         </button>
 
-        <span
-          className="bg-member-tint text-caption text-muted rounded-pill inline-flex items-center gap-1.5 px-3 py-2"
-          aria-label={`${article.commentsCount} comments`}
+        <a
+          href="#comments"
+          aria-label={`${comments.length} comments, go to the comments`}
+          className={cn(BUTTON, IDLE)}
         >
           <MessageCircle aria-hidden className="text-brand size-4" />
-          {article.commentsCount}
-        </span>
+          {comments.length}
+        </a>
 
         <button
           type="button"
@@ -134,18 +130,6 @@ export function ArticleAuthorBar({ article }: { article: BlogArticleDetail }) {
           Share
         </button>
       </div>
-
-      {/* Always in the page, so a screen reader hears the message when it
-          arrives; it only shows while there is one. */}
-      <p
-        role="status"
-        className={cn(
-          "bg-member-ink text-surface text-body-sm shadow-menu fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full px-5 py-3",
-          !note && "sr-only",
-        )}
-      >
-        {note}
-      </p>
     </div>
   );
 }

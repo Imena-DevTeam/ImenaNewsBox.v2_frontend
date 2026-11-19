@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-/** Counts down to zero once per second; `restart` puts it back to `seconds`. */
+/** Counts down to zero once per second; `restart` puts it back to `seconds`,
+    or to another figure when the server names one. */
 export function useCountdown(seconds: number) {
   const [remaining, setRemaining] = useState(seconds);
 
@@ -12,7 +13,10 @@ export function useCountdown(seconds: number) {
     return () => clearTimeout(timer);
   }, [remaining]);
 
-  const restart = useCallback(() => setRemaining(seconds), [seconds]);
+  const restart = useCallback(
+    (from: number = seconds) => setRemaining(from),
+    [seconds],
+  );
 
   return { remaining, isComplete: remaining <= 0, restart };
 }

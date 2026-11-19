@@ -85,7 +85,7 @@ export function RecentHandovers() {
                 <div className="bg-surface transition-base absolute inset-x-0 bottom-0 mr-8 rounded-tr-md p-5 motion-safe:group-hover:-translate-y-1">
                   <p className="text-body">
                     <span className="text-h4 text-text">{item.title}</span>{" "}
-                    <span className="text-primary">{BODY}</span>
+                    <span className="text-brand">{BODY}</span>
                   </p>
 
                   {/* The gallery is the family's, not the public's, so
@@ -120,7 +120,7 @@ function IconCircle({
       href={ROUTES.GALLERY}
       aria-label={label}
       /* The icon gives a small turn and swell as the circle fills. */
-      className="rounded-pill border-primary text-primary hover:bg-primary hover:text-surface transition-base [&_svg]:transition-base flex size-14 items-center justify-center border motion-safe:active:scale-95 motion-safe:hover:[&_svg]:scale-115 motion-safe:hover:[&_svg]:-rotate-12"
+      className="rounded-pill border-brand text-brand hover:bg-brand hover:text-surface transition-base [&_svg]:transition-base flex size-14 items-center justify-center border motion-safe:active:scale-95 motion-safe:hover:[&_svg]:scale-115 motion-safe:hover:[&_svg]:-rotate-12"
     >
       {children}
     </a>

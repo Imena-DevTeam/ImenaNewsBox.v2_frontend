@@ -1,6 +1,8 @@
 "use client";
 
-import Image, { type StaticImageData } from "next/image";
+import { type ImageSource, placeholderFor } from "@/types/media";
+
+import Image from "next/image";
 import { useRef } from "react";
 import { Expand, X } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -14,7 +16,7 @@ export function ArticleMediaBlock({
   alt,
   caption,
 }: {
-  image: StaticImageData;
+  image: ImageSource;
   alt: string;
   caption: string;
 }) {
@@ -26,13 +28,13 @@ export function ArticleMediaBlock({
         type="button"
         onClick={() => dialog.current?.showModal()}
         aria-label={`Enlarge photograph: ${alt}`}
-        className="group border-member-border bg-member-tint shadow-member focus-visible:outline-brand relative block aspect-video w-full cursor-zoom-in overflow-hidden rounded-2xl border sm:rounded-3xl"
+        className="group border-member-border bg-member-tint shadow-member focus-visible:outline-brand relative block aspect-video w-full cursor-zoom-in overflow-hidden rounded-lg border sm:rounded-lg"
       >
         <Image
           src={image}
           alt={alt}
           fill
-          placeholder="blur"
+          placeholder={placeholderFor(image)}
           sizes="(min-width: 1024px) 896px, 100vw"
           className="object-cover transition-transform duration-500 group-hover:scale-102 motion-reduce:transition-none"
         />
@@ -74,7 +76,7 @@ export function ArticleMediaBlock({
             autoFocus
             onClick={() => dialog.current?.close()}
             aria-label="Close"
-            className="absolute top-4 right-4 grid size-11 place-items-center rounded-full border border-white/25 bg-white/15 text-white backdrop-blur-md hover:bg-white/30 focus-visible:outline-white md:top-6 md:right-6"
+            className="border-surface/25 bg-surface/15 text-surface hover:bg-surface/30 focus-visible:outline-surface absolute top-4 right-4 grid size-11 place-items-center rounded-full border backdrop-blur-md md:top-6 md:right-6"
           >
             <X aria-hidden className="size-5" />
           </button>

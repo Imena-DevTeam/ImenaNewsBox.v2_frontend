@@ -1,37 +1,26 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { MEMBER, signedInPerson, type Person } from "@/constants/member";
-import type { Role } from "@/lib/session";
+import { MEMBER, type Person } from "@/constants/member";
 
 const SignedInContext = createContext<Person>(MEMBER);
 
 /**
- * Who is reading the page.
+ * Who is reading the page, for the header, the footer and the dashboard.
  *
- * The member frame showed one hard-coded name, so every studio page greeted
- * the blogger as "Aganze · Family Member" while the line underneath said
- * "Signed in as Ngabe · Family blogger". The page contradicted itself.
- *
- * The role already reaches the member layout, which is the one server
- * component every member page passes through; this carries it the rest of
- * the way to the header without every page having to think about it.
- *
- * TODO: the session carries a role and not an identity, so the name still
- * comes from a constant per role rather than from the register. When the
- * auth API issues a real token, this provider is where the real person
- * arrives, and nothing that reads it has to change.
+ * The member layout asks the server once per request (lib/viewer.ts) and
+ * hands the answer down here, so no page has to think about it. With a
+ * backend it is the signed-in account; in fixture mode, the sample person
+ * the session's role stands for.
  */
 export function SignedInProvider({
-  role,
+  person,
   children,
 }: {
-  role?: Role | null;
+  person: Person;
   children: ReactNode;
 }) {
-  return (
-    <SignedInContext value={signedInPerson(role)}>{children}</SignedInContext>
-  );
+  return <SignedInContext value={person}>{children}</SignedInContext>;
 }
 
 export function useSignedIn(): Person {

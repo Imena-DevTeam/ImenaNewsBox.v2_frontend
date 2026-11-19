@@ -82,7 +82,7 @@ export function PublicTreeIllustration({
               dx="0"
               dy="3"
               stdDeviation="3"
-              floodColor="#000000"
+              floodColor="var(--color-text)"
               floodOpacity="0.14"
             />
           </filter>
@@ -101,14 +101,18 @@ export function PublicTreeIllustration({
           {/* Branch 1: Top-left entry into Benon circle */}
           <path
             d="M 15 90 C 70 90, 160 110, 190 182"
-            stroke="#1e2025"
+            stroke="var(--color-tree-ink)"
             strokeWidth={2.5}
           />
 
           {/* Branch 2A & 2B: From Benon bottom split to Sylvain & Honette (2019-2021) */}
           <path
             d="M 175 315 C 175 365, 205 385, 225 391"
-            stroke={isGenActiveOrHovered("2019-2021") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2019-2021")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2019-2021") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2019-2021")
@@ -119,7 +123,11 @@ export function PublicTreeIllustration({
           />
           <path
             d="M 205 315 C 235 345, 280 365, 300 391"
-            stroke={isGenActiveOrHovered("2019-2021") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2019-2021")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2019-2021") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2019-2021")
@@ -132,7 +140,11 @@ export function PublicTreeIllustration({
           {/* Branch 3: Sweep from Honette down and curving UP to Innocent & Jolie (2019-2021 / 2021-2022) */}
           <path
             d="M 334 425 C 385 435, 410 370, 425 245"
-            stroke={isGenActiveOrHovered("2021-2022") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2021-2022")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2021-2022") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2021-2022")
@@ -145,13 +157,21 @@ export function PublicTreeIllustration({
           {/* Branch 4A & 4B: Under Innocent & Jolie joining at (455, 245) */}
           <path
             d="M 420 194 C 420 225, 440 240, 455 245"
-            stroke={isGenActiveOrHovered("2021-2022") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2021-2022")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2021-2022") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
           <path
             d="M 495 209 C 495 235, 470 245, 455 245"
-            stroke={isGenActiveOrHovered("2021-2022") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2021-2022")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2021-2022") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
@@ -159,7 +179,11 @@ export function PublicTreeIllustration({
           {/* Branch 5: Long branch from (455, 245) heading straight down between cards into Elua & Joyeuse */}
           <path
             d="M 455 245 C 455 350, 410 440, 410 521"
-            stroke={isGenActiveOrHovered("2023-2024") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2023-2024")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2023-2024") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2023-2024")
@@ -172,7 +196,11 @@ export function PublicTreeIllustration({
           {/* Branch 6: Connection looping from Jolie across to Patrick & Francine (2022-2023) */}
           <path
             d="M 529 175 C 570 175, 610 145, 645 105"
-            stroke={isGenActiveOrHovered("2022-2023") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2022-2023")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2022-2023") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2022-2023")
@@ -185,13 +213,21 @@ export function PublicTreeIllustration({
           {/* Branch 7A & 7B: Under Patrick & Francine joining at (665, 215) */}
           <path
             d="M 645 139 C 645 180, 655 205, 665 215"
-            stroke={isGenActiveOrHovered("2022-2023") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2022-2023")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2022-2023") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
           <path
             d="M 720 164 C 720 195, 685 210, 665 215"
-            stroke={isGenActiveOrHovered("2022-2023") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2022-2023")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2022-2023") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
@@ -199,7 +235,11 @@ export function PublicTreeIllustration({
           {/* Branch 8: Long curve from Patrick & Francine junction sweeping down-left into Elua/Joyeuse */}
           <path
             d="M 665 215 C 665 380, 590 580, 535 635 C 500 665, 440 655, 410 589"
-            stroke={isGenActiveOrHovered("2023-2024") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2023-2024")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2023-2024") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2023-2024")
@@ -212,7 +252,11 @@ export function PublicTreeIllustration({
           {/* Branch 9: Outer right arch from Francine sweeping down into Thierry & Liliane (2024-2025) */}
           <path
             d="M 754 130 C 785 180, 775 380, 730 515"
-            stroke={isGenActiveOrHovered("2024-2025") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2024-2025")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2024-2025") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2024-2025")
@@ -223,13 +267,21 @@ export function PublicTreeIllustration({
           />
           <path
             d="M 730 515 C 710 525, 690 530, 680 545"
-            stroke={isGenActiveOrHovered("2024-2025") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2024-2025")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2024-2025") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
           <path
             d="M 730 515 C 740 525, 750 535, 755 555"
-            stroke={isGenActiveOrHovered("2024-2025") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2024-2025")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2024-2025") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
@@ -237,13 +289,21 @@ export function PublicTreeIllustration({
           {/* Branch 10: Under Elua & Joyeuse joining together */}
           <path
             d="M 410 589 C 410 625, 435 640, 448 645"
-            stroke={isGenActiveOrHovered("2023-2024") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2023-2024")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2023-2024") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
           <path
             d="M 485 584 C 485 625, 465 640, 448 645"
-            stroke={isGenActiveOrHovered("2023-2024") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2023-2024")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2023-2024") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
@@ -251,7 +311,11 @@ export function PublicTreeIllustration({
           {/* Branch 11: Long sweep from Thierry & Liliane down-left to Pacifique & Hyguette (2025-2026) */}
           <path
             d="M 690 580 C 660 620, 550 720, 480 770"
-            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2025-2026")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
             filter={
               isGenActiveOrHovered("2025-2026")
@@ -262,7 +326,11 @@ export function PublicTreeIllustration({
           />
           <path
             d="M 480 770 C 420 800, 365 810, 350 825"
-            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
+            stroke={
+              isGenActiveOrHovered("2025-2026")
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
@@ -318,7 +386,11 @@ export function PublicTreeIllustration({
         {/* -------------------------------------------------------------
             ROUNDED RECTANGLE CARDS (with Meaningful Generation Labels)
         ------------------------------------------------------------- */}
-        <g fill="#e6e9f0" stroke="#c9ced8" strokeWidth="1.2">
+        <g
+          fill="var(--color-member-field)"
+          stroke="var(--color-member-border)"
+          strokeWidth="1.2"
+        >
           {TREE_CARDS.map((card) => (
             <g
               key={card.id}
@@ -340,7 +412,7 @@ export function PublicTreeIllustration({
                 width={card.w}
                 height={card.h}
                 rx="16"
-                className="transition-colors hover:fill-[#d8dce6]"
+                className="hover:fill-member-border transition-colors"
               />
               <text
                 x={card.x + card.w / 2}
@@ -385,7 +457,7 @@ export function PublicTreeIllustration({
                 cx={node.cx}
                 cy={node.cy}
                 r={node.r}
-                fill="#ffffff"
+                fill="var(--color-surface)"
                 filter="url(#node-shadow)"
               />
 
@@ -408,20 +480,20 @@ export function PublicTreeIllustration({
                     y={node.cy - node.r}
                     width={node.r * 2}
                     height={node.r * 2}
-                    fill="#e2e8f0"
+                    fill="var(--color-member-border)"
                   />
                   <circle
                     cx={node.cx}
                     cy={node.cy - 6}
                     r={node.r * 0.38}
-                    fill="#94a3b8"
+                    fill="var(--color-ornament)"
                   />
                   <ellipse
                     cx={node.cx}
                     cy={node.cy + node.r * 0.75}
                     rx={node.r * 0.65}
                     ry={node.r * 0.45}
-                    fill="#94a3b8"
+                    fill="var(--color-ornament)"
                   />
                 </g>
               )}
@@ -433,7 +505,11 @@ export function PublicTreeIllustration({
                 r={node.r}
                 fill="none"
                 stroke={
-                  isHovered ? "#0d1aba" : isSelected ? "#5a36da" : "#1e2025"
+                  isHovered
+                    ? "var(--color-brand)"
+                    : isSelected
+                      ? "var(--color-brand)"
+                      : "var(--color-tree-ink)"
                 }
                 strokeWidth={isHovered ? 4 : isSelected ? 3 : 2}
                 className="transition-all duration-200"
@@ -444,7 +520,7 @@ export function PublicTreeIllustration({
                 cx={node.cx}
                 cy={node.cy}
                 r={node.r + 6}
-                fill="#ffffff"
+                fill="var(--color-surface)"
                 opacity="0.001"
                 style={{ cursor: "pointer", pointerEvents: "all" }}
               />
@@ -477,9 +553,13 @@ export function PublicTreeIllustration({
             cx={TREE_ROOT_BENON.cx}
             cy={TREE_ROOT_BENON.cy}
             r={TREE_ROOT_BENON.r}
-            fill="#e2e8f0"
+            fill="var(--color-member-border)"
             filter="url(#node-shadow)"
-            stroke={hoveredNode?.id === "benon-root" ? "#0d1aba" : "#1e2025"}
+            stroke={
+              hoveredNode?.id === "benon-root"
+                ? "var(--color-brand)"
+                : "var(--color-tree-ink)"
+            }
             strokeWidth={hoveredNode?.id === "benon-root" ? 4 : 2.5}
             className="transition-all duration-200"
           />
@@ -490,14 +570,14 @@ export function PublicTreeIllustration({
               cx={TREE_ROOT_BENON.cx}
               cy={TREE_ROOT_BENON.cy - 14}
               r={26}
-              fill="#94a3b8"
+              fill="var(--color-ornament)"
             />
             <ellipse
               cx={TREE_ROOT_BENON.cx}
               cy={TREE_ROOT_BENON.cy + 50}
               rx={50}
               ry={35}
-              fill="#94a3b8"
+              fill="var(--color-ornament)"
             />
           </g>
 
@@ -506,7 +586,7 @@ export function PublicTreeIllustration({
             cx={TREE_ROOT_BENON.cx}
             cy={TREE_ROOT_BENON.cy}
             r={TREE_ROOT_BENON.r + 8}
-            fill="#ffffff"
+            fill="var(--color-surface)"
             opacity="0.001"
             style={{ cursor: "pointer", pointerEvents: "all" }}
           />
@@ -526,21 +606,21 @@ export function PublicTreeIllustration({
               width="104"
               height="32"
               rx="16"
-              fill="#0d1aba"
+              fill="var(--color-brand)"
               filter="url(#node-shadow)"
             />
             <text
               x="0"
               y="4.5"
               textAnchor="middle"
-              fill="#ffffff"
+              fill="var(--color-surface)"
               fontSize="13"
               fontWeight="700"
               fontFamily="var(--font-sans), sans-serif"
             >
               {hoveredNode.name}
             </text>
-            <polygon points="-5,16 5,16 0,22" fill="#0d1aba" />
+            <polygon points="-5,16 5,16 0,22" fill="var(--color-brand)" />
           </g>
         )}
       </svg>

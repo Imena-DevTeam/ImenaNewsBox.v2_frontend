@@ -36,3 +36,16 @@ export interface RemoteImage {
 export function isRemoteImage(source: ImageSource): source is string {
   return typeof source === "string";
 }
+
+/** A local import's own path, or the URL as it came. */
+export function imageUrl(source: ImageSource): string {
+  return isRemoteImage(source) ? source : source.src;
+}
+
+/**
+ * `placeholder="blur"` throws on a remote image without a `blurDataURL`, so
+ * the blur is only asked for when the source carries one.
+ */
+export function placeholderFor(source: ImageSource): "blur" | "empty" {
+  return isRemoteImage(source) ? "empty" : "blur";
+}

@@ -1,5 +1,7 @@
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import { imenaCrest } from "@/lib/images";
+import { coverTransitionName } from "@/lib/transition-names";
 import type { BlogArticleDetail } from "../types";
 
 /**
@@ -8,17 +10,20 @@ import type { BlogArticleDetail } from "../types";
  */
 export function ArticleHeroMedia({ article }: { article: BlogArticleDetail }) {
   const frame =
-    "border-member-border shadow-member relative aspect-video w-full overflow-hidden rounded-2xl border sm:rounded-3xl md:aspect-2/1";
+    "border-member-border shadow-member relative aspect-video w-full overflow-hidden rounded-lg border sm:rounded-lg md:aspect-2/1";
 
   if (article.coverImage) {
     return (
-      <div className={`${frame} group bg-member-tint`}>
+      <div
+        className={`${frame} group bg-member-tint`}
+        style={{ viewTransitionName: coverTransitionName(article.slug) }}
+      >
         <Image
           src={article.coverImage}
           alt={article.coverAlt}
           fill
           priority
-          placeholder="blur"
+          placeholder={placeholderFor(article.coverImage)}
           sizes="(min-width: 1024px) 896px, 100vw"
           className="object-cover transition-transform duration-500 group-hover:scale-102 motion-reduce:transition-none"
         />
@@ -27,13 +32,7 @@ export function ArticleHeroMedia({ article }: { article: BlogArticleDetail }) {
   }
 
   return (
-    <div
-      className={`${frame} from-member-tint via-surface to-member-tint bg-linear-to-br`}
-    >
-      <div
-        aria-hidden
-        className="from-brand/10 absolute inset-0 bg-radial via-transparent to-transparent"
-      />
+    <div className={`${frame} bg-member-tint`}>
       <Image
         src={imenaCrest}
         alt="IMENA family crest"

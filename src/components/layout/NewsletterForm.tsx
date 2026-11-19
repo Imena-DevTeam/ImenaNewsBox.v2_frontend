@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { useActionState } from "react";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { NEWSLETTER_INITIAL } from "@/lib/newsletter";
@@ -17,6 +18,7 @@ export function NewsletterForm() {
           Email address
         </label>
         <input
+          autoComplete="email"
           id="newsletter-email"
           type="email"
           name="email"
@@ -24,15 +26,11 @@ export function NewsletterForm() {
           placeholder="Enter your email"
           aria-describedby={state.message ? "newsletter-status" : undefined}
           aria-invalid={state.status === "error" || undefined}
-          className="h-10 w-48 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm text-white transition-colors placeholder:text-white/60 focus:border-white/40 sm:w-56"
+          className="border-surface/20 bg-surface/10 text-surface placeholder:text-surface/60 focus:border-surface/40 text-body-sm h-10 w-48 rounded-lg border px-3.5 transition-colors sm:w-56"
         />
-        <button
-          type="submit"
-          disabled={pending}
-          className="h-10 rounded-lg bg-white/20 px-5 text-sm font-medium text-white transition-colors hover:bg-white/30 disabled:opacity-60"
-        >
+        <Button type="submit" variant="light" size="sm" disabled={pending}>
           {pending ? "Sending…" : "Subscribe"}
-        </button>
+        </Button>
       </div>
 
       {/* aria-live, so the answer is announced rather than only seen. */}

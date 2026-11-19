@@ -1,3 +1,5 @@
+import { Quote } from "@/components/ui/Quote";
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";

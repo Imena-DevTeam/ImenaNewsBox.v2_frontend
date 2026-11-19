@@ -1,10 +1,11 @@
+import { placeholderFor } from "@/types/media";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight, Images } from "lucide-react";
 import { SectionHeading } from "@/components/layout/SectionHeading";
+import { TransitionLink } from "@/components/ui/TransitionLink";
 import { ROUTES } from "@/constants/routes";
 import { FEATURED_ALBUMS } from "../data";
-import { SunOrnament } from "./GalleryOrnaments";
+import { SunOrnament } from "@/components/ui/Ornaments";
 
 /**
  * Six albums, three across, each a photograph with its name on a white pill
@@ -41,18 +42,18 @@ export function FeaturedAlbums() {
                 src={album.image}
                 alt={album.alt}
                 fill
-                placeholder="blur"
+                placeholder={placeholderFor(album.image)}
                 sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 className="transition-base object-cover group-hover:scale-105"
               />
 
-              <p className="bg-surface text-member-ink text-caption shadow-menu rounded-pill absolute bottom-6 left-5 flex h-6.25 max-w-[70%] items-center gap-1.5 px-2.5">
+              <p className="bg-surface text-member-ink text-caption shadow-menu rounded-pill absolute bottom-6 left-5 flex h-6.25 max-w-7/10 items-center gap-1.5 px-2.5">
                 <Images aria-hidden className="size-3 shrink-0" />
                 <span className="truncate">{album.title}</span>
               </p>
 
               {/* The link covers the card; the circle is what it looks like. */}
-              <Link
+              <TransitionLink
                 href={`${ROUTES.GALLERY}/${album.slug}`}
                 className="focus-visible:outline-brand absolute inset-0"
               >
@@ -66,7 +67,7 @@ export function FeaturedAlbums() {
                 >
                   <ArrowRight className="size-4" />
                 </span>
-              </Link>
+              </TransitionLink>
             </article>
           </li>
         ))}

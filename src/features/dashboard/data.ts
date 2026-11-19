@@ -1,9 +1,9 @@
+import type { ImageSource } from "@/types/media";
 /**
  * Everything the dashboard knows until the backend exists. The member's
  * name arrives in the session later; for now it is a sample so the page is
  * honest about being sample content.
  */
-import type { StaticImageData } from "next/image";
 import {
   blogReunion,
   dashboardFamilyGathering,
@@ -12,7 +12,7 @@ import {
 
 export interface Slide {
   title: string;
-  image: StaticImageData;
+  image: ImageSource;
   alt: string;
 }
 

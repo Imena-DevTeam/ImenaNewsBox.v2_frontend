@@ -1,11 +1,12 @@
 "use client";
 
+import { placeholderFor, imageUrl } from "@/types/media";
 import Image from "next/image";
 import { useState } from "react";
 import { SectionHeading } from "@/components/layout/SectionHeading";
 import { cn } from "@/lib/cn";
 import { MOMENTS } from "../data";
-import { CameraOrnament } from "./GalleryOrnaments";
+import { CameraOrnament } from "@/components/ui/Ornaments";
 
 /**
  * Featured videos: one wide frame at a time, with the marks along its foot to
@@ -67,7 +68,7 @@ export function FeaturedMoments() {
             src={moment.poster}
             alt={moment.alt}
             fill
-            placeholder="blur"
+            placeholder={placeholderFor(moment.poster)}
             sizes="(min-width: 1024px) 800px, 100vw"
             className="stage-fade object-cover"
           />

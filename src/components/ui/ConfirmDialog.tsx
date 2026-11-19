@@ -47,7 +47,7 @@ export function ConfirmDialog({
       onClose={onCancel}
       onCancel={onCancel}
       aria-labelledby="confirm-title"
-      className="bg-surface open:animate-dialog-pop m-auto w-[min(28rem,calc(100vw-2rem))] rounded-lg p-0 shadow-xl backdrop:bg-black/50 motion-reduce:animate-none"
+      className="bg-surface open:animate-dialog-pop backdrop:bg-member-ink/50 m-auto w-[min(28rem,calc(100vw-2rem))] rounded-lg p-0 shadow-xl motion-reduce:animate-none"
     >
       <div className="p-6">
         <h2

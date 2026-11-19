@@ -7,14 +7,21 @@ import { cn } from "@/lib/cn";
 
 const MAX_LENGTH = 280;
 
-/** The family's own palette, so the burst looks like the site's. */
-const CONFETTI_COLOURS = [
-  "#5935da",
-  "#bfa3d3",
-  "#f26493",
-  "#f2c14e",
-  "#ffffff",
+/** The family's own palette, read from the tokens so the burst matches. */
+const CONFETTI_TOKENS = [
+  "--color-brand",
+  "--color-member-active",
+  "--color-member-heart",
+  "--color-celebration-gold",
+  "--color-surface",
 ];
+
+function confettiColours(): string[] {
+  const style = getComputedStyle(document.documentElement);
+  return CONFETTI_TOKENS.map((token) =>
+    style.getPropertyValue(token).trim(),
+  ).filter(Boolean);
+}
 
 export interface WishTarget {
   name: string;
@@ -90,7 +97,7 @@ export function WishDialog({
           angle,
           startVelocity: 55,
           origin: { x, y: 0.7 },
-          colors: CONFETTI_COLOURS,
+          colors: confettiColours(),
           zIndex: 2147483647,
         });
       burst(0.2, 60);
@@ -107,18 +114,18 @@ export function WishDialog({
         if (event.target === event.currentTarget) dialog.current?.close();
       }}
       className={cn(
-        "m-auto w-[min(100vw-2rem,32rem)] max-w-none rounded-3xl bg-transparent p-0",
+        "m-auto w-[min(100vw-2rem,32rem)] max-w-none rounded-lg bg-transparent p-0",
         "backdrop:bg-member-ink/40 backdrop:backdrop-blur-sm",
         "open:animate-dialog-pop motion-reduce:animate-none",
       )}
     >
-      <div className="bg-surface overflow-hidden rounded-3xl shadow-2xl">
-        <header className="from-member-night to-brand text-surface relative bg-gradient-to-br px-6 pt-6 pb-5">
+      <div className="bg-surface overflow-hidden rounded-lg shadow-2xl">
+        <header className="bg-member-night text-surface relative px-6 pt-6 pb-5">
           <button
             type="button"
             onClick={() => dialog.current?.close()}
             aria-label="Close"
-            className="absolute top-4 right-4 grid size-10 place-items-center rounded-full hover:bg-white/15 focus-visible:outline-white"
+            className="hover:bg-surface/15 focus-visible:outline-surface absolute top-4 right-4 grid size-10 place-items-center rounded-full"
           >
             <X aria-hidden className="size-5" />
           </button>
@@ -135,7 +142,7 @@ export function WishDialog({
 
         {sent ? (
           <div className="px-6 py-6">
-            <p className="bg-member-tint text-member-ink text-body-sm rounded-2xl p-4 italic">
+            <p className="bg-member-tint text-member-ink text-body-sm rounded-lg p-4 italic">
               &ldquo;{message}&rdquo;
             </p>
             <p className="text-body-sm text-muted mt-4 flex gap-2">
@@ -173,7 +180,7 @@ export function WishDialog({
                   <label
                     key={text}
                     className={cn(
-                      "flex cursor-pointer gap-3 rounded-2xl border p-3.5 transition-colors",
+                      "flex cursor-pointer gap-3 rounded-lg border p-3.5 transition-colors",
                       choice === optionIndex
                         ? "border-brand bg-member-tint"
                         : "border-member-border hover:bg-member-panel",
@@ -192,7 +199,7 @@ export function WishDialog({
 
                 <label
                   className={cn(
-                    "flex cursor-pointer gap-3 rounded-2xl border p-3.5 transition-colors",
+                    "flex cursor-pointer gap-3 rounded-lg border p-3.5 transition-colors",
                     choice === "own"
                       ? "border-brand bg-member-tint"
                       : "border-member-border hover:bg-member-panel",
@@ -218,6 +225,7 @@ export function WishDialog({
                   Your message to {target.name}
                 </label>
                 <textarea
+                  autoComplete="off"
                   id="own-wish"
                   autoFocus
                   rows={3}
@@ -225,7 +233,7 @@ export function WishDialog({
                   value={own}
                   onChange={(event) => setOwn(event.target.value)}
                   placeholder={`Write something for ${target.name}…`}
-                  className="border-member-border text-body-sm focus-visible:outline-brand w-full resize-none rounded-2xl border p-3.5"
+                  className="border-member-border text-body-sm focus-visible:outline-brand w-full resize-none rounded-lg border p-3.5"
                 />
                 <p className="text-caption-sm text-muted mt-1 text-right tabular-nums">
                   {own.length} / {MAX_LENGTH}

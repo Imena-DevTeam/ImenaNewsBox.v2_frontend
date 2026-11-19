@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/components/ui/Toaster";
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { BLOG_PAGE_POSTS, getArticleBySlug } from "@/features/blogs/data";
@@ -30,7 +31,7 @@ const fillNewPost = () => {
 
 describe("PostEditor", () => {
   it("counts the words, paragraphs and reading time as they are written", () => {
-    render(<PostEditor />);
+    render(<PostEditor />, { wrapper: ToastProvider });
 
     expect(screen.getByText("Nothing written yet")).toBeInTheDocument();
 
@@ -45,7 +46,7 @@ describe("PostEditor", () => {
   /* The archive and the family's blog both lead with a photograph, so a post
      published without one is published broken. A draft may wait for it. */
   it("will not publish a post with no cover photograph", async () => {
-    render(<PostEditor />);
+    render(<PostEditor />, { wrapper: ToastProvider });
     fillNewPost();
 
     fireEvent.click(screen.getByText("Publish"));
@@ -56,7 +57,7 @@ describe("PostEditor", () => {
   });
 
   it("saves that same post as a draft without one", async () => {
-    render(<PostEditor />);
+    render(<PostEditor />, { wrapper: ToastProvider });
     fillNewPost();
 
     fireEvent.click(screen.getByText("Save as draft"));
@@ -68,7 +69,7 @@ describe("PostEditor", () => {
 
   /* An existing post has a cover already, so publishing is not blocked. */
   it("keeps the photograph a post already has", async () => {
-    render(<PostEditor post={editable} />);
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     expect(
       screen.getByText("Keeping the photograph this post already has."),
@@ -82,7 +83,7 @@ describe("PostEditor", () => {
   });
 
   it("opens the post it was given, body and all", () => {
-    render(<PostEditor post={editable} />);
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     expect(screen.getByLabelText("The post")).toHaveValue(editable.body);
     expect(screen.getByText(/^Published /)).toBeInTheDocument();
@@ -91,7 +92,7 @@ describe("PostEditor", () => {
   /* She writes in a textarea and publishes to the whole family: the preview
      is the only place she sees what they will see. */
   it("shows the writing as the family will read it", () => {
-    render(<PostEditor post={editable} />);
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     fireEvent.click(screen.getByText("Preview"));
 
@@ -108,7 +109,7 @@ describe("PostEditor", () => {
   });
 
   it("says a post would be published on the day it is given", async () => {
-    render(<PostEditor post={editable} />);
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     write("Publish on (optional)", "2026-12-24");
     fireEvent.click(screen.getByText("Save changes"));
@@ -120,29 +121,24 @@ describe("PostEditor", () => {
 
   /* Deleting the post you are looking at belongs in the editor, not only in
      the archive's bulk bar. */
-  it("asks before deleting the post, and reports it", async () => {
-    render(<PostEditor post={editable} />);
+  it("deletes the post with an Undo, and reports it", async () => {
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     fireEvent.click(screen.getByText("Delete this post"));
-    expect(
-      screen.getByRole("heading", { name: `Delete “${editable.title}”?` }),
-    ).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("Keep it"));
-    fireEvent.click(screen.getByText("Delete this post"));
-    fireEvent.click(screen.getByText("Delete the post"));
-
     expect(await screen.findByText(/would be deleted/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(screen.queryByText(/would be deleted/)).toBeNull();
   });
 
   it("offers no delete for a post that does not exist yet", () => {
-    render(<PostEditor />);
+    render(<PostEditor />, { wrapper: ToastProvider });
     expect(screen.queryByText("Delete this post")).not.toBeInTheDocument();
   });
   /* Being told what is missing after pressing Publish is the wrong end of
      the sequence for something she can see is not there. */
   it("says a cover is needed before she presses publish", () => {
-    render(<PostEditor />);
+    render(<PostEditor />, { wrapper: ToastProvider });
 
     const needed = screen.getByText("Needed before publishing");
     expect(needed).toBeInTheDocument();
@@ -156,7 +152,7 @@ describe("PostEditor", () => {
 
   /* A post that has one says nothing, because there is nothing to say. */
   it("says nothing about the cover of a post that has one", () => {
-    render(<PostEditor post={editable} />);
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     expect(
       screen.queryByText("Needed before publishing"),
@@ -166,7 +162,7 @@ describe("PostEditor", () => {
   /* The rail described the record as it was loaded, which stopped being true
      the moment she saved. */
   it("follows what she has just done, not how the post arrived", async () => {
-    render(<PostEditor post={editable} />);
+    render(<PostEditor post={editable} />, { wrapper: ToastProvider });
 
     expect(screen.getByText(/^Published /)).toBeInTheDocument();
 

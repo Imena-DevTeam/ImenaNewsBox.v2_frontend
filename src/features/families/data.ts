@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import type { ImageSource } from "@/types/media";
 import {
   blogReunion,
   elder1,
@@ -24,16 +24,16 @@ export interface Subfamily {
   mottoMeaning: string;
   /** Who leads the branch's current generation. */
   leader: string;
-  leaderPortrait: StaticImageData;
+  leaderPortrait: ImageSource;
   members: number;
   /** Generations counted from the branch's founding couple. */
   generations: number;
   founded: number;
-  image: StaticImageData;
+  image: ImageSource;
   /** Two or three paragraphs for the branch's own page. */
   story: string[];
   /** The photographs the branch's page shows under its story. */
-  moments: { image: StaticImageData; caption: string }[];
+  moments: { image: ImageSource; caption: string }[];
 }
 
 /** The three subfamilies the design calls the trinity. Until each branch has

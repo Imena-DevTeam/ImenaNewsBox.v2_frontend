@@ -14,12 +14,15 @@ describe("userLoginSchema", () => {
 });
 
 describe("adminLoginSchema", () => {
-  it("rejects a password under 8 characters", () => {
-    const result = adminLoginSchema.safeParse({
-      name: "Aganze",
-      password: "short",
-    });
-    expect(result.success).toBe(false);
+  /* The backend checks the password, and one set before the eight-character
+     rule must still open the door, so only an empty one is refused here. */
+  it("takes a password of any length, but not none", () => {
+    expect(
+      adminLoginSchema.safeParse({ name: "Aganze", password: "short" }).success,
+    ).toBe(true);
+    expect(
+      adminLoginSchema.safeParse({ name: "Aganze", password: "" }).success,
+    ).toBe(false);
   });
 
   it("rejects a blank name", () => {

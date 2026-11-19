@@ -82,7 +82,7 @@ export function BlogHighlights() {
 
                   <Link
                     href={`${ROUTES.BLOGS}/${post.slug}`}
-                    className="group/link text-ui text-primary transition-base mt-7 inline-flex items-center gap-3 hover:gap-4"
+                    className="group/link text-ui text-brand transition-base mt-7 inline-flex items-center gap-3 hover:gap-4"
                   >
                     <span className="link-underline">Read more</span>
                     <ArrowRight className="transition-base size-5 motion-safe:group-hover/link:translate-x-0.5" />

@@ -17,7 +17,7 @@ describe("MemberFooter", () => {
     render(<MemberFooter />);
 
     expect(screen.getByText(/private archive/i)).toBeInTheDocument();
-    expect(screen.getByText(`“${FAMILY_MOTTO}”`)).toHaveAttribute("lang", "rw");
+    expect(screen.getByText(FAMILY_MOTTO)).toHaveAttribute("lang", "rw");
   });
 
   it("makes no claim about who is online", () => {

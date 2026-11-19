@@ -104,7 +104,7 @@ function Node({ muted = false, order }: { muted?: boolean; order: number }) {
       variants={pop}
       className={cn(
         "rounded-pill bg-surface flex size-7 shrink-0 items-center justify-center border",
-        muted ? "border-border text-muted" : "border-primary text-primary",
+        muted ? "border-border text-muted" : "border-brand text-brand",
       )}
     >
       <UserRound className="size-3.5" />

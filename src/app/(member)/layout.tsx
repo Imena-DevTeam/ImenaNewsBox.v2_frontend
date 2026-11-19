@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
-import { cookies } from "next/headers";
 import { Playfair_Display, Poppins } from "next/font/google";
 import { MemberSidebar } from "@/components/layout/MemberSidebar";
 import { SignedInProvider } from "@/components/layout/SignedIn";
+import { ToastProvider } from "@/components/ui/Toaster";
+import { OfflineBanner } from "@/components/layout/OfflineBanner";
+import { CommandPalette } from "@/components/ui/CommandPalette";
+import { searchCommands } from "@/features/search/commands";
 import { MemberFooter } from "@/components/layout/MemberFooter";
 import { MinimalFooter } from "@/components/layout/MinimalFooter";
 import { MemberFooterSwitch } from "@/components/layout/MemberFooterSwitch";
@@ -34,9 +37,9 @@ export default async function MemberLayout({
   /* The rail needs to know whether to offer the admin door, and the header
      needs to know whose name to show. Read here, in the one server component
      every member page already passes through, so no page has to think about
-     it. */
-  const store = await cookies();
-  const role = await getSessionRole(store.get(SESSION_COOKIE)?.value);
+     it. With a backend this is its answer to /users/me, asked once per
+     request (see lib/viewer.ts). */
+  const { role, person } = await requireViewer();
 
   return (
     <div
@@ -46,20 +49,23 @@ export default async function MemberLayout({
           left for the desktop dock, room at the foot for the mobile one. */}
       <a
         href="#member-content"
-        className="bg-brand text-surface rounded-field sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:px-5 focus:py-3"
+        className="bg-brand text-surface rounded-field sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-60 focus:px-5 focus:py-3"
       >
         Skip to the page content
       </a>
 
-      <SignedInProvider role={role}>
-        <MemberSidebar role={role} />
+      <OfflineBanner />
 
-        <main
-          id="member-content"
-          className="max-w-page mx-auto w-full min-w-0 flex-1 px-4 pt-6 md:pt-9 md:pr-8 md:pl-30"
-        >
-          {children}
-        </main>
+      <SignedInProvider person={person}>
+        <ToastProvider>
+          <MemberSidebar role={role} />
+
+          <main
+            id="member-content"
+            className="max-w-page mx-auto w-full min-w-0 flex-1 px-4 pt-6 md:pt-9 md:pr-8 md:pl-30"
+          >
+            {children}
+          </main>
 
         <MemberFooterSwitch
           minimal={<MinimalFooter />}

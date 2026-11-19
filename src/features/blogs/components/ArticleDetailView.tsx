@@ -3,6 +3,7 @@ import { FamilyTagline } from "@/components/layout/FamilyTagline";
 import type { BlogArticleDetail } from "../types";
 import { ArticleAuthorBar } from "./ArticleAuthorBar";
 import { ArticleBody } from "./ArticleBody";
+import { ArticleComments } from "./ArticleComments";
 import { ArticleHeader } from "./ArticleHeader";
 import { ArticleHeroMedia } from "./ArticleHeroMedia";
 import { CelebrationOrnaments } from "./CelebrationOrnaments";
@@ -21,9 +22,10 @@ export function ArticleDetailView({ article }: { article: BlogArticleDetail }) {
         </div>
         <ArticleBody article={article} />
         <ArticleAuthorBar article={article} />
+        <ArticleComments slug={article.slug} />
         <p className="text-caption text-muted mt-6 font-normal">
-          Sample story. The family blog is not connected yet, so this text and
-          its numbers are placeholders.
+          Sample story. The family blog is not connected yet, so this text, its
+          numbers and its comments are placeholders.
         </p>
       </article>
 

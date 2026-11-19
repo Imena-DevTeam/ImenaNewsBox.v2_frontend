@@ -45,7 +45,7 @@ export function GallerySkeleton() {
         <div className="mt-16 md:mt-24">
           <div className={`${SHIMMER} mx-auto h-11 w-64`} />
           <div
-            className={`${SHIMMER} rounded-media aspect-gallery-video mx-auto mt-11 w-full max-w-200`}
+            className={`${SHIMMER} aspect-gallery-video mx-auto mt-11 w-full max-w-200 rounded-lg`}
           />
         </div>
 

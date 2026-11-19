@@ -133,7 +133,7 @@ export function StatsStrip() {
           <Stat
             value={3}
             label="Subfamilies"
-            colour="text-primary"
+            colour="text-brand"
             className="md:col-start-1 md:row-start-2 md:self-start md:pt-12"
           />
 

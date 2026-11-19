@@ -35,7 +35,7 @@ export function TextField({
 
   return (
     <div className="w-full">
-      <label htmlFor={id} className="mb-2 block text-sm font-medium">
+      <label htmlFor={id} className="text-body-sm mb-2 block font-medium">
         {label}
       </label>
 
@@ -59,7 +59,7 @@ export function TextField({
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            "rounded-field text-text placeholder:text-field-placeholder h-12 w-full min-w-0 bg-transparent px-4 text-base",
+            "rounded-field text-text placeholder:text-field-placeholder text-body h-12 w-full min-w-0 bg-transparent px-4",
             className,
           )}
           {...props}
@@ -71,7 +71,7 @@ export function TextField({
             onClick={() => setRevealed((value) => !value)}
             aria-label={revealed ? "Hide password" : "Show password"}
             aria-pressed={revealed}
-            className="text-muted mr-2 flex size-10 shrink-0 items-center justify-center rounded-xl"
+            className="text-muted mr-2 flex size-10 shrink-0 items-center justify-center rounded-md"
           >
             {revealed ? (
               <EyeOff className="size-5" />
@@ -83,7 +83,11 @@ export function TextField({
       </div>
 
       {error ? (
-        <p id={errorId} role="alert" className="text-danger mt-1.5 text-sm">
+        <p
+          id={errorId}
+          role="alert"
+          className="text-danger text-body-sm mt-1.5"
+        >
           {error}
         </p>
       ) : null}

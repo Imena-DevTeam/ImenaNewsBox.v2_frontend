@@ -18,7 +18,7 @@ export default function PublicError({
 }) {
   return (
     <Container className="py-24 text-center md:py-32">
-      <p className="text-caption text-heading font-semibold tracking-[0.16em] uppercase">
+      <p className="text-caption text-heading font-semibold tracking-widest uppercase">
         Something went wrong
       </p>
       <h1 className="text-h2-m md:text-h2 mt-4">We could not load this page</h1>

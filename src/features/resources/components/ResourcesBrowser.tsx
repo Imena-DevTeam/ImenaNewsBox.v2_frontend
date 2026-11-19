@@ -43,8 +43,7 @@ export function ResourcesBrowser() {
     link.click();
     document.body.removeChild(link);
 
-    setToastMessage(`Downloading "${resource.fileName}"`);
-    setTimeout(() => setToastMessage(null), 3200);
+    toast({ message: `Downloading ${resource.fileName}` });
   };
 
   return (

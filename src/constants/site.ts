@@ -2,6 +2,9 @@
 export const CONTACT_EMAIL = "hello@imenafamily.rw";
 export const CONTACT_EMAIL_HREF = `mailto:${CONTACT_EMAIL}`;
 
+/** The family's Instagram account. */
+export const INSTAGRAM_URL = "https://www.instagram.com/famille.imena_/";
+
 /** The family motto, and its sense in English. Closes every member page. */
 export const FAMILY_MOTTO =
   "Ku bw’umurava n’ikizere, imbere hacu heza ntituzazima";

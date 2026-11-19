@@ -23,6 +23,9 @@ export interface FamilyMember {
   status: MemberStatus;
   /** ISO date. The list's default order is newest first. */
   joinedOn: string;
+  /** A portrait's address, or empty: most of the register has none yet, and
+   *  the site shows initials rather than borrow somebody else's face. */
+  photo: string;
 }
 
 /** What `POST /members` is given. The server assigns id and joinedOn. */

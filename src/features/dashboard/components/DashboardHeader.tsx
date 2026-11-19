@@ -7,6 +7,7 @@ import { ROUTES } from "@/constants/routes";
 import { elder3 } from "@/lib/images";
 import { useSignedIn } from "@/components/layout/SignedIn";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { SearchButton } from "@/components/layout/SearchButton";
 import { DashboardGreeting } from "./DashboardGreeting";
 
 const AVATAR = elder3;

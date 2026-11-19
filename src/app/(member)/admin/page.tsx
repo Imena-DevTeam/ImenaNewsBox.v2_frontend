@@ -4,14 +4,16 @@ import { UserPlus } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { CountUp } from "@/components/ui/CountUp";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ADMINISTRATOR } from "@/constants/member";
+import { requireViewer } from "@/lib/viewer";
 import { ROUTES } from "@/constants/routes";
 import { ActivityList } from "@/features/admin/components/ActivityList";
 import { AdminBoard } from "@/features/admin/components/AdminBoard";
 import { AdminTabs } from "@/features/admin/components/AdminTabs";
 import { AttentionQueue } from "@/features/admin/components/AttentionQueue";
-import { CommandPalette } from "@/features/admin/components/CommandPalette";
+import { SearchField } from "@/components/layout/SearchField";
+import { ResetRequests } from "@/features/admin/components/ResetRequests";
 import { ACTIVITY, attentionItems } from "@/features/admin/data";
+import { pendingResetRequests } from "@/features/invitations/data";
 import { TRINITY } from "@/features/families/data";
 import { countByBranch } from "@/features/members/data";
 
@@ -20,8 +22,14 @@ export const metadata: Metadata = {
   description: "What needs doing, and what has been done.",
 };
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const { person } = await requireViewer();
   const waiting = attentionItems();
+
+  /* Administrators who cannot get in. This band is the other half of
+     /admin/forgot-password: the family's answer to a lost password is
+     another administrator rather than an inbox. */
+  const resets = pendingResetRequests();
 
   /* Fixed at render on the server and handed down, so the server and the
      client agree what "2 hours ago" means. */
@@ -51,10 +59,8 @@ export default function AdminPage() {
       {/* Band one: who you are, then the three things you came to do. */}
       <p className="text-body-sm text-muted mt-6 text-pretty">
         Signed in as{" "}
-        <span className="text-member-ink font-medium">
-          {ADMINISTRATOR.name}
-        </span>{" "}
-        · {ADMINISTRATOR.role}
+        <span className="text-member-ink font-medium">{person.name}</span> ·{" "}
+        {person.role}
       </p>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -65,7 +71,7 @@ export default function AdminPage() {
           Add a member
         </ButtonLink>
         <div className="min-w-0 flex-1">
-          <CommandPalette />
+          <SearchField />
         </div>
       </div>
 
@@ -90,6 +96,12 @@ export default function AdminPage() {
               id: "activity",
               heading: "Recent activity",
               body: <ActivityList entries={ACTIVITY} now={now} />,
+            },
+            {
+              id: "resets",
+              heading: "Password resets",
+              note: resets.length > 0 ? `${resets.length} waiting` : undefined,
+              body: <ResetRequests requests={resets} now={now} />,
             },
           ]}
         />
@@ -117,7 +129,7 @@ export default function AdminPage() {
                   durationMs={420}
                   className="text-h1-m text-member-ink font-bold"
                 />
-                <span className="text-caption text-muted tracking-[0.14em] uppercase">
+                <span className="text-caption text-muted tracking-widest uppercase">
                   {count.label}
                 </span>
               </Link>

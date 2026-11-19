@@ -10,6 +10,8 @@ import ProfileLoading from "./(member)/profile/loading";
 import GalleryLoading from "./(member)/gallery/loading";
 import AlbumLoading from "./(member)/gallery/[album]/loading";
 import FamilyTreeLoading from "./(public)/family-tree/loading";
+import FamilyLoading from "./(member)/families/[slug]/loading";
+import PersonLoading from "./(member)/people/[id]/loading";
 
 /* Every route's loading screen, with what it tells a screen reader. */
 const ROUTES: [string, ComponentType, string][] = [
@@ -23,6 +25,8 @@ const ROUTES: [string, ComponentType, string][] = [
   ["/gallery", GalleryLoading, "Loading the family gallery"],
   ["/gallery/[album]", AlbumLoading, "Loading the album"],
   ["/family-tree", FamilyTreeLoading, "Loading the family tree"],
+  ["/families/[slug]", FamilyLoading, "Loading the family"],
+  ["/people/[id]", PersonLoading, "Loading this family member"],
 ];
 
 describe.each(ROUTES)("%s loading screen", (_route, Loading, label) => {

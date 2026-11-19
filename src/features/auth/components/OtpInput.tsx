@@ -21,8 +21,13 @@ export function OtpInput({
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = value.padEnd(OTP_LENGTH, " ").slice(0, OTP_LENGTH).split("");
 
+  /* Built from what the boxes hold right now, not from this render's
+     `value`: a second key typed before React re-renders would otherwise
+     rebuild the code without the first one and lose it. */
   const setDigit = (index: number, digit: string) => {
-    const next = digits.slice();
+    const next = digits.map(
+      (fallback, at) => refs.current[at]?.value.slice(-1) || fallback,
+    );
     next[index] = digit || " ";
     onChange(next.join("").trimEnd());
   };
@@ -91,7 +96,7 @@ export function OtpInput({
           onKeyDown={(event) => handleKeyDown(index, event)}
           onPaste={handlePaste}
           className={cn(
-            "font-auth-display bg-surface text-text h-16 w-14 rounded-2xl border text-center text-3xl font-bold",
+            "font-auth-display bg-surface text-text text-h1-m h-16 w-14 rounded-lg border text-center font-bold",
             /* The outline is the only thing that says which of the five
                boxes the keyboard is in. It was turned off, leaving a 1px
                border going from grey to slightly darker grey. */

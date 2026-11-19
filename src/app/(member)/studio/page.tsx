@@ -11,7 +11,7 @@ import { AttentionQueue } from "@/features/admin/components/AttentionQueue";
 import { ResumeWriting } from "@/features/studio/components/ResumeWriting";
 import { StudioTabs } from "@/features/studio/components/StudioTabs";
 import { STUDIO_ACTIVITY, studioAttention } from "@/features/studio/data";
-import { BLOGGER } from "@/constants/member";
+import { requireViewer } from "@/lib/viewer";
 import { BLOG_PAGE_POSTS } from "@/features/blogs/data";
 import { FEATURED_ALBUMS } from "@/features/gallery/data";
 
@@ -20,7 +20,8 @@ export const metadata: Metadata = {
   description: "What is waiting to be written, and what has been published.",
 };
 
-export default function StudioPage() {
+export default async function StudioPage() {
+  const { person } = await requireViewer();
   const drafts = [...BLOG_PAGE_POSTS]
     .filter((post) => post.status === "draft")
     .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn));
@@ -63,8 +64,8 @@ export default function StudioPage() {
 
       <p className="text-body-sm text-muted mt-6 text-pretty">
         Signed in as{" "}
-        <span className="text-member-ink font-medium">{BLOGGER.name}</span> ·{" "}
-        {BLOGGER.role}
+        <span className="text-member-ink font-medium">{person.name}</span> ·{" "}
+        {person.role}
       </p>
 
       {/* The page leads with the writing, not with a row of buttons: the
@@ -140,7 +141,7 @@ export default function StudioPage() {
                   durationMs={420}
                   className="text-h1-m text-member-ink font-bold"
                 />
-                <span className="text-caption text-muted tracking-[0.14em] uppercase">
+                <span className="text-caption text-muted tracking-widest uppercase">
                   {count.label}
                 </span>
               </Link>

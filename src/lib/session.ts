@@ -1,50 +1,88 @@
 /**
- * The member session.
+ * The session: who is signed in, as far as this frontend needs to know.
  *
- * There is no auth API yet, so a verified one-time password issues a signed
- * token and the middleware checks the signature and its age. Signing means a
- * session cannot be made by hand-writing a cookie; it does not make the
- * one-time password itself real — any five digits still pass verifyCode().
+ * A signed, httpOnly cookie carrying the person's **role and id**, written
+ * by the server after a login it checked and never by a caller. The
+ * middleware reads it to decide who may reach `/admin` and `/studio`, and
+ * the rail reads it to decide what to offer.
  *
- * TODO: when the backend lands, verify the code against it and carry the
- * user's identity in the token (or swap this for the token it issues).
+ * > [!IMPORTANT]
+ * > **It decides what the frontend shows, not what anybody may do.** With
+ * > a backend (`authMode() === "backend"`), every call carries the
+ * > backend's own access token, the backend loads the user and their role
+ * > from its database on every request, and it refuses what the role may
+ * > not do. This cookie is re-issued from `GET /users/me` whenever the
+ * > tokens refresh, so a changed role reaches the rail within minutes, and
+ * > the admin and studio layouts ask the backend again before rendering.
  *
- * The signing itself is in @/lib/signing, shared with the pending-login
- * cookie: Web Crypto only, so the same code runs in the middleware (edge)
- * and in server actions (Node).
- *
- * The role in this token is written by the server and never by a caller —
- * see app/actions/session.ts, which reads it from the pending-login cookie.
+ * The signing is in @/lib/signing, shared with the pending-login cookie:
+ * Web Crypto only, so the same code runs in the middleware and in server
+ * actions.
  */
-import { sameString, secret, sign } from "@/lib/signing";
+import type { Role as WireRole } from "@/types/wire";
+import { readData, signData } from "@/lib/signing";
 
+/** The backend's roles, cumulative: member < social media manager < admin. */
+export type Role = WireRole;
+
+/** Every role a token may carry, for validating one that arrives. */
+export const ROLES: readonly Role[] = [
+  "member",
+  "social_media_manager",
+  "admin",
+];
+
+/** The signed role-and-id cookie. */
 export const SESSION_COOKIE = "imena_member";
 
-/** A week, which is how long the design's "catch up" flow implies. */
-export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+/** The backend's access token, kept by the Next server (backend mode). */
+export const ACCESS_COOKIE = "imena_access";
+
+/** The backend's refresh token, kept by the Next server (backend mode). */
+export const REFRESH_COOKIE = "imena_refresh";
+
+/**
+ * Ninety days, the backend's refresh lifetime: a device used at least that
+ * often never logs in again. Every refresh starts the count again.
+ */
+export const SESSION_MAX_AGE = 60 * 60 * 24 * 90;
 
 /** Where a signed-out visitor is sent back to after logging in. */
 export const RETURN_PARAM = "next";
 
-/**
- * The three kinds of session.
- *
- * The design offers "As Admin" and "As a member" at login. `blogger` has no
- * door of its own: the family's blogger signs in at the member login like
- * everybody else, and the register says who she is — see
- * features/auth/roles.ts. What the role gates is one extra target in the
- * rail and the studio behind it.
- */
-export type Role = "member" | "admin" | "blogger";
+/** The family name a login form starts with, after an invitation is
+    accepted. Family names are not secret (the backend's auth.md), and it
+    only fills a field: the code, and an administrator's password, still
+    decide everything. */
+export const NAME_PARAM = "name";
 
-/** Every role a token may carry, for validating one that arrives. */
-const ROLES: Role[] = ["member", "admin", "blogger"];
-
-/** Everything under /admin except the login page itself. */
 export const ADMIN_PREFIX = "/admin";
 
+/**
+ * The /admin paths a visitor with no session may reach.
+ *
+ * They are reached by exactly the people who **cannot** sign in, so they
+ * cannot sit behind the gate that sends you to a login you have lost the
+ * password for.
+ *
+ * > [!CAUTION]
+ * > This list is the whole of what separates the register from the public.
+ * > Each entry is an **exact path**, never a prefix, so `/admin/login-x`
+ * > and `/admin/forgot-password/members` are still gated — a prefix here
+ * > would open everything underneath a name anybody can type.
+ */
+export const ADMIN_PUBLIC_PATHS = [
+  "/admin/login",
+  "/admin/forgot-password",
+] as const;
+
+export function isAdminPublicPath(pathname: string): boolean {
+  return ADMIN_PUBLIC_PATHS.some((path) => path === pathname);
+}
+
+/** Everything under /admin except the pages a signed-out visitor needs. */
 export function isAdminPath(pathname: string): boolean {
-  if (pathname === "/admin/login") return false;
+  if (isAdminPublicPath(pathname)) return false;
   return pathname === ADMIN_PREFIX || pathname.startsWith(`${ADMIN_PREFIX}/`);
 }
 
@@ -55,10 +93,10 @@ export function isStudioPath(pathname: string): boolean {
   return pathname === STUDIO_PREFIX || pathname.startsWith(`${STUDIO_PREFIX}/`);
 }
 
-/** The studio is the blogger's, and an administrator can see it too: they
-    are the one who answers for what the family publishes. */
+/** The studio is the social media manager's, and an administrator's too:
+    roles are cumulative, and they answer for what the family publishes. */
 export function mayUseStudio(role: Role): boolean {
-  return role === "blogger" || role === "admin";
+  return role === "social_media_manager" || role === "admin";
 }
 
 /** Every path that needs a member session. */
@@ -71,6 +109,7 @@ export const MEMBER_PREFIXES = [
   "/birthdays",
   "/tree",
   "/families",
+  "/people",
 ] as const;
 
 export function isMemberPath(pathname: string): boolean {
@@ -79,62 +118,53 @@ export function isMemberPath(pathname: string): boolean {
   );
 }
 
-/* v1 tokens carry no role and are read as member sessions, so the sessions
-   issued before the admin area existed keep working until they expire. */
-const VERSION = "v2";
-const LEGACY_VERSION = "v1";
+/* v1 and v2 tokens carried the frontend's own roles, before the backend
+   existed. They are not read: somebody holding one signs in again. */
+const VERSION = "v3";
+
+export interface Session {
+  role: Role;
+  /** The backend's user id, or a sample register id in fixture mode. */
+  userId: string;
+}
 
 /** A fresh session token, or null when no secret is configured. */
 export async function createSessionToken(
-  role: Role = "member",
+  session: Session,
   now: number = Date.now(),
 ): Promise<string | null> {
-  const key = secret();
-  if (!key) return null;
-
-  const payload = `${VERSION}.${role}.${now}`;
-  return `${payload}.${await sign(payload, key)}`;
+  return signData(VERSION, {
+    r: session.role,
+    u: session.userId,
+    t: now,
+  });
 }
 
 /**
- * The role a token carries, or null when it is absent, unsigned, forged or
- * expired. A v1 token predates roles and counts as a member.
+ * The role and id a token carries, or null when it is absent, forged, of
+ * an older version, names a role that does not exist, or is past its
+ * lifetime.
  */
+export async function readSession(
+  token: string | undefined,
+  now: number = Date.now(),
+): Promise<Session | null> {
+  const data = await readData(VERSION, token);
+  if (!data) return null;
+
+  const role = ROLES.find((one) => one === data.r);
+  const userId = typeof data.u === "string" && data.u ? data.u : null;
+  const issuedAt = typeof data.t === "number" ? data.t : NaN;
+  if (!role || !userId || !Number.isFinite(issuedAt)) return null;
+  if (issuedAt > now || now - issuedAt > SESSION_MAX_AGE * 1000) return null;
+
+  return { role, userId };
+}
+
+/** The role alone, for the places that only gate on it. */
 export async function getSessionRole(
   token: string | undefined,
   now: number = Date.now(),
 ): Promise<Role | null> {
-  const key = secret();
-  if (!key || !token) return null;
-
-  const parts = token.split(".");
-  const legacy = parts[0] === LEGACY_VERSION;
-  if (!legacy && parts[0] !== VERSION) return null;
-
-  const [version, role, issued, signature] = legacy
-    ? ([parts[0], "member", parts[1], parts[2]] as const)
-    : (parts as [string, string, string, string]);
-
-  if (!issued || !signature) return null;
-  const known = ROLES.find((one) => one === role);
-  if (!known) return null;
-
-  const issuedAt = Number(issued);
-  if (!Number.isFinite(issuedAt) || issuedAt > now) return null;
-  if (now - issuedAt > SESSION_MAX_AGE * 1000) return null;
-
-  const payload = legacy
-    ? `${version}.${issued}`
-    : `${version}.${role}.${issued}`;
-  if (!sameString(signature, await sign(payload, key))) return null;
-
-  return known;
-}
-
-/** True only for a token this server signed, and only within its lifetime. */
-export async function verifySessionToken(
-  token: string | undefined,
-  now: number = Date.now(),
-): Promise<boolean> {
-  return (await getSessionRole(token, now)) !== null;
+  return (await readSession(token, now))?.role ?? null;
 }

@@ -1,3 +1,4 @@
+import { Quote } from "@/components/ui/Quote";
 import Image, { type StaticImageData } from "next/image";
 import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/motion/Reveal";
@@ -70,14 +71,10 @@ export function EldersQuotes() {
                 delay={(index % 2) * 0.15 + 0.3}
                 className="mt-10 -ml-8"
               >
-                <figure className="bg-band shadow-main lift rounded-md py-5 pr-5 pl-14 sm:py-6 sm:pr-6 sm:pl-16">
-                  <figcaption className="text-h4-m text-text md:text-h4">
-                    {elder.name}
-                  </figcaption>
-                  <blockquote className="text-body text-text mt-4">
-                    “{elder.Quote}”
-                  </blockquote>
-                </figure>
+                <div className="bg-band shadow-main lift rounded-md py-5 pr-5 pl-14 sm:py-6 sm:pr-6 sm:pl-16">
+                  <p className="text-h4-m text-text md:text-h4">{elder.name}</p>
+                  <Quote className="mt-4">{elder.Quote}</Quote>
+                </div>
               </Reveal>
             </li>
           ))}

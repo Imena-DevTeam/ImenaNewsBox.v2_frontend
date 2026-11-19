@@ -40,19 +40,19 @@ export function BirthdaysSkeleton() {
         ))}
       </div>
 
-      <div className="border-member-border mx-auto my-8 w-full max-w-xl rounded-2xl border p-5 sm:p-6">
+      <div className="border-member-border mx-auto my-8 w-full max-w-xl rounded-lg border p-5 sm:p-6">
         <div className="flex items-center justify-between gap-2 pb-3">
           <Skeleton className="h-4 w-48" />
           <Skeleton className="rounded-pill h-5 w-16" />
         </div>
         <div className="my-5 flex items-center gap-4">
-          <Skeleton className="size-16 shrink-0 rounded-2xl sm:size-18" />
+          <Skeleton className="size-16 shrink-0 rounded-lg sm:size-18" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-7 w-32 rounded-lg" />
             <Skeleton className="h-4 w-40" />
           </div>
         </div>
-        <Skeleton className="h-12 w-full rounded-xl" />
+        <Skeleton className="h-12 w-full rounded-md" />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -60,17 +60,17 @@ export function BirthdaysSkeleton() {
           <div
             key={place}
             className={cn(
-              "border-member-border flex w-full max-w-xs items-center gap-3 rounded-2xl border p-3",
+              "border-member-border flex w-full max-w-xs items-center gap-3 rounded-lg border p-3",
               place,
             )}
           >
-            <Skeleton className="h-12 w-11 shrink-0 rounded-xl" />
-            <Skeleton className="size-11 shrink-0 rounded-xl" />
+            <Skeleton className="h-12 w-11 shrink-0 rounded-md" />
+            <Skeleton className="size-11 shrink-0 rounded-md" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-3 w-1/2" />
             </div>
-            <Skeleton className="size-8 shrink-0 rounded-xl" />
+            <Skeleton className="size-8 shrink-0 rounded-md" />
           </div>
         ))}
       </div>

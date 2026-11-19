@@ -12,7 +12,7 @@ export function PublicTreeSkeleton() {
           <Skeleton className="mt-6 h-4 w-80 max-w-full" />
           <Skeleton className="rounded-pill mt-8 h-12 w-44" />
         </div>
-        <Skeleton className="mx-auto mt-12 aspect-[1000/680] w-full max-w-5xl rounded-lg md:mt-16" />
+        <Skeleton className="mx-auto mt-12 aspect-25/17 w-full max-w-5xl rounded-lg md:mt-16" />
       </Container>
     </SkeletonPage>
   );

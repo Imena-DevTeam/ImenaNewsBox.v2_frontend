@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Container } from "@/components/layout/Container";
 import { Grow } from "@/components/motion/Grow";
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitText } from "@/components/motion/SplitText";
 import { RayedSunOrnament, TreeOrnament } from "@/components/ui/Ornaments";
 import { PublicTreeIllustration } from "@/features/tree/components/PublicTreeIllustration";
 import type { PromotionYear } from "@/features/tree/publicTreeData";
@@ -48,19 +47,10 @@ export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
             </div>
           </Reveal>
 
-          <SplitText
-            as="h1"
-            onMount
-            by="char"
-            delay={0.15}
-            stagger={0.02}
-            className="text-display-m md:text-display max-w-2xl font-bold tracking-tight md:ml-28 lg:ml-40"
-            lines={[
-              ["Family is a huge part of"],
-              ["who we are, so does its"],
-              [{ text: "history.", className: "text-heading" }],
-            ]}
-          />
+          <h1 className="text-display-m md:text-display max-w-2xl font-bold tracking-tight md:ml-28 lg:ml-40">
+            Family is a huge part of who we are, so does its{" "}
+            <span className="text-brand">history.</span>
+          </h1>
 
           {/* Two squares stepping off the band's lower edge, on the right. */}
           <Reveal
@@ -72,8 +62,8 @@ export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
             className="absolute right-2 bottom-4 hidden md:block lg:right-6"
           >
             <div aria-hidden className="relative size-14">
-              <span className="bg-gallery-ornament absolute top-0 right-0 size-7" />
-              <span className="bg-tree-mark absolute bottom-0 left-0 size-7" />
+              <span className="bg-ornament absolute top-0 right-0 size-7" />
+              <span className="bg-brand absolute bottom-0 left-0 size-7" />
             </div>
           </Reveal>
         </div>
@@ -84,7 +74,7 @@ export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
             sits above it, is shown. */}
         <div className="relative mt-8 pt-24 md:mt-10 md:pt-32">
           <div aria-hidden className="pointer-events-none">
-            <RayedSunOrnament className="text-gallery-ornament absolute top-0 left-0 size-20 md:size-28 lg:size-40" />
+            <RayedSunOrnament className="text-ornament absolute top-0 left-0 size-20 md:size-28 lg:size-40" />
             <Image
               src="/images/house.svg"
               alt=""
@@ -92,7 +82,7 @@ export function TreeHero({ activeYear, onSelectYear }: TreeHeroProps) {
               height={155}
               className="absolute top-3/5 left-0 hidden w-36 -rotate-24 lg:block"
             />
-            <TreeOrnament className="text-gallery-ornament absolute right-0 bottom-16 hidden w-40 rotate-12 lg:block" />
+            <TreeOrnament className="text-ornament absolute right-0 bottom-16 hidden w-40 rotate-12 lg:block" />
           </div>
 
           <Reveal

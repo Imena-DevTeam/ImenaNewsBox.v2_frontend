@@ -72,7 +72,7 @@ export function ResumeWriting({ drafts }: { drafts: BlogPagePost[] }) {
 
         <div className="flex min-w-0 flex-1 flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-5 sm:p-6">
           <div className="min-w-0 flex-1">
-            <p className="text-caption text-muted tracking-[0.14em] uppercase">
+            <p className="text-caption text-muted tracking-widest uppercase">
               Where you left off
             </p>
 

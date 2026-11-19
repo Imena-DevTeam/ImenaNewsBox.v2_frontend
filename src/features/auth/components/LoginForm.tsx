@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { TextField } from "@/components/ui/TextField";
 import { ROUTES } from "@/constants/routes";
-import { RETURN_PARAM } from "@/lib/session";
+import { NAME_PARAM, RETURN_PARAM } from "@/lib/session";
 import { beginMemberLogin } from "@/app/actions/session";
 import { userLoginSchema, type UserLoginValues } from "../schemas";
 import { AuthButton } from "./AuthButton";
@@ -15,18 +15,14 @@ import { GoogleButton } from "./GoogleButton";
 import { OrDivider } from "./OrDivider";
 
 /**
- * The family's one login: a name, then an emailed one-time password.
+ * The family's one login: a family name, then an emailed code.
  *
- * The name decides what you land with. The register holds one blogger, and
- * typing her name signs her in as one, which puts the studio in her rail —
- * see features/auth/roles.ts. Everybody else lands as a member. Nothing here
- * grants an administrator anything: that door asks for a password.
- *
- * The lookup happens on the **server**, in beginMemberLogin, and the answer
- * is held in a signed cookie the browser cannot write. It used to be decided
- * here and passed on in the query string, which meant the address bar
- * decided what you were — /verify?role=admin and any five digits made you an
- * administrator. Nothing about the role travels in a URL now.
+ * The name goes to the server, never anywhere else: `beginMemberLogin`
+ * asks the backend to email a code (or, in fixture mode, asks the sample
+ * register what the name is), and holds the login in a signed cookie the
+ * browser cannot write. What the person is — member, social media manager,
+ * administrator — is the backend's answer after the code, never something
+ * this form or the URL decides.
  */
 export function LoginForm() {
   const router = useRouter();
@@ -38,11 +34,9 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<UserLoginValues>({
     resolver: zodResolver(userLoginSchema),
-    defaultValues: { name: "" },
+    defaultValues: { name: params.get(NAME_PARAM) ?? "" },
   });
 
-  // TODO: swap for the real auth call; the API will supply the address the
-  // one-time password was sent to, which /verify renders.
   /* Carry on to wherever the member was headed when the gate stopped them.
      The destination is the only thing worth putting in the URL: it decides
      where you land, not what you are allowed to do there. */
@@ -69,17 +63,17 @@ export function LoginForm() {
         <TextField
           label="Name"
           placeholder="Enter family name"
-          autoComplete="organization"
+          autoComplete="username"
           error={errors.name?.message}
           {...register("name")}
         />
 
         <AuthButton type="submit" disabled={isSubmitting} className="mt-6">
-          Log In
+          Log in
         </AuthButton>
 
         {failed ? (
-          <p role="alert" className="text-danger mt-4 text-center text-base">
+          <p role="alert" className="text-danger text-body mt-4 text-center">
             {failed}
           </p>
         ) : null}

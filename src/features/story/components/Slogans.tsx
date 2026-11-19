@@ -45,8 +45,8 @@ export function Slogans() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 hidden md:block"
       >
-        <HeartsOrnament className="text-gallery-ornament absolute top-1/4 right-8 w-20 lg:right-16" />
-        <HeartsOrnament className="text-gallery-ornament absolute bottom-1/4 left-8 w-20 -rotate-12 lg:left-16" />
+        <HeartsOrnament className="text-ornament absolute top-1/4 right-8 w-20 lg:right-16" />
+        <HeartsOrnament className="text-ornament absolute bottom-1/4 left-8 w-20 -rotate-12 lg:left-16" />
         <Reveal
           from="bottom"
           className="absolute right-10 bottom-16 lg:right-24"
@@ -56,7 +56,7 @@ export function Slogans() {
             alt=""
             width={149}
             height={155}
-            className="motion-safe:animate-float-slow w-24 -rotate-20 lg:w-32"
+            className="w-24 -rotate-20 lg:w-32"
           />
         </Reveal>
       </div>
@@ -82,23 +82,11 @@ export function Slogans() {
           className={cn(
             "mx-auto mt-14 grid max-w-sm grid-cols-1 gap-6 md:mt-24",
             "md:max-w-slogan-cross md:grid-cols-3 md:grid-rows-3",
-            /* pause-on-hover: the cards carry body text, and text cannot be
-               read while it is travelling. Hovering or tabbing into the cross
-               stops it, which is also what WCAG 2.2.2 asks for. */
-            "pause-on-hover motion-safe:md:animate-orbit",
           )}
         >
           {SLOGANS.map((item) => (
-            <li
-              key={item.title}
-              /* Turns against the wrapper at the same rate, so the text
-                 stays upright all the way round. */
-              className={cn(
-                "motion-safe:md:animate-orbit-reverse",
-                item.placement,
-              )}
-            >
-              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-3xl p-6 md:p-8">
+            <li key={item.title} className={item.placement}>
+              <figure className="bg-slogan-card md:aspect-slogan-card relative flex h-full flex-col justify-center rounded-lg p-6 md:p-8">
                 <span
                   aria-hidden
                   className="bg-stat text-surface rounded-pill absolute top-6 left-6 flex size-9 items-center justify-center md:top-8 md:left-8"
@@ -122,7 +110,7 @@ export function Slogans() {
 
           <li className="hidden place-items-center md:col-start-2 md:row-start-2 md:grid">
             <StaggerItem from="none" scale={0.4}>
-              <HeartsOrnament className="text-gallery-ornament motion-safe:md:animate-orbit-reverse w-16" />
+              <HeartsOrnament className="text-ornament w-16" />
             </StaggerItem>
           </li>
         </Stagger>

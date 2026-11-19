@@ -2,19 +2,23 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "outline" | "light" | "brand";
+type Variant = "primary" | "outline" | "light" | "brand" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-primary text-surface hover:bg-primary-hover",
-  outline: "border border-border bg-surface text-text hover:border-primary",
+  primary: "bg-brand text-surface hover:bg-brand-hover",
+  outline: "border border-border bg-surface text-text hover:border-brand",
   /* On dark or photographic backgrounds. */
-  light: "bg-surface text-primary hover:bg-surface/90",
+  light: "bg-surface text-brand hover:bg-surface/90",
   /* The violet fill of the auth and member frames, and their signature
      hover: the fill and text swap rather than simply darkening, the way
      AuthButton does. The frame around the rest keeps the radius visible. */
   brand:
     "border border-field-border bg-brand text-surface not-disabled:hover:border-brand not-disabled:hover:bg-surface not-disabled:hover:text-brand",
+  /* A quiet action beside a filled one: Cancel, Close, Show more. */
+  ghost: "text-member-ink hover:bg-member-tint",
+  /* Something that removes or ends: Delete, Sign out. */
+  danger: "border border-danger text-danger hover:bg-danger/10",
 };
 
 const SIZES: Record<Size, string> = {

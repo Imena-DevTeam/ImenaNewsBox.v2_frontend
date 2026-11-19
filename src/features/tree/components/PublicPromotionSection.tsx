@@ -1,12 +1,12 @@
 "use client";
 
+import { Quote } from "@/components/ui/Quote";
 import Image from "next/image";
 import { useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { Grow } from "@/components/motion/Grow";
-import { Parallax } from "@/components/motion/Parallax";
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitText } from "@/components/motion/SplitText";
+import { HouseOrnament } from "@/components/ui/Ornaments";
 import { cn } from "@/lib/cn";
 import {
   PROMOTIONS_DATA,
@@ -41,14 +41,14 @@ function MemberCardContent({
       }}
       className={cn(
         "relative flex h-full w-full flex-col items-center gap-6 sm:flex-row sm:items-stretch",
-        "rounded-3xl border border-[#e8edf7] bg-white p-5 sm:p-6 md:p-7",
-        "shadow-[0_4px_24px_rgba(13,26,186,0.04)] hover:shadow-[0_20px_45px_rgba(13,26,186,0.08)]",
+        "border-member-field bg-surface rounded-lg border p-5 sm:p-6 md:p-7",
+        "shadow-member hover:shadow-member",
         "transition-shadow duration-300 select-none",
-        isBack && "border-[#dbeafe] shadow-[0_6px_28px_rgba(13,26,186,0.06)]",
+        isBack && "border-hope-tint shadow-member",
       )}
     >
       {/* Subtle Flip Micro-Indicator */}
-      <div className="group-hover:text-primary absolute top-4 right-4 flex size-8 items-center justify-center rounded-full bg-slate-100/70 text-slate-400 opacity-60 transition-all duration-300 group-hover:bg-blue-50 group-hover:opacity-100 sm:top-5 sm:right-5">
+      <div className="group-hover:text-brand bg-member-field/70 text-muted group-hover:bg-hope-tint absolute top-4 right-4 flex size-8 items-center justify-center rounded-full opacity-60 transition-all duration-300 group-hover:opacity-100 sm:top-5 sm:right-5">
         <svg
           className="size-4 transition-transform duration-500 group-hover:rotate-180"
           viewBox="0 0 24 24"
@@ -65,7 +65,7 @@ function MemberCardContent({
       </div>
 
       {/* Left Column: Portrait */}
-      <div className="relative aspect-[4/5] w-full shrink-0 overflow-hidden rounded-2xl bg-[#eaeff5] ring-1 ring-black/5 sm:w-44 md:w-52">
+      <div className="bg-member-field ring-member-ink/5 relative aspect-4/5 w-full shrink-0 overflow-hidden rounded-lg ring-1 sm:w-44 md:w-52">
         {member.imageUrl ? (
           <Image
             src={member.imageUrl}
@@ -75,9 +75,9 @@ function MemberCardContent({
             className="object-cover object-top"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-[#eaeff5]">
+          <div className="bg-member-field flex h-full w-full flex-col items-center justify-center">
             <svg
-              className="h-28 w-24 text-[#475569] opacity-90"
+              className="text-text h-28 w-24 opacity-90"
               viewBox="0 0 100 120"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -93,30 +93,26 @@ function MemberCardContent({
       {/* Right Column: Details */}
       <div className="flex w-full flex-1 flex-col justify-center py-1 text-left sm:py-2">
         {/* Name in bold uppercase/caps matching the design */}
-        <h4 className="font-heading text-2xl leading-tight font-black tracking-tight text-slate-900 uppercase md:text-[26px]">
+        <h4 className="font-heading text-member-ink md:text-body-lg text-h3 leading-tight font-black tracking-tight uppercase">
           {member.name}
         </h4>
 
         {/* Badges */}
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full border border-[#dbeafe] bg-[#ebf3fe] px-3.5 py-1 text-xs font-semibold text-[#1d4ed8]">
+          <span className="border-hope-tint bg-hope-tint text-hope-ink text-caption inline-flex items-center rounded-full border px-3.5 py-1 font-semibold">
             {member.role}
             {yearTag ? ` • ${yearTag}` : ""}
           </span>
 
           {member.familyName && (
-            <span className="inline-flex items-center rounded-full border border-[#bfdbfe] bg-white px-3.5 py-1 text-xs font-medium text-[#1d4ed8]">
+            <span className="border-hope-edge text-hope-ink bg-surface text-caption inline-flex items-center rounded-full border px-3.5 py-1 font-medium">
               {member.familyName}
             </span>
           )}
         </div>
 
         {/* Saying / Quote with authentic typographical styling */}
-        {member.saying && (
-          <p className="mt-4 text-sm leading-relaxed font-normal text-slate-600 italic md:text-base">
-            &ldquo;{member.saying}&rdquo;
-          </p>
-        )}
+        {member.saying && <Quote className="mt-4">{member.saying}</Quote>}
       </div>
     </article>
   );
@@ -131,7 +127,7 @@ function PublicMemberFlipCard({
 }: PublicMemberFlipCardProps) {
   return (
     <div
-      className="group focus-visible:ring-primary relative min-h-[300px] w-full cursor-pointer rounded-3xl [perspective:1400px] focus-visible:ring-2 focus-visible:ring-offset-4"
+      className="group focus-visible:ring-brand relative min-h-75 w-full cursor-pointer rounded-lg [perspective:1400px] focus-visible:ring-2 focus-visible:ring-offset-4"
       tabIndex={0}
       role="button"
       aria-label={`${member.name}, ${member.role}. Click to flip and view preceding generation`}
@@ -144,7 +140,7 @@ function PublicMemberFlipCard({
       onClick={onToggleFlip}
     >
       <div
-        className="relative h-full w-full rounded-3xl transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] [transform-style:preserve-3d]"
+        className="ease-out-soft relative h-full w-full rounded-lg transition-transform duration-700 [transform-style:preserve-3d]"
         style={{
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           transitionDelay: `${staggerDelayMs}ms`,
@@ -225,26 +221,12 @@ export function PublicPromotionSection({
   return (
     <section
       id="promotion-section"
-      /* overflow-x-clip: the two cards wait off to either side before they
-         slide in, and that offset was widening the page on phones and
-         tablets. Clip rather than hidden, so nothing here starts scrolling. */
       className="relative scroll-mt-24 overflow-x-clip pt-12 pb-24 md:pt-16 md:pb-32"
     >
-      {/* Decorative Ornaments with parallax drift matching landing page */}
-      <Parallax
-        distance={35}
-        className="pointer-events-none absolute top-1/3 right-4 hidden opacity-35 select-none md:block lg:right-12"
-      >
-        <Reveal from="right" delay={0.25} distance={24}>
-          <Image
-            src="/images/house.svg"
-            alt=""
-            width={100}
-            height={104}
-            className="object-contain"
-          />
-        </Reveal>
-      </Parallax>
+      <HouseOrnament
+        size="lg"
+        className="absolute top-1/3 right-12 hidden lg:block"
+      />
 
       <Container className="relative">
         {/* ==============================================================
@@ -265,17 +247,11 @@ export function PublicPromotionSection({
             </div>
           </Reveal>
 
-          <SplitText
-            lines={[
-              [
-                "AERG IMENA Family ",
-                { text: "Tree", className: "text-primary" },
-              ],
-            ]}
-            className="text-h1-m md:text-h1 font-black text-black"
-          />
+          <h2 className="text-h1-m md:text-h1 text-text font-black">
+            AERG IMENA Family <span className="text-brand">Tree</span>
+          </h2>
 
-          <Reveal from="bottom" blur delay={0.2} distance={20}>
+          <Reveal from="bottom" delay={0.1} distance={12}>
             <p className="text-body-lg text-muted mx-auto mt-3 max-w-2xl">
               Discover the connections and relationships within our extended
               family. Each level represents a generation, and each circle
@@ -300,7 +276,7 @@ export function PublicPromotionSection({
                     : "translate-y-0 opacity-100",
                 )}
               >
-                <span className="bg-primary rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
+                <span className="bg-brand text-surface text-body-sm rounded-full px-6 py-2 font-semibold shadow-xs">
                   {currentYear}
                 </span>
               </div>
@@ -314,14 +290,14 @@ export function PublicPromotionSection({
                     : "pointer-events-none translate-y-2 opacity-0",
                 )}
               >
-                <span className="bg-heading rounded-full px-6 py-2 text-sm font-semibold text-white shadow-xs">
+                <span className="bg-heading text-surface text-body-sm rounded-full px-6 py-2 font-semibold shadow-xs">
                   {precedingYear}
                 </span>
               </div>
             </div>
 
             {/* Section Subhead strictly matching media_1793188908046.png */}
-            <h3 className="mt-6 text-xl font-bold tracking-tight text-black sm:text-2xl">
+            <h3 className="text-text text-h4 sm:text-h3 mt-6 font-bold tracking-tight">
               Grandpere &amp; Grandmere
             </h3>
           </div>
@@ -330,7 +306,7 @@ export function PublicPromotionSection({
         {/* ==============================================================
             PREMIUM GRANDPERE & GRANDMERE 3D FLIP CARDS
         ============================================================== */}
-        <div className="mx-auto mt-8 grid max-w-5xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
           {grandpere && (
             <Reveal from="left" distance={30} duration={0.65} delay={0.1}>
               <PublicMemberFlipCard

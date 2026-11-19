@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
@@ -11,6 +12,9 @@ const VARIANTS: Record<Variant, string> = {
   outline:
     "border-text bg-surface text-text not-disabled:hover:bg-text not-disabled:hover:text-surface",
 };
+
+const BASE =
+  "rounded-field transition-base flex h-12 w-full items-center justify-center gap-2.5 border text-body font-medium";
 
 /**
  * The full-width, 48px action button of the auth forms. It is not the shared
@@ -26,7 +30,7 @@ export function AuthButton({
     <button
       type={type}
       className={cn(
-        "rounded-field transition-base flex h-12 w-full items-center justify-center gap-2.5 border text-base font-medium",
+        BASE,
         "disabled:cursor-not-allowed disabled:opacity-60",
         VARIANTS[variant],
         className,
@@ -34,4 +38,19 @@ export function AuthButton({
       {...props}
     />
   );
+}
+
+/**
+ * The same button, as a link.
+ *
+ * The invitation pages end in a destination rather than an action — **Go to
+ * login** is a journey, not a submit — and a link is what a person expects
+ * to be able to open in a new tab or come back to.
+ */
+export function AuthButtonLink({
+  variant = "primary",
+  className,
+  ...props
+}: ComponentProps<typeof Link> & { variant?: Variant }) {
+  return <Link className={cn(BASE, VARIANTS[variant], className)} {...props} />;
 }

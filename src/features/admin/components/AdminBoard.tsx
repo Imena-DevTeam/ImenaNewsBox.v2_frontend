@@ -37,7 +37,7 @@ export function AdminBoard({ bands }: { bands: Band[] }) {
           <div className="border-member-border flex flex-wrap items-baseline justify-between gap-2 border-b px-5 py-3.5">
             <h2 className="text-h3-m text-member-ink">{band.heading}</h2>
             {band.note ? (
-              <p className="text-caption text-muted tracking-[0.14em] uppercase">
+              <p className="text-caption text-muted tracking-widest uppercase">
                 {band.note}
               </p>
             ) : null}

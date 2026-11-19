@@ -4,7 +4,7 @@ import { extendTailwindMerge } from "tailwind-merge";
 /* Every font-size token in src/styles/globals.css.
    tailwind-merge only knows Tailwind's stock scale, so without this it reads
    a custom size such as text-h1 as a text *colour* and drops any real colour
-   merged alongside it — cn("text-primary", "text-h1") would silently come out
+   merged alongside it — cn("text-brand", "text-h1") would silently come out
    black. Add new --text-* tokens here when you add them to globals.css. */
 const FONT_SIZES = [
   "display",

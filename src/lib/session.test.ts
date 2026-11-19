@@ -4,119 +4,99 @@ import {
   createSessionToken,
   getSessionRole,
   isAdminPath,
+  isAdminPublicPath,
   isMemberPath,
   isStudioPath,
   mayUseStudio,
-  verifySessionToken,
+  readSession,
 } from "./session";
+import { editTokenData } from "./token-test-utils";
 
+const MEMBER = { role: "member", userId: "0199-member" } as const;
+
+/**
+ * The session cookie: a role and an id, signed by this server.
+ *
+ * It decides what the frontend shows and which areas the middleware lets a
+ * request into; the backend decides what anybody may do. These hold that
+ * nobody can write one by hand, raise their own role, or keep one past its
+ * lifetime.
+ */
 describe("session token", () => {
-  it("accepts a token it issued", async () => {
-    const token = await createSessionToken();
-    expect(await verifySessionToken(token ?? undefined)).toBe(true);
+  it("reads back the role and id it was issued with", async () => {
+    const token = await createSessionToken(MEMBER);
+    expect(await readSession(token!)).toEqual(MEMBER);
   });
+
+  it.each(["member", "social_media_manager", "admin"] as const)(
+    "carries the %s role",
+    async (role) => {
+      const token = await createSessionToken({ role, userId: "u-1" });
+      expect(await getSessionRole(token!)).toBe(role);
+    },
+  );
 
   it("rejects a hand-written cookie", async () => {
-    expect(await verifySessionToken("verified")).toBe(false);
-    expect(await verifySessionToken(undefined)).toBe(false);
+    expect(await readSession("v3.eyJyIjoiYWRtaW4ifQ.forged")).toBeNull();
+    expect(await readSession("admin")).toBeNull();
+    expect(await readSession(undefined)).toBeNull();
   });
 
-  it("rejects a tampered issue time", async () => {
-    const token = (await createSessionToken("member", 1_000))!;
-    const [version, role, , signature] = token.split(".");
-    expect(
-      await verifySessionToken(`${version}.${role}.${Date.now()}.${signature}`),
-    ).toBe(false);
-  });
-
-  it("expires after its lifetime", async () => {
-    const issued = 1_700_000_000_000;
-    const token = (await createSessionToken("member", issued))!;
-    const justInside = issued + SESSION_MAX_AGE * 1000;
-    expect(await verifySessionToken(token, justInside)).toBe(true);
-    expect(await verifySessionToken(token, justInside + 1)).toBe(false);
-  });
-});
-
-describe("session role", () => {
-  it("reports the role it issued", async () => {
-    expect(await getSessionRole((await createSessionToken("member"))!)).toBe(
-      "member",
-    );
-    expect(await getSessionRole((await createSessionToken("admin"))!)).toBe(
-      "admin",
-    );
-    expect(await getSessionRole((await createSessionToken("blogger"))!)).toBe(
-      "blogger",
-    );
-  });
-
-  /* The reader validates the role against a list. A role it does not know is
-     a forged token, not a session with an odd name on it. */
-  it("rejects a role it does not know, however well signed", async () => {
-    const token = (await createSessionToken("member"))!;
-    const [version, , issued, signature] = token.split(".");
-    expect(
-      await getSessionRole(`${version}.editor.${issued}.${signature}`),
-    ).toBe(null);
-  });
-
+  /* Editing your own cookie changes its data, so the signature no longer
+     matches: a member cannot make themselves an administrator, or somebody
+     else. */
   it("will not let a member rewrite themselves into an admin", async () => {
-    const token = (await createSessionToken("member"))!;
-    const [version, , issued, signature] = token.split(".");
-    expect(
-      await getSessionRole(`${version}.admin.${issued}.${signature}`),
-    ).toBe(null);
+    const now = Date.now();
+    const token = (await createSessionToken(MEMBER, now))!;
+    const asAdmin = editTokenData(token, (data) => ({ ...data, r: "admin" }));
+    const asOther = editTokenData(token, (data) => ({ ...data, u: "someone" }));
+
+    expect(await readSession(asAdmin, now)).toBeNull();
+    expect(await readSession(asOther, now)).toBeNull();
   });
 
-  it("reads a correctly signed pre-role v1 token as a member", async () => {
-    /* Sessions issued before the admin area existed keep working until they
-       expire, rather than logging the whole family out on deploy. Signed
-       here the way v1 signed, so this tests the version path and not a
-       rejected signature. */
+  it("rejects a role it does not know, however well signed", async () => {
+    const token = await createSessionToken({
+      role: "owner" as never,
+      userId: "u-1",
+    });
+    expect(await readSession(token!)).toBeNull();
+  });
+
+  it("rejects a session with no id", async () => {
+    const token = await createSessionToken({ role: "member", userId: "" });
+    expect(await readSession(token!)).toBeNull();
+  });
+
+  /* The v1 and v2 tokens carried the frontend's own roles, from before the
+     backend existed. Whoever holds one signs in again. */
+  it("does not read the tokens from before the backend", async () => {
+    expect(await getSessionRole(`v2.admin.${Date.now()}.sig`)).toBeNull();
+    expect(await getSessionRole(`v1.${Date.now()}.sig`)).toBeNull();
+  });
+
+  it("expires after its lifetime, the backend's ninety days", async () => {
     const issued = Date.now();
-    const payload = `v1.${issued}`;
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(
-        "imena-dev-only-secret-do-not-use-in-production",
-      ),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"],
-    );
-    const signature = btoa(
-      String.fromCharCode(
-        ...new Uint8Array(
-          await crypto.subtle.sign(
-            "HMAC",
-            key,
-            new TextEncoder().encode(payload),
-          ),
-        ),
-      ),
-    )
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
+    const token = (await createSessionToken(MEMBER, issued))!;
+    const inside = issued + SESSION_MAX_AGE * 1000 - 1000;
+    const outside = issued + SESSION_MAX_AGE * 1000 + 1000;
 
-    expect(await getSessionRole(`${payload}.${signature}`)).toBe("member");
-    expect((await createSessionToken("member"))!.startsWith("v2.")).toBe(true);
+    expect(await readSession(token, inside)).toEqual(MEMBER);
+    expect(await readSession(token, outside)).toBeNull();
+    expect(SESSION_MAX_AGE).toBe(60 * 60 * 24 * 90);
   });
 
-  it("will not let a v1 token claim admin: v1 has no role to claim", async () => {
-    expect(await getSessionRole("v1.admin.123.sig")).toBe(null);
-  });
-
-  it("returns null for an absent or forged token", async () => {
-    expect(await getSessionRole(undefined)).toBe(null);
-    expect(await getSessionRole("verified")).toBe(null);
+  it("refuses a token issued in the future", async () => {
+    const now = Date.now();
+    const token = (await createSessionToken(MEMBER, now + 60_000))!;
+    expect(await readSession(token, now)).toBeNull();
   });
 });
 
 describe("isMemberPath", () => {
   it("covers member pages and their children only", () => {
     expect(isMemberPath("/gallery")).toBe(true);
+    expect(isMemberPath("/people/m-07")).toBe(true);
     expect(isMemberPath("/gallery/fete-memories")).toBe(true);
     expect(isMemberPath("/galleryx")).toBe(false);
     expect(isMemberPath("/family-tree")).toBe(false);
@@ -124,14 +104,49 @@ describe("isMemberPath", () => {
   });
 });
 
+/**
+ * The exemption list is the whole of what separates the register from the
+ * public, so it gets a case per path rather than one assertion with six
+ * expectations in it. The pages behind it are reached by people who cannot
+ * sign in — a locked-out administrator — which is why they cannot sit
+ * behind the gate that asks for the password they have lost.
+ */
 describe("isAdminPath", () => {
-  it("covers the admin area but never its login page", () => {
+  it("covers the admin area", () => {
     expect(isAdminPath("/admin")).toBe(true);
     expect(isAdminPath("/admin/posts")).toBe(true);
     expect(isAdminPath("/admin/albums/new")).toBe(true);
-    expect(isAdminPath("/admin/login")).toBe(false);
+    expect(isAdminPath("/admin/members")).toBe(true);
+  });
+
+  it("is not fooled by a path that merely starts with the name", () => {
     expect(isAdminPath("/administration")).toBe(false);
     expect(isAdminPath("/dashboard")).toBe(false);
+  });
+
+  it("lets the login through", () => {
+    expect(isAdminPath("/admin/login")).toBe(false);
+    expect(isAdminPublicPath("/admin/login")).toBe(true);
+  });
+
+  it("lets the forgot-password page through", () => {
+    expect(isAdminPath("/admin/forgot-password")).toBe(false);
+    expect(isAdminPublicPath("/admin/forgot-password")).toBe(true);
+  });
+
+  /* The exemptions are exact paths, never prefixes. A prefix would open
+     everything under a name anybody can type. */
+  it("gates anything hiding under an exempt name", () => {
+    expect(isAdminPath("/admin/login-x")).toBe(true);
+    expect(isAdminPath("/admin/login/members")).toBe(true);
+    expect(isAdminPath("/admin/forgot-password/members")).toBe(true);
+  });
+
+  /* The reset link is the backend's invitation link now (/invitation), so
+     the old token path is gated like any other: nothing answers there. */
+  it("gates the retired reset-password path", () => {
+    expect(isAdminPath("/admin/reset-password/abc123")).toBe(true);
+    expect(isAdminPath("/admin/reset-password")).toBe(true);
   });
 });
 
@@ -143,10 +158,10 @@ describe("the studio", () => {
     expect(isStudioPath("/admin")).toBe(false);
   });
 
-  /* The blogger's, and the administrator's too: they answer for what the
-     family publishes. A member has no business there. */
-  it("is open to the blogger and the administrator, and nobody else", () => {
-    expect(mayUseStudio("blogger")).toBe(true);
+  /* The social media manager's, and the administrator's too: roles are
+     cumulative. A member has no business there. */
+  it("is open to the social media manager and the administrator only", () => {
+    expect(mayUseStudio("social_media_manager")).toBe(true);
     expect(mayUseStudio("admin")).toBe(true);
     expect(mayUseStudio("member")).toBe(false);
   });

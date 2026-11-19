@@ -1,19 +1,35 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { HouseOrnament } from "@/components/ui/Ornaments";
 import Link from "next/link";
 import { AuthPhoto } from "@/features/auth/components/AuthPhoto";
 import { ROUTES } from "@/constants/routes";
 
 type AuthShellProps = {
-  /** Heading lines, each on its own line. */
-  title: string[];
+  /** Heading lines, each on its own line. Left out, the children bring
+      their own `AuthTitle`: a page whose heading depends on what the
+      browser finds, such as /invitation. */
+  title?: string[];
   children: ReactNode;
 };
+
+/** The auth frames' heading, one line per entry. */
+export function AuthTitle({ lines }: { lines: string[] }) {
+  return (
+    <h1 className="font-auth-heading text-auth-title mb-8">
+      {lines.map((line) => (
+        <span key={line} className="block">
+          {line}
+        </span>
+      ))}
+    </h1>
+  );
+}
 
 /**
  * Login page layout: a white page with the form column on the left and a
  * blob-cut family photo near the top right. The photo and the lavender
- * house outline only show on desktop.
+ * house outline only shows on desktop.
  */
 export function AuthShell({ title, children }: AuthShellProps) {
   return (
@@ -22,14 +38,12 @@ export function AuthShell({ title, children }: AuthShellProps) {
         {/* Was one fixed cut-out of a single photograph; now the same
             silhouette with the pictures changing behind it. */}
         <AuthPhoto className="auth-blob" />
-        <div className="auth-house">
-          <Image src="/images/house.svg" alt="" width={149} height={155} />
-        </div>
+        <HouseOrnament size="lg" className="auth-house" />
       </div>
 
       <Link
         href={ROUTES.HOME}
-        className="group rounded-pill border-text bg-surface text-text transition-base hover:bg-text hover:text-surface relative z-10 inline-flex h-12 items-center gap-3 self-start border px-5.5 text-xl"
+        className="group rounded-pill border-text bg-surface text-text transition-base hover:bg-text hover:text-surface text-h4 relative z-10 inline-flex h-12 items-center gap-3 self-start border px-5.5"
       >
         <Image
           src="/icons/arrow-back.svg"
@@ -38,20 +52,13 @@ export function AuthShell({ title, children }: AuthShellProps) {
           height={14}
           className="group-hover:invert"
         />
-        Back To Home
+        Back to home
       </Link>
 
       <div className="lg:pl-auth-inset relative flex flex-1 items-center py-10 lg:py-6">
         <div className="max-w-auth-form page-enter mx-auto w-full lg:mx-0">
-          <h1 className="font-auth-heading text-auth-title">
-            {title.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
-
-          <div className="mt-8">{children}</div>
+          {title ? <AuthTitle lines={title} /> : null}
+          {children}
         </div>
       </div>
     </main>

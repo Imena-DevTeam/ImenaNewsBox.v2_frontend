@@ -17,7 +17,9 @@ export const userLoginSchema = z.object({
  */
 export const adminLoginSchema = z.object({
   name: z.string().trim().min(1, "Family name is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  /* Any length: the backend checks it, and a password set before the
+     eight-character rule must still open the door. */
+  password: z.string().min(1, "Password is required"),
 });
 
 /** One-time password sent to the account's email. */
@@ -32,6 +34,50 @@ export const verifySchema = z.object({
     ),
 });
 
+/**
+ * A new administrator password: 8 to 256 characters, the backend's rule for
+ * accepting an invitation (`POST /auth/invitations/accept`). The server
+ * action checks it again, since anyone can call one.
+ */
+export const newPasswordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .max(256, "Password must be at most 256 characters");
+
+/**
+ * Setting a password, from an administrator's invitation link. The backend
+ * sends the same link when another administrator answers a reset request,
+ * so this is also how a forgotten password is replaced.
+ *
+ * The confirmation field is not ceremony: this is the only time the
+ * password is typed before it is needed, so a typo here is a lockout that
+ * needs another administrator to undo.
+ */
+export const setPasswordSchema = z
+  .object({
+    password: newPasswordSchema,
+    confirm: z.string().min(1, "Type the password again"),
+  })
+  /* On the confirmation field, so the message appears under the field that
+     is wrong rather than at the top of the form. */
+  .refine((values) => values.password === values.confirm, {
+    message: "The two passwords are not the same",
+    path: ["confirm"],
+  });
+
+/**
+ * Asking for a new password: a name, and nothing else.
+ *
+ * No email field, deliberately. The link goes to the address already on the
+ * record — an address typed here would let anybody redirect somebody else's
+ * reset, which is a takeover with extra steps.
+ */
+export const forgotPasswordSchema = z.object({
+  name: z.string().trim().min(1, "Family name is required"),
+});
+
 export type UserLoginValues = z.infer<typeof userLoginSchema>;
+export type SetPasswordValues = z.infer<typeof setPasswordSchema>;
+export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export type AdminLoginValues = z.infer<typeof adminLoginSchema>;
 export type VerifyValues = z.infer<typeof verifySchema>;

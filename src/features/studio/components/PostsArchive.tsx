@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Folder, Heart, MessageCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toaster";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CONTROL, Picker } from "@/components/ui/Picker";
 import { ROUTES } from "@/constants/routes";
@@ -27,17 +27,18 @@ type Bulk = "publish" | "unpublish" | "delete";
  * The order is chronological either way round. There is no sort by title:
  * search finds a post by name, and the archive's own order is time.
  *
- * Search, both filters, bulk actions and the confirmation all stay.
+ * Search, both filters and bulk actions. Deleting is undone from the toast
+ * rather than confirmed first, the same as everywhere else.
  */
 
-export function PostsArchive({ posts }: { posts: BlogPagePost[] }) {
+export function PostsArchive({ posts: initial }: { posts: BlogPagePost[] }) {
+  const [posts, setPosts] = useState(initial);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState<"all" | "draft" | "published">("all");
   const [order, setOrder] = useState<Order>("newest");
   const [picked, setPicked] = useState<string[]>([]);
-  const [confirming, setConfirming] = useState(false);
-  const [outcome, setOutcome] = useState<string | null>(null);
+  const toast = useToast();
 
   const shown = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -74,11 +75,17 @@ export function PostsArchive({ posts }: { posts: BlogPagePost[] }) {
     /* TODO: the posts service. Until it exists this reports what it would
        have done rather than pretending a change was saved. */
     const count = `${chosen.length} post${chosen.length === 1 ? "" : "s"}`;
-    const verb = what === "delete" ? "deleted" : `${what}ed`;
-    setOutcome(
-      `${count} would be ${verb}. Nothing was saved: the posts service does not exist yet.`,
-    );
     setPicked([]);
+    if (what !== "delete") {
+      toast({ message: `${count} would be ${what}ed. Nothing was saved.` });
+      return;
+    }
+    const before = posts;
+    setPosts((was) => was.filter((post) => !chosen.includes(post.slug)));
+    toast({
+      message: `${count} deleted. Nothing was stored.`,
+      action: { label: "Undo", run: () => setPosts(before) },
+    });
   };
 
   return (
@@ -97,6 +104,7 @@ export function PostsArchive({ posts }: { posts: BlogPagePost[] }) {
               className="text-muted pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2"
             />
             <input
+              autoComplete="off"
               id="posts-search"
               type="search"
               value={query}
@@ -184,17 +192,11 @@ export function PostsArchive({ posts }: { posts: BlogPagePost[] }) {
             variant="outline"
             size="sm"
             className="border-danger text-danger"
-            onClick={() => setConfirming(true)}
+            onClick={() => apply("delete")}
           >
             Delete
           </Button>
         </div>
-      ) : null}
-
-      {outcome ? (
-        <p role="status" aria-live="polite" className="text-body-sm text-muted">
-          {outcome}
-        </p>
       ) : null}
 
       {shown.length === 0 ? (
@@ -236,7 +238,7 @@ export function PostsArchive({ posts }: { posts: BlogPagePost[] }) {
                     <span className="text-h3-m text-member-ink block font-bold tabular-nums">
                       {day}
                     </span>
-                    <span className="text-caption text-muted block tracking-[0.14em] uppercase">
+                    <span className="text-caption text-muted block tracking-widest uppercase">
                       {month}
                     </span>
                   </p>
@@ -305,20 +307,6 @@ export function PostsArchive({ posts }: { posts: BlogPagePost[] }) {
           })}
         </ul>
       )}
-
-      <ConfirmDialog
-        open={confirming}
-        destructive
-        title={`Delete ${chosen.length} post${chosen.length === 1 ? "" : "s"}?`}
-        description="Deleting a post removes it from the family archive. This cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Keep them"
-        onCancel={() => setConfirming(false)}
-        onConfirm={() => {
-          setConfirming(false);
-          apply("delete");
-        }}
-      />
     </div>
   );
 }

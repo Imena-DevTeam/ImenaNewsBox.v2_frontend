@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cake } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { todayAndNext } from "@/features/birthdays/data";
+import { registerCelebrants } from "../_lib/birthdays";
 import { FamilyCelebrationsCalendar } from "@/features/birthdays/components/FamilyCelebrationsCalendar";
 
 export const metadata: Metadata = {
@@ -10,15 +12,23 @@ export const metadata: Metadata = {
 };
 
 export default function BirthdaysPage() {
+  const now = new Date();
+  const celebrants = registerCelebrants();
+  const { today } = todayAndNext(celebrants, now);
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-24">
       <PageHeader
-        title="BIRTHDAYS"
-        badgeIcon={<Cake className="size-6 text-[#581C87]" />}
+        title="Birthdays"
+        badgeIcon={<Cake className="text-brand-hover size-6" />}
         badgeLabel="Birthdays"
       />
 
-      <FamilyCelebrationsCalendar />
+      <FamilyCelebrationsCalendar
+        celebrants={celebrants}
+        today={today}
+        initialMonth={now.getUTCMonth()}
+      />
     </div>
   );
 }

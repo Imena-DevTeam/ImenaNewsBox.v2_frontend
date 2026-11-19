@@ -1,15 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ButtonLink } from "@/components/ui/Button";
 import { Mail } from "lucide-react";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { FOOTER_NAV } from "@/constants/nav";
-import { CONTACT_EMAIL_HREF } from "@/constants/site";
+import { CONTACT_EMAIL_HREF, INSTAGRAM_URL } from "@/constants/site";
 import { CurrentYear } from "@/components/ui/CurrentYear";
 
 export function Footer() {
   return (
     <footer className="mt-auto px-4 pb-4 md:px-6 md:pb-6">
-      <div className="max-w-page text-surface relative isolate mx-auto overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">
+      <div className="max-w-page text-surface relative isolate mx-auto overflow-hidden rounded-lg">
         {/* The wash from the Figma footer export */}
         <Image
           src="/images/footer-bg.webp"
@@ -23,26 +24,23 @@ export function Footer() {
         <div className="px-7 py-10 sm:px-12 sm:py-12 lg:px-16 lg:py-14">
           {/* Top Section: Heading and Contact Button */}
           <div>
-            <h2 className="max-w-lg text-3xl leading-tight font-light tracking-tight text-white sm:text-4xl lg:text-5xl">
+            <h2 className="text-surface text-h1-m sm:text-h1 lg:text-section max-w-lg leading-tight font-light tracking-tight">
               Ready to add your chapter?
             </h2>
             <div className="mt-6 sm:mt-7">
-              <a
-                href={CONTACT_EMAIL_HREF}
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-white px-5 text-sm font-medium text-stone-900 shadow-sm transition-colors hover:bg-white/90"
-              >
+              <ButtonLink href={CONTACT_EMAIL_HREF} variant="light">
                 Contact us
-              </a>
+              </ButtonLink>
             </div>
           </div>
 
           {/* Middle Section: Newsletter and Navigation Columns */}
           <div className="mt-12 grid grid-cols-1 items-start gap-10 sm:mt-16 lg:grid-cols-[minmax(0,1.2fr)_auto]">
             <div>
-              <p className="text-sm font-semibold tracking-wide text-white">
+              <p className="text-surface text-body-sm font-semibold tracking-wide">
                 Newsletter
               </p>
-              <p className="mt-2 max-w-xs text-xs leading-relaxed text-white/70 sm:text-sm">
+              <p className="text-surface/70 text-caption sm:text-body-sm mt-2 max-w-xs leading-relaxed">
                 A short letter each month: birthdays, handovers, and new
                 photographs in the family archive.
               </p>
@@ -57,7 +55,7 @@ export function Footer() {
                   aria-label={group.heading}
                   className="min-w-24"
                 >
-                  <p className="text-sm font-semibold tracking-wide text-white">
+                  <p className="text-surface text-body-sm font-semibold tracking-wide">
                     {group.heading}
                   </p>
                   <ul className="mt-3 space-y-2">
@@ -65,7 +63,7 @@ export function Footer() {
                       <li key={item.label}>
                         <Link
                           href={item.href}
-                          className="block text-xs text-white/70 transition-colors hover:text-white sm:text-sm"
+                          className="text-surface/70 hover:text-surface text-caption sm:text-body-sm block transition-colors"
                         >
                           {item.label}
                         </Link>
@@ -79,16 +77,18 @@ export function Footer() {
                       <a
                         href={CONTACT_EMAIL_HREF}
                         aria-label="Email the IMENA family"
-                        className="flex size-7 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
+                        className="bg-surface/15 text-surface hover:bg-surface/25 flex size-7 items-center justify-center rounded-full transition-colors"
                       >
                         <Mail className="size-3.5" />
                       </a>
                       <a
-                        href="https://www.linkedin.com"
-                        aria-label="IMENA family on LinkedIn"
-                        className="flex size-7 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
+                        href={INSTAGRAM_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="IMENA family on Instagram"
+                        className="bg-surface/15 text-surface hover:bg-surface/25 flex size-7 items-center justify-center rounded-full transition-colors"
                       >
-                        <LinkedInIcon className="size-3.5" />
+                        <InstagramIcon className="size-3.5" />
                       </a>
                     </div>
                   )}
@@ -99,7 +99,7 @@ export function Footer() {
 
           {/* Bottom Section: Centered Copyright */}
           <div className="mt-12 text-center sm:mt-14">
-            <p className="text-xs text-white/50">
+            <p className="text-surface/50 text-caption">
               &copy; <CurrentYear /> IMENA Family.
             </p>
           </div>
@@ -110,15 +110,21 @@ export function Footer() {
 }
 
 /** lucide-react no longer ships brand marks, so the glyph lives here. */
-function LinkedInIcon({ className }: { className?: string }) {
+function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      fill="currentColor"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden
       className={className}
     >
-      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05a4.2 4.2 0 0 1 3.77-2.07c4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21h-4V9Z" />
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
     </svg>
   );
 }
