@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import confetti from "canvas-confetti";
 import { Check, Heart, PartyPopper, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -75,12 +74,15 @@ export function WishDialog({
         ? ""
         : (options[choice] ?? "");
 
-  const send = () => {
+  const send = async () => {
     if (!message) return;
     onSent(target, message);
     setSent(true);
 
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      /* Fetched when the first wish is sent, not with the page: most visits
+         to the birthdays page send nothing. */
+      const { default: confetti } = await import("canvas-confetti");
       const burst = (x: number, angle: number) =>
         confetti({
           particleCount: 90,

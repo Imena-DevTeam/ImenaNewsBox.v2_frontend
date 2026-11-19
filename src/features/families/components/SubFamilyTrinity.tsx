@@ -1,99 +1,66 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Crown, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { ButtonLink } from "@/components/ui/Button";
 import { ROUTES } from "@/constants/routes";
 import { TRINITY } from "../data";
 
 /**
- * The three subfamilies of the trinity, each a photograph under a brand
- * wash with its name, motto, what it holds, its generation leader and a
- * member-count badge — solid enough to read as a card you can open, not a
- * pale placeholder.
- *
- * Each card opens that branch's own page, and is labelled individually so
- * screen readers hear which card is which.
+ * The three subfamilies, each as a light card: the branch's photograph above
+ * its name, its identity line, a sentence about it, and the way through to
+ * its tree. The design keeps these plain and bright rather than washed under
+ * a dark overlay.
  */
 export function SubFamilyTrinity() {
   return (
     <section aria-labelledby="sub-family-trinity">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-brand text-caption mb-2 font-semibold tracking-[0.16em] uppercase">
-            Our roots
-          </p>
-          <h2
-            id="sub-family-trinity"
-            className="text-h2-m text-member-ink md:text-h2"
-          >
-            Sub Family Trinity
-          </h2>
-        </div>
-        <Link
-          href={ROUTES.TREE}
-          className="text-brand transition-fast hover:text-brand-hover text-caption inline-flex items-center gap-1 font-semibold"
-        >
-          Explore each family branch
-          <ArrowRight aria-hidden className="size-4" />
-        </Link>
-      </div>
+      <h2
+        id="sub-family-trinity"
+        className="text-h2-m text-member-ink md:text-h2"
+      >
+        Sub Family Trinity
+      </h2>
+      <p className="text-body text-muted mt-3 max-w-2xl">
+        Within IMENA Family, our family is connected through different
+        subfamilies, each carrying its own identity, spirit, and message while
+        remaining part of one greater family.
+      </p>
 
-      <ul className="reveal-stagger mt-8 grid gap-5 sm:grid-cols-3">
+      <ul className="reveal-stagger mt-8 grid gap-6 sm:grid-cols-3">
         {TRINITY.map((family) => (
           <li key={family.name}>
-            <Link
-              href={`${ROUTES.FAMILIES}/${family.slug}`}
-              className="shadow-member lift group relative flex aspect-4/3 items-end overflow-hidden rounded-lg"
-              aria-label={`${family.name} subfamily, ${family.members} members, led by ${family.leader}`}
-            >
-              <Image
-                src={family.image}
-                alt=""
-                fill
-                placeholder="blur"
-                sizes="(min-width: 640px) 33vw, 100vw"
-                className="transition-base object-cover group-hover:scale-105"
-              />
-              {/* A brand wash deep enough for white type at any point of
-                  the photograph. */}
-              <span
-                aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/10"
-              />
+            <article className="border-member-border bg-surface shadow-member flex h-full flex-col overflow-hidden rounded-2xl border">
+              <div className="relative aspect-3/2">
+                <Image
+                  src={family.image}
+                  alt=""
+                  fill
+                  placeholder="blur"
+                  sizes="(min-width: 640px) 33vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
 
-              <span className="text-member-ink text-caption absolute top-4 right-4 flex items-center gap-1.5 rounded-full border border-white/60 bg-white/80 px-3 py-1 font-semibold backdrop-blur-md">
-                <Users aria-hidden className="text-brand size-3.5" />
-                {family.members} members
-              </span>
-
-              <span className="text-surface relative w-full p-5">
-                <span className="text-caption text-surface/80 block font-semibold tracking-[0.14em] uppercase">
-                  Family branch
-                </span>
-                <span className="text-h3-m mt-1 flex items-center gap-2 font-semibold">
+              <div className="flex flex-1 flex-col p-5 sm:p-6">
+                <h3 className="text-h4 text-member-ink font-bold tracking-tight uppercase">
                   {family.name}
-                  <ArrowRight
-                    aria-hidden
-                    className="transition-base size-5 group-hover:translate-x-1"
-                  />
-                </span>
-                <span className="font-member-serif text-body-lg text-celebration-gold mt-2 block italic">
-                  &ldquo;{family.motto}&rdquo;
-                  <span className="text-caption text-surface/70 ml-2 not-italic">
-                    {family.mottoMeaning}
-                  </span>
-                </span>
-                <span className="text-body-sm text-surface/85 mt-2 block">
-                  {family.holds}
-                </span>
-                <span className="text-caption text-surface/80 mt-3 flex items-center gap-1.5 border-t border-white/20 pt-3">
-                  <Crown
-                    aria-hidden
-                    className="text-celebration-gold size-3.5"
-                  />
-                  Generation leader: {family.leader}
-                </span>
-              </span>
-            </Link>
+                </h3>
+                <p className="font-member-serif text-brand mt-1.5 text-sm italic">
+                  {family.tagline}
+                </p>
+                <p className="text-body-sm text-muted mt-3 flex-1">
+                  {family.summary}
+                </p>
+
+                <ButtonLink
+                  href={`${ROUTES.FAMILIES}/${family.slug}`}
+                  aria-label={`View the ${family.name} family tree`}
+                  className="bg-member-tint text-brand hover:bg-member-active/40 rounded-field mt-5 w-full border-0 text-sm font-semibold"
+                >
+                  View Family Tree
+                  <ArrowRight aria-hidden className="size-4" />
+                </ButtonLink>
+              </div>
+            </article>
           </li>
         ))}
       </ul>

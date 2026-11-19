@@ -4,6 +4,8 @@ import { Playfair_Display, Poppins } from "next/font/google";
 import { MemberSidebar } from "@/components/layout/MemberSidebar";
 import { SignedInProvider } from "@/components/layout/SignedIn";
 import { MemberFooter } from "@/components/layout/MemberFooter";
+import { MinimalFooter } from "@/components/layout/MinimalFooter";
+import { MemberFooterSwitch } from "@/components/layout/MemberFooterSwitch";
 import { getSessionRole, SESSION_COOKIE } from "@/lib/session";
 
 /* The member frames are set in their own faces. Loading them here rather
@@ -59,7 +61,10 @@ export default async function MemberLayout({
           {children}
         </main>
 
-        <MemberFooter />
+        <MemberFooterSwitch
+          minimal={<MinimalFooter />}
+          rich={<MemberFooter />}
+        />
       </SignedInProvider>
     </div>
   );

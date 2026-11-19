@@ -23,10 +23,16 @@ export function FeaturedPost({
   post,
   className,
   compact = false,
+  showCover = true,
+  framed = true,
 }: {
   post: FeaturedPostData;
   className?: string;
   compact?: boolean;
+  /** The dashboard lead drops the cover — the gallery card below carries the
+      column's imagery — and its frame, sitting plainly on the page. */
+  showCover?: boolean;
+  framed?: boolean;
 }) {
   const meta = (
     <p className="text-caption text-brand">
@@ -103,13 +109,14 @@ export function FeaturedPost({
     <article
       aria-label={post.title}
       className={cn(
-        "border-member-border bg-surface shadow-member overflow-hidden rounded-lg border",
+        framed &&
+          "border-member-border bg-surface shadow-member overflow-hidden rounded-lg border",
         className,
       )}
     >
-      {cover}
+      {showCover ? cover : null}
 
-      <div className="p-5 sm:p-6 md:p-8">
+      <div className={cn(framed && "p-5 sm:p-6 md:p-8")}>
         {meta}
 
         <h3 className="font-member-serif text-h3-m text-member-ink md:text-h2 mt-4">
@@ -120,7 +127,12 @@ export function FeaturedPost({
 
         {/* The action closes the card with the counts, rather than floating
             beside the title over an empty column. */}
-        <div className="border-member-border mt-6 flex flex-wrap items-center justify-between gap-4 border-t pt-5">
+        <div
+          className={cn(
+            "mt-6 flex flex-wrap items-center justify-between gap-4 pt-5",
+            framed && "border-member-border border-t",
+          )}
+        >
           {counts}
           <ButtonLink
             href={`${ROUTES.BLOGS}/${post.slug}`}

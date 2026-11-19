@@ -1,117 +1,76 @@
 "use client";
 
 import Image from "next/image";
-import { Download, ExternalLink, Eye, FileText } from "lucide-react";
-import type { ResourceCategory, ResourceItem } from "../types";
+import type { ResourceItem } from "../types";
 
 interface ResourceCardProps {
   resource: ResourceItem;
   onView: (resource: ResourceItem) => void;
+  onOpen: (resource: ResourceItem) => void;
   onDownload: (resource: ResourceItem) => void;
 }
 
-const CATEGORY_STYLES: Record<
-  Exclude<ResourceCategory, "All">,
-  { badge: string; dot: string }
-> = {
-  Documents: {
-    badge: "border-blue-500/30 bg-blue-500/10 text-blue-700",
-    dot: "bg-blue-500",
-  },
-  Guides: {
-    badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
-    dot: "bg-emerald-500",
-  },
-  "Family Resources": {
-    badge: "border-brand/30 bg-brand/10 text-brand",
-    dot: "bg-brand",
-  },
-  "Educational Materials": {
-    badge: "border-amber-500/30 bg-amber-500/10 text-amber-800",
-    dot: "bg-amber-500",
-  },
-};
-
+/**
+ * The design draws the resource plainly: the family crest, the title and a
+ * line about it, then the viewer, and below it the two ways to take it away.
+ * No category tag, size or read count — the card is the document, not its
+ * metadata.
+ */
 export function ResourceCard({
   resource,
   onView,
+  onOpen,
   onDownload,
 }: ResourceCardProps) {
-  const categoryStyle =
-    CATEGORY_STYLES[resource.category] ?? CATEGORY_STYLES.Documents;
-
   return (
-    <article className="border-border bg-surface shadow-subtle hover:border-brand/40 group relative flex h-full flex-col justify-between rounded-3xl border p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8">
-      {/* Top Content Area */}
-      <div className="flex flex-col items-center">
-        {/* Top Metadata Badges */}
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 ${categoryStyle.badge}`}
-          >
-            <span className={`size-1.5 rounded-full ${categoryStyle.dot}`} />
-            <span>{resource.category}</span>
-          </span>
-
-          <span className="border-border bg-surface-elevated text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
-            <FileText className="size-3" />
-            <span>{resource.fileSize}</span>
-          </span>
-
-          {resource.viewsCount && (
-            <span className="border-border bg-surface-elevated text-muted inline-flex items-center gap-1 rounded-full border px-2 py-0.5">
-              <Eye className="size-3" />
-              <span>{resource.viewsCount.toLocaleString()}</span>
-            </span>
-          )}
-        </div>
-
-        {/* Document Icon / Emblem */}
-        <div className="border-border bg-surface-elevated group-hover:bg-brand/10 group-hover:border-brand/40 mb-4 flex size-14 items-center justify-center rounded-2xl border p-2 transition-colors sm:size-16">
+    <article className="border-member-border bg-surface shadow-subtle flex h-full flex-col rounded-3xl border p-6 sm:p-8">
+      {/* Crest emblem, centred */}
+      <div className="mb-6 flex justify-center">
+        <div className="bg-brand/10 flex size-16 items-center justify-center rounded-2xl">
           <Image
             src="/images/imena-crest.webp"
             alt=""
-            width={38}
-            height={38}
-            className="h-auto w-auto object-contain transition-transform group-hover:scale-105"
+            width={34}
+            height={34}
+            className="h-auto w-auto object-contain"
           />
         </div>
-
-        {/* Title */}
-        <h3 className="text-h4 text-heading group-hover:text-brand line-clamp-2 font-serif font-bold transition-colors">
-          {resource.title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-body text-muted mt-2 line-clamp-3 text-xs leading-relaxed sm:text-sm">
-          {resource.description}
-        </p>
-
-        {/* Publication Date */}
-        <p className="text-muted text-caption mt-3 font-mono">
-          Published {resource.publishedDate}
-        </p>
       </div>
 
-      {/* Bottom Action Buttons (Responsive & Compact on Mobile) */}
-      <div className="border-border/60 mt-6 flex w-full flex-col gap-2.5 border-t pt-4">
-        <div className="flex items-center gap-2">
+      {/* Title */}
+      <h3 className="text-heading text-h4 leading-snug font-bold">
+        {resource.title}
+      </h3>
+
+      {/* One line about it */}
+      <p className="text-member-rail-ink mt-2 text-sm leading-relaxed">
+        {resource.description}
+      </p>
+
+      {/* The viewer, then the two ways out */}
+      <div className="mt-6 space-y-3 md:mt-8">
+        <button
+          type="button"
+          onClick={() => onView(resource)}
+          className="bg-brand hover:bg-brand/90 focus-visible:outline-brand flex min-h-11 w-full cursor-pointer items-center justify-center rounded-xl text-sm font-semibold text-white shadow-xs transition-colors"
+        >
+          View PDF
+        </button>
+
+        <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => onView(resource)}
-            className="bg-brand hover:bg-brand/90 focus-visible:outline-brand flex min-h-[42px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl text-xs font-semibold text-white shadow-xs transition-all"
+            onClick={() => onOpen(resource)}
+            className="border-member-border bg-surface text-heading hover:border-brand/50 hover:text-brand focus-visible:outline-brand flex min-h-11 cursor-pointer items-center justify-center rounded-xl border text-sm font-semibold transition-colors"
           >
-            <ExternalLink className="size-3.5" />
-            <span>View PDF</span>
+            Open
           </button>
-
           <button
             type="button"
             onClick={() => onDownload(resource)}
-            title="Download document"
-            className="border-border bg-surface-elevated text-heading hover:bg-surface-tint focus-visible:outline-brand flex size-[42px] shrink-0 cursor-pointer items-center justify-center rounded-xl border transition-colors"
+            className="border-member-border bg-surface text-heading hover:border-brand/50 hover:text-brand focus-visible:outline-brand flex min-h-11 cursor-pointer items-center justify-center rounded-xl border text-sm font-semibold transition-colors"
           >
-            <Download className="size-4" />
+            Download
           </button>
         </div>
       </div>

@@ -12,56 +12,48 @@ import { DashboardGreeting } from "./DashboardGreeting";
 const AVATAR = elder3;
 
 /**
- * The dashboard's top bar: the Kinyarwanda greeting with its Kigali time,
- * weather and updates pills, the blog search, and the member's bell and
- * profile chip. One row from `lg` up, aligned to the greeting's first line;
- * below `lg` the search drops to a full-width row of its own.
+ * The dashboard's top: the welcome line with the member's bell and profile
+ * chip across from it, and the blog search on its own full-width row beneath —
+ * the order the design sets it in.
  */
 export function DashboardHeader({ search }: { search?: ReactNode }) {
   const person = useSignedIn();
 
   return (
-    <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
-      <DashboardGreeting />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <DashboardGreeting />
 
-      {search ? (
-        <div className="order-3 w-full lg:order-2 lg:w-auto lg:flex-1">
-          {search}
-        </div>
-      ) : null}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <NotificationBell />
 
-      <div className="order-2 ml-auto flex shrink-0 items-center gap-1.5 sm:gap-3 lg:order-3 lg:ml-0">
-        <NotificationBell />
-
-        <Link
-          href={ROUTES.PROFILE}
-          aria-label={`Open ${person.name}'s profile`}
-          className="border-member-border bg-surface shadow-menu focus-visible:outline-brand group hover:border-brand relative flex size-10 items-center justify-center rounded-full border p-0.5 transition-all duration-200"
-        >
-          <div className="size-full overflow-hidden rounded-full">
-            <Image
-              src={AVATAR}
-              alt={`Portrait of ${person.name}`}
-              width={36}
-              height={36}
-              className="size-full object-cover"
-            />
-          </div>
-
-          {/* Hover tooltip showing member name and role */}
-          <div
-            role="tooltip"
-            className="pointer-events-none absolute top-full right-0 z-50 mt-2 -translate-y-1 rounded-xl border border-neutral-200/90 bg-white/95 px-3 py-1.5 whitespace-nowrap opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
+          <Link
+            href={ROUTES.PROFILE}
+            aria-label={`Open ${person.name}'s profile`}
+            className="border-member-border bg-surface shadow-menu focus-visible:outline-brand hover:border-brand flex items-center gap-2.5 rounded-full border py-1.5 pr-2 pl-1.5 transition-colors sm:pr-4"
           >
-            <p className="text-xs leading-tight font-bold text-neutral-900">
-              {person.name}
-            </p>
-            <p className="text-caption leading-tight font-medium text-neutral-500">
-              {person.role}
-            </p>
-          </div>
-        </Link>
+            <span className="size-10 shrink-0 overflow-hidden rounded-full">
+              <Image
+                src={AVATAR}
+                alt={`Portrait of ${person.name}`}
+                width={40}
+                height={40}
+                className="size-full object-cover"
+              />
+            </span>
+            <span className="hidden text-left leading-tight sm:block">
+              <span className="text-member-ink block text-sm font-semibold">
+                {person.name}
+              </span>
+              <span className="text-muted text-caption block">
+                {person.role}
+              </span>
+            </span>
+          </Link>
+        </div>
       </div>
+
+      {search ? <div className="w-full">{search}</div> : null}
     </div>
   );
 }

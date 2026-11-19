@@ -229,7 +229,7 @@ export function FamilyCelebrationsCalendar() {
   return (
     <div className="flex w-full flex-col">
       {/* Subtitle centered */}
-      <p className="mx-auto mt-2 max-w-2xl text-center text-sm font-normal text-neutral-600 sm:text-base">
+      <p className="mx-auto mt-4 max-w-2xl text-center text-xl leading-snug font-normal text-neutral-600 sm:text-2xl">
         Celebrating life, joy and the growth of our brothers and sisters across
         all subfamilies
       </p>

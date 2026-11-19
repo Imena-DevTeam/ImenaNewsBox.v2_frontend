@@ -9,6 +9,8 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:fast": "node scripts/dev-warm.mjs",
+    "warm": "node scripts/dev-warm.mjs --warm-only",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",

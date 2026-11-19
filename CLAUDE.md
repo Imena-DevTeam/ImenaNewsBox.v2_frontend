@@ -1387,6 +1387,17 @@ out of HTML, out of a dead connection, and out of an unset variable.
 `pnpm build` compiles. **First Load JS rose from 218 kB to 227 kB**: that is
 TanStack Query in the root layout, and it is the price of the cache.
 
+> [!NOTE]
+> **The provider was taken back out of the root layout on 19 Nov 2026**, in a
+> pass asked for as making navigation "instantly fast". Nothing reads from the
+> backend yet, so wrapping every one of the 44 routes in
+> `@tanstack/react-query` only added that ~9 kB to each page's first load and
+> to each route's dev compile graph for no benefit. `QueryProvider` and
+> `getQueryClient` are untouched and kept: when the first screen calls a
+> service, wrap that screen (or the subtree that needs it) and the cache is
+> back, one import line. First Load JS fell back to 227 → 218 kB across the
+> board.
+
 ### What is not done
 
 - **No page calls a service.** Every screen still reads its fixture.

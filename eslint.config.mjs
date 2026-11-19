@@ -39,6 +39,9 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "test-results/**",
     "coverage/**",
+    // Static assets, not source — this also keeps any saved-page bundles that
+    // land in public/images out of the lint.
+    "public/**",
   ]),
 ]);
 
