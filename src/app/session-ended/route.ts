@@ -27,7 +27,7 @@ import { ApiError } from "@/types/api";
  * over. An access token that has merely run out is refreshed instead.
  */
 export async function GET(request: NextRequest) {
-  const to = (path: string) =>
+  const to = (path: string): NextResponse =>
     NextResponse.redirect(new URL(path, request.url));
   const signOut = () => {
     const response = to(ROUTES.LOGIN);
