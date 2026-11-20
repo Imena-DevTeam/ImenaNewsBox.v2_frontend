@@ -6,7 +6,7 @@ import { FamilyTagline } from "@/components/layout/FamilyTagline";
 import { dashboardFamilyGathering } from "@/lib/images";
 import { BlogFeed } from "./BlogFeed";
 
-const HERO_TITLE = "A HEART WARMING FAMILY REUNION";
+const HERO_TITLE = "A HEART-WARMING FAMILY REUNION";
 
 /**
  * The family's stories.

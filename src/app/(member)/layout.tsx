@@ -7,7 +7,9 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { searchCommands } from "@/features/search/commands";
 import { MemberFooter } from "@/components/layout/MemberFooter";
-import { requireViewer } from "@/lib/viewer";
+import { MinimalFooter } from "@/components/layout/MinimalFooter";
+import { MemberFooterSwitch } from "@/components/layout/MemberFooterSwitch";
+import { getSessionRole, SESSION_COOKIE } from "@/lib/session";
 
 /* The member frames are set in their own faces. Loading them here rather
    than in the root layout keeps them off every other page, the same way
@@ -65,9 +67,10 @@ export default async function MemberLayout({
             {children}
           </main>
 
-          <MemberFooter />
-          <CommandPalette commands={searchCommands(role)} />
-        </ToastProvider>
+        <MemberFooterSwitch
+          minimal={<MinimalFooter />}
+          rich={<MemberFooter />}
+        />
       </SignedInProvider>
     </div>
   );

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   TREE_CARDS,
-  TREE_NEXT_PAIR,
   TREE_PORTRAIT_NODES,
   TREE_ROOT_BENON,
   type PromotionYear,
@@ -44,6 +43,7 @@ export function PublicTreeIllustration({
     else if (cardLabel.includes("2023")) targetGen = "2023-2024";
     else if (cardLabel.includes("2024")) targetGen = "2024-2025";
     else if (cardLabel.includes("2025")) targetGen = "2025-2026";
+    else if (cardLabel.includes("2026")) targetGen = "2026-2027";
 
     if (targetGen && onSelectYear) {
       onSelectYear(targetGen);
@@ -336,104 +336,51 @@ export function PublicTreeIllustration({
           />
           <path
             d="M 480 770 C 470 800, 445 815, 435 830"
-            stroke={
-              isGenActiveOrHovered("2025-2026")
-                ? "var(--color-brand)"
-                : "var(--color-tree-ink)"
-            }
+            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
             strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
 
-          {/* Branch 12: Under Pacifique & Hyguette into card c7 (2025-2026) */}
+          {/* Branch 12: Pacifique & Hyguette joined underneath, down into the
+              card now centred beneath them (2025-2026). */}
           <path
-            d="M 390 895 C 420 920, 450 920, 480 900"
-            stroke={
-              isGenActiveOrHovered("2025-2026")
-                ? "var(--color-brand)"
-                : "var(--color-tree-ink)"
-            }
+            d="M 350 894 C 356 908, 388 912, 392 918"
+            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
+            className="transition-all duration-300"
+          />
+          <path
+            d="M 435 899 C 430 910, 398 912, 392 918"
+            stroke={isGenActiveOrHovered("2025-2026") ? "#0d1aba" : "#1e2025"}
             strokeWidth={isGenActiveOrHovered("2025-2026") ? 3.8 : 2.5}
             className="transition-all duration-300"
           />
 
-          {/* Branch 13: out of the 2025-2026 card, curving right and down
-              into the pair that follows it, with a limb to the second. */}
+          {/* Branch 13: out of the 2025-2026 card, sweeping down-right into the
+              named 2026-2027 pair, with a limb to each. */}
           <path
-            d="M 705 901 C 770 901, 800 918, 800 950"
-            stroke="var(--color-tree-ink)"
-            strokeWidth={2.5}
+            d="M 505 939 C 630 982, 715 978, 772 968"
+            stroke={isGenActiveOrHovered("2026-2027") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2026-2027") ? 3.8 : 2.5}
+            filter={
+              isGenActiveOrHovered("2026-2027")
+                ? "url(#branch-glow)"
+                : undefined
+            }
+            className="transition-all duration-300"
           />
           <path
-            d="M 752 905 C 815 898, 872 918, 880 955"
-            stroke="var(--color-tree-ink)"
-            strokeWidth={2.5}
+            d="M 772 968 C 784 960, 796 955, 800 951"
+            stroke={isGenActiveOrHovered("2026-2027") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2026-2027") ? 3.8 : 2.5}
+            className="transition-all duration-300"
           />
-        </g>
-
-        {/* -------------------------------------------------------------
-            THE NEXT PAIR (2026-2027): not named yet, so blank portraits and
-            a label, and nothing to open.
-        ------------------------------------------------------------- */}
-        <g role="img" aria-label={`${TREE_NEXT_PAIR.label}, not yet named`}>
-          {TREE_NEXT_PAIR.nodes.map((node) => (
-            <g key={node.id}>
-              <clipPath id={`clip-${node.id}`}>
-                <circle cx={node.cx} cy={node.cy} r={TREE_NEXT_PAIR.r} />
-              </clipPath>
-              <circle
-                cx={node.cx}
-                cy={node.cy}
-                r={TREE_NEXT_PAIR.r}
-                fill="var(--color-member-border)"
-                filter="url(#node-shadow)"
-              />
-              <g clipPath={`url(#clip-${node.id})`}>
-                <circle
-                  cx={node.cx}
-                  cy={node.cy - 6}
-                  r={TREE_NEXT_PAIR.r * 0.38}
-                  fill="var(--color-ornament)"
-                />
-                <ellipse
-                  cx={node.cx}
-                  cy={node.cy + TREE_NEXT_PAIR.r * 0.75}
-                  rx={TREE_NEXT_PAIR.r * 0.65}
-                  ry={TREE_NEXT_PAIR.r * 0.45}
-                  fill="var(--color-ornament)"
-                />
-              </g>
-              <circle
-                cx={node.cx}
-                cy={node.cy}
-                r={TREE_NEXT_PAIR.r}
-                fill="none"
-                stroke="var(--color-tree-ink)"
-                strokeWidth={2}
-              />
-            </g>
-          ))}
-          <rect
-            x={TREE_NEXT_PAIR.card.x}
-            y={TREE_NEXT_PAIR.card.y}
-            width={TREE_NEXT_PAIR.card.w}
-            height={TREE_NEXT_PAIR.card.h}
-            rx="16"
-            fill="var(--color-member-field)"
-            stroke="var(--color-member-border)"
-            strokeWidth="1.2"
+          <path
+            d="M 772 968 C 814 972, 862 966, 877 961"
+            stroke={isGenActiveOrHovered("2026-2027") ? "#0d1aba" : "#1e2025"}
+            strokeWidth={isGenActiveOrHovered("2026-2027") ? 3.8 : 2.5}
+            className="transition-all duration-300"
           />
-          <text
-            x={TREE_NEXT_PAIR.card.x + TREE_NEXT_PAIR.card.w / 2}
-            y={TREE_NEXT_PAIR.card.y + TREE_NEXT_PAIR.card.h / 2 + 4.5}
-            textAnchor="middle"
-            fontSize="13"
-            fontWeight="800"
-            fontFamily="var(--font-sans), sans-serif"
-            className="fill-text tracking-wide select-none"
-          >
-            {TREE_NEXT_PAIR.label}
-          </text>
         </g>
 
         {/* -------------------------------------------------------------

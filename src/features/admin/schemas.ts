@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import { TRINITY } from "@/features/families/data";
 
 const BRANCH_SLUGS = TRINITY.map((family) => family.slug) as [

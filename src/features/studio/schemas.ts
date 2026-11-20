@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import { BLOG_CATEGORIES } from "@/features/blogs/data";
 
 /* What the blogger writes and arranges. These lived in features/admin until

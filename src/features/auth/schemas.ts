@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 
 /** User login: the family name is the only credential; an OTP follows. */
 export const userLoginSchema = z.object({

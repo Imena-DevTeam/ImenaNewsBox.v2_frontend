@@ -67,8 +67,9 @@ export function FamilyCelebrationsCalendar({
     setTarget({ id: c.id, name: c.name, subfamily: c.branch });
 
   return (
-    <div className="flex w-full flex-col gap-8">
-      <p className="text-body text-muted max-w-2xl">
+    <div className="flex w-full flex-col">
+      {/* Subtitle centered */}
+      <p className="mx-auto mt-4 max-w-2xl text-center text-xl leading-snug font-normal text-neutral-600 sm:text-2xl">
         Celebrating life, joy and the growth of our brothers and sisters across
         all subfamilies.
       </p>

@@ -39,13 +39,14 @@ export function BlogFeed() {
         <div
           role="group"
           aria-labelledby="blog-categories"
-          className="flex flex-wrap items-center gap-2"
+          className="flex flex-wrap items-center gap-2.5"
         >
           <span
             id="blog-categories"
-            className="text-member-ink text-body-sm mr-1 font-semibold"
+            className="bg-brand inline-flex min-h-9 items-center gap-2 rounded-full px-5 py-1.5 text-sm font-semibold text-white shadow-xs"
           >
-            Categories:
+            Categories
+            <span aria-hidden="true">&rarr;</span>
           </span>
           {BLOG_CATEGORIES.map((item) => (
             <button
@@ -54,10 +55,10 @@ export function BlogFeed() {
               onClick={() => setCategory(item)}
               aria-pressed={category === item}
               className={cn(
-                "rounded-pill text-caption transition-fast px-3 py-1.5",
+                "rounded-pill min-h-9 px-4 py-1.5 text-sm font-semibold transition-colors duration-150",
                 category === item
-                  ? "bg-brand text-surface"
-                  : "bg-member-tint text-member-ink hover:bg-brand/20",
+                  ? "bg-brand text-surface shadow-xs"
+                  : "bg-brand/10 text-brand hover:bg-brand/15",
               )}
             >
               {item}

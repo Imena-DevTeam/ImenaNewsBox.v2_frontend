@@ -1119,6 +1119,39 @@ dialog[open][data-closing] {
 }
 
 /* ---------------------------------------------------------------------------
+   The top navigation progress bar — see components/layout/RouteProgress.
+
+   A click fills it while the next page is on its way, so a navigation never
+   looks like nothing happened. The width is driven inline as a scaleX; the
+   rest lives here so the colour stays a token (the brand dark blue) and the
+   bar can sit above every layer the app itself uses without a bracket z value.
+   --------------------------------------------------------------------------- */
+.route-progress {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 0.1875rem;
+  transform-origin: left center;
+  background: var(--color-primary);
+  box-shadow:
+    0 0 10px var(--color-primary),
+    0 0 5px var(--color-primary);
+  z-index: 120;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 180ms ease-out,
+    opacity 250ms ease 120ms;
+}
+
+.route-progress[data-active="true"] {
+  opacity: 1;
+  transition:
+    transform 180ms ease-out,
+    opacity 100ms ease;
+}
+
+/* ---------------------------------------------------------------------------
    The floor under all of it.
 
    Every animation in this file gates itself on prefers-reduced-motion, which

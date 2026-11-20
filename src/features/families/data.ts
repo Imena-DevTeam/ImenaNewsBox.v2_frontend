@@ -16,6 +16,9 @@ export interface Subfamily {
   slug: string;
   name: string;
   holds: string;
+  /** The identity line and description the dashboard trinity card shows. */
+  tagline: string;
+  summary: string;
   /** The branch's motto, in Kinyarwanda with its English sense. */
   motto: string;
   mottoMeaning: string;
@@ -42,6 +45,9 @@ export const TRINITY: Subfamily[] = [
     slug: "wihogora",
     name: "Wihogora",
     holds: "Keeps the family's record and the yearly archive.",
+    tagline: "Guardian of the Bond",
+    summary:
+      "A family founded on protecting what has been achieved, rejecting division, and promoting peace.",
     motto: "Twibuke, twubake",
     mottoMeaning: "We remember, we build",
     leader: "Niyonzima Eric",
@@ -65,6 +71,9 @@ export const TRINITY: Subfamily[] = [
     name: "Light",
     holds:
       "The writers and singers — the branch that gives the family its voice.",
+    tagline: "Love • Unity • Honesty • Solidarity",
+    summary:
+      "A family that encourages love, unity, honesty, solidarity, and the spirit of being brothers and sisters.",
     motto: "Urumuri rwacu",
     mottoMeaning: "Our light, shared",
     leader: "Bizimana Olivier",
@@ -87,6 +96,9 @@ export const TRINITY: Subfamily[] = [
     slug: "hope",
     name: "Hope",
     holds: "The youngest branch, and the one being raised fastest.",
+    tagline: "Learn. Live. Hope.",
+    summary:
+      "A family inspired by the past, committed to the present, and hopeful about tomorrow.",
     motto: "Ejo hazaza ni twe",
     mottoMeaning: "Tomorrow is us",
     leader: "Nshimiyimana Patrick",

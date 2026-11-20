@@ -22,7 +22,7 @@ export function BlogSearch({ className }: { className?: string }) {
       <label htmlFor="dashboard-search" className="sr-only">
         Search for blogs
       </label>
-      <div className="bg-member-field rounded-pill relative flex h-12 w-full items-center lg:mx-auto lg:max-w-md">
+      <div className="bg-member-field rounded-pill relative flex h-13 w-full items-center">
         <Search aria-hidden className="text-muted ml-5 size-5" />
         <input
           autoComplete="off"

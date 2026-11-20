@@ -20,12 +20,40 @@ export const PROMOTION_YEARS = [
   "2023-2024",
   "2024-2025",
   "2025-2026",
+  "2026-2027",
 ] as const;
 
 export type PromotionYear = (typeof PROMOTION_YEARS)[number];
 
 /* Sourced from https://imenanewsbox.rw/about — strictly Grandpere & Grandmere for each generation */
 export const PROMOTIONS_DATA: Record<PromotionYear, PublicPromotionGroup[]> = {
+  /* Named for the 2026-2027 promotion; portraits are not in yet, so the cards
+     fall back to the same silhouette the other photo-less members use. */
+  "2026-2027": [
+    {
+      heading: "Grandpere & Grandmere",
+      members: [
+        {
+          id: "gp-2026-yanisse",
+          name: "Yanisse",
+          singleName: "Yanisse",
+          role: "Grandpere",
+          familyName: "",
+          imageUrl: null,
+          saying: "",
+        },
+        {
+          id: "gm-2026-landra",
+          name: "Landra",
+          singleName: "Landra",
+          role: "Grandmere",
+          familyName: "",
+          imageUrl: null,
+          saying: "",
+        },
+      ],
+    },
+  ],
   "2025-2026": [
     {
       heading: "Grandpere & Grandmere",
@@ -406,23 +434,29 @@ export const TREE_PORTRAIT_NODES: TreeNodeData[] = [
     role: "Grandmere",
     imageUrl: null,
   },
-];
 
-/*
- * The pair that follows 2025-2026, drawn so the tree visibly carries on.
- * Nobody has been named for it yet, so it is two blank portraits and a label:
- * it is not a PromotionYear and it opens nothing. When the people are known,
- * move them into TREE_PORTRAIT_NODES and PROMOTIONS_DATA and delete this.
- */
-export const TREE_NEXT_PAIR = {
-  label: "2026 – 2027",
-  r: 35,
-  nodes: [
-    { id: "next-grandpere", cx: 800, cy: 985 },
-    { id: "next-grandmere", cx: 880, cy: 990 },
-  ],
-  card: { x: 730, y: 1040, w: 215, h: 42 },
-} as const;
+  // Generation 2026-2027 (Bottom-right pair — named, portraits pending)
+  {
+    id: "gp-2026-yanisse",
+    cx: 800,
+    cy: 985,
+    r: 35,
+    name: "Yanisse",
+    generation: "2026-2027",
+    role: "Grandpere",
+    imageUrl: null,
+  },
+  {
+    id: "gm-2026-landra",
+    cx: 880,
+    cy: 990,
+    r: 35,
+    name: "Landra",
+    generation: "2026-2027",
+    role: "Grandmere",
+    imageUrl: null,
+  },
+];
 
 /* Rounded rectangle cards with meaningful labels strictly matching Image Two */
 export const TREE_CARDS: TreeCardData[] = [
@@ -437,6 +471,8 @@ export const TREE_CARDS: TreeCardData[] = [
   { id: "c5", x: 680, y: 625, w: 225, h: 40, label: "2024 – 2025" },
   // Card below Elua & Joyeuse (2023-2024)
   { id: "c6", x: 250, y: 635, w: 225, h: 40, label: "2023 – 2024" },
-  // Card below & to right of Pacifique & Hyguette (2025-2026)
-  { id: "c7", x: 480, y: 880, w: 225, h: 42, label: "2025 – 2026" },
+  // Card centred beneath Pacifique & Hyguette (2025-2026)
+  { id: "c7", x: 280, y: 920, w: 225, h: 42, label: "2025 – 2026" },
+  // Card beneath the named-but-photo-less 2026-2027 pair
+  { id: "c8", x: 730, y: 1035, w: 215, h: 42, label: "2026 – 2027" },
 ];
