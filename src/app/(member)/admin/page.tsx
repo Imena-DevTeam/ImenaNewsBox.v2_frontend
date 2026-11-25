@@ -13,9 +13,9 @@ import { AttentionQueue } from "@/features/admin/components/AttentionQueue";
 import { SearchField } from "@/components/layout/SearchField";
 import { ResetRequests } from "@/features/admin/components/ResetRequests";
 import { ACTIVITY, attentionItems } from "@/features/admin/data";
-import { pendingResetRequests } from "@/features/invitations/data";
 import { TRINITY } from "@/features/families/data";
 import { countByBranch } from "@/features/members/data";
+import { loadResetRequests } from "./_lib/reset-requests";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -29,7 +29,7 @@ export default async function AdminPage() {
   /* Administrators who cannot get in. This band is the other half of
      /admin/forgot-password: the family's answer to a lost password is
      another administrator rather than an inbox. */
-  const resets = pendingResetRequests();
+  const resets = await loadResetRequests();
 
   /* Fixed at render on the server and handed down, so the server and the
      client agree what "2 hours ago" means. */
@@ -100,7 +100,7 @@ export default async function AdminPage() {
             {
               id: "resets",
               heading: "Password resets",
-              note: resets.length > 0 ? `${resets.length} waiting` : undefined,
+              note: resets?.length ? `${resets.length} waiting` : undefined,
               body: <ResetRequests requests={resets} now={now} />,
             },
           ]}

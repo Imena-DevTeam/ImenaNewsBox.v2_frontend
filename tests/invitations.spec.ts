@@ -51,4 +51,19 @@ test.describe("invitation links", () => {
     await page.goto("/admin/forgot-password");
     await expect(page).toHaveURL(/\/admin\/forgot-password$/);
   });
+
+  /* The same answer for every name, so it never says who is an admin. */
+  test("asking for a reset gets the same answer for any name", async ({
+    page,
+  }) => {
+    for (const name of ["Shema", "Nobody"]) {
+      await page.goto("/admin/forgot-password");
+      await page.getByLabel("Name").fill(name);
+      await page.getByRole("button", { name: "Ask for a reset" }).click();
+      await expect(page.getByText("Request received.")).toBeVisible();
+      await expect(
+        page.getByText(/If that's an admin's family name/),
+      ).toBeVisible();
+    }
+  });
 });

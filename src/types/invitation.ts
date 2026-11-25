@@ -13,19 +13,19 @@ export interface InvitationDetails {
 
 /**
  * One administrator's request for a new password, waiting for another
- * administrator to send the link.
+ * administrator to answer it (`GET /auth/reset-requests`).
  *
- * The address is on the record and is shown, never typed: a reset link sent
- * to an address supplied at reset time is a takeover with extra steps.
+ * The address is the one on their account, and it is shown, never typed:
+ * the link can only go there, so the administrator who sends it never sees
+ * it, and cannot take the account over.
  */
 export interface ResetRequest {
   id: string;
-  memberId: string;
-  fullName: string;
-  /** The address already on the record, which is where the link may go. */
+  userId: string;
+  familyName: string;
+  displayName: string;
+  /** Where the link will go: the address already on the account. */
   email: string;
   /** ISO. */
   requestedAt: string;
-  /** ISO, once another administrator has sent the link. */
-  sentAt?: string;
 }

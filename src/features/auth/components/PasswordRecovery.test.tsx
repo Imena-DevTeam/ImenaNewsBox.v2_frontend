@@ -1,23 +1,32 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { SetPasswordForm } from "./SetPasswordForm";
 
+const askForPasswordReset = vi.fn();
+vi.mock("@/app/actions/reset-requests", () => ({
+  askForPasswordReset: (...args: unknown[]) => askForPasswordReset(...args),
+}));
+
 const type = (label: string, value: string) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 
+/** The backend's answer, the same for every name. */
+const ASKED =
+  "If that's an admin's family name, the other admins have been asked.";
+
+beforeEach(() => {
+  askForPasswordReset.mockReset();
+  askForPasswordReset.mockResolvedValue({ ok: true, message: ASKED });
+});
+
 /**
- * Losing an administrator's password, and setting a new one.
- *
- * Neither of these screens can do its real work without a backend — one
- * sends an email and the other stores a hash — so what the tests hold is
- * the part that is this frontend's to get right: what it asks for, what it
- * refuses, and what it does not say.
+ * Losing an administrator's password, and setting a new one: what each
+ * screen asks for, what it refuses, and what it does not say.
  */
 describe("ForgotPasswordForm", () => {
-  /* The link goes to the address already on the record. A field for one
-     here would let anybody redirect somebody else's reset, which is a
-     takeover with extra steps. */
+  /* The link goes to the address already on the account. A field for one
+     here would let anybody redirect somebody else's reset. */
   it("does not ask where to send the link", () => {
     render(<ForgotPasswordForm />);
 
@@ -33,36 +42,32 @@ describe("ForgotPasswordForm", () => {
     expect(
       await screen.findByText("Family name is required"),
     ).toBeInTheDocument();
+    expect(askForPasswordReset).not.toHaveBeenCalled();
   });
 
-  /* The register is readable by anyone who can see the site; which rows
-     hold the administrator role is not. So this screen answers the same way
-     whoever asks, and the wording is conditional on purpose. */
-  it("answers the same way whether or not the name is an administrator's", async () => {
-    const { unmount } = render(<ForgotPasswordForm />);
+  /* Which names are administrators' is not this screen's to say, so it
+     shows the backend's answer, which is the same for every name. */
+  it("sends the name and shows the backend's answer as it is", async () => {
+    render(<ForgotPasswordForm />);
     type("Name", "Aganze");
     fireEvent.click(screen.getByText("Ask for a reset"));
-    const forAdmin = await screen.findByText(
-      /other administrators have been told/,
+
+    expect(await screen.findByText(ASKED)).toBeInTheDocument();
+    expect(askForPasswordReset).toHaveBeenCalledWith("Aganze");
+  });
+
+  it("says so when the server could not be reached", async () => {
+    askForPasswordReset.mockResolvedValue({
+      ok: false,
+      message: "We could not reach the server. Try again in a moment.",
+    });
+    render(<ForgotPasswordForm />);
+    type("Name", "Aganze");
+    fireEvent.click(screen.getByText("Ask for a reset"));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We could not reach the server.",
     );
-    expect(forAdmin).toBeInTheDocument();
-    expect(screen.getByText(/If that name belongs/)).toBeInTheDocument();
-    unmount();
-
-    render(<ForgotPasswordForm />);
-    type("Name", "Nobody Atall");
-    fireEvent.click(screen.getByText("Ask for a reset"));
-    expect(
-      await screen.findByText(/other administrators have been told/),
-    ).toBeInTheDocument();
-  });
-
-  it("says nothing was sent, because nothing was", async () => {
-    render(<ForgotPasswordForm />);
-    type("Name", "Aganze");
-    fireEvent.click(screen.getByText("Ask for a reset"));
-
-    expect(await screen.findByText(/no email was sent/)).toBeInTheDocument();
   });
 });
 

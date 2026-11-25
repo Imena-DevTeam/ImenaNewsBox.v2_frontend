@@ -20,6 +20,8 @@ const PUBLIC_PAGES = [
   "src/features/invitations/components/InvitationFlow.tsx",
   "src/app/actions/invitation.ts",
   "src/app/(auth)/admin/forgot-password/page.tsx",
+  "src/features/auth/components/ForgotPasswordForm.tsx",
+  "src/app/actions/reset-requests.ts",
 ];
 
 /* Everything that can put a session in front of somebody, and the pending
