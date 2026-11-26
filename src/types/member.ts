@@ -73,3 +73,31 @@ export interface DirectoryEntry {
   name: string;
   branch: string;
 }
+
+/** The signed-in person's own account, as their profile shows it. */
+export interface MyAccount {
+  id: string;
+  fullName: string;
+  familyName: string;
+  email: string;
+  /** False after an administrator changes the address, until the code sent
+      to the new one is typed in. */
+  emailConfirmed: boolean;
+  branch: string;
+  promotion: Choice | null;
+  /** ISO date, or empty. */
+  bornOn: string;
+  bio: string;
+  photo: string;
+}
+
+/** A device signed in to this account (`GET /auth/sessions`). */
+export interface Device {
+  id: string;
+  /** From the browser's user agent, such as "Safari on iPhone". */
+  label: string;
+  signedInAt: string;
+  lastUsedAt: string;
+  /** The device reading the page. */
+  current: boolean;
+}

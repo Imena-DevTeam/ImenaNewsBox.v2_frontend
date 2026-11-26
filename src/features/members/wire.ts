@@ -1,11 +1,14 @@
 import type {
   Choice,
+  Device,
   FamilyMember,
   MemberStatus,
+  MyAccount,
   PublicPerson,
 } from "@/types/member";
 import type {
   PromotionRead,
+  SessionRead,
   SubFamilyRead,
   UserPublicRead,
   UserRead,
@@ -74,5 +77,30 @@ export function personFromPublic(user: UserPublicRead): PublicPerson {
       : null,
     photo: user.photo_url ?? "",
     bio: user.bio ?? "",
+  };
+}
+
+export function accountFromMe(user: UserRead): MyAccount {
+  return {
+    id: user.id,
+    fullName: user.display_name,
+    familyName: user.family_name,
+    email: user.email,
+    emailConfirmed: user.email_verified_at !== null,
+    branch: branchSlug(user.sub_family),
+    promotion: choice(user.promotion),
+    bornOn: user.birthday ?? "",
+    bio: user.bio ?? "",
+    photo: user.photo_url ?? "",
+  };
+}
+
+export function deviceFromSession(session: SessionRead): Device {
+  return {
+    id: session.id,
+    label: session.device_label,
+    signedInAt: session.created_at,
+    lastUsedAt: session.last_used_at,
+    current: session.current,
   };
 }

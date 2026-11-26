@@ -6,7 +6,7 @@ import { HeroSlides } from "@/features/dashboard/components/HeroSlides";
 import { PopularArticles } from "@/features/blogs/components/PopularArticles";
 import { BirthdaysPanel } from "@/features/birthdays/components/BirthdaysPanel";
 import { ProfileNudge } from "@/features/profile/components/ProfileNudge";
-import { signedInRecord } from "../_lib/signed-in-record";
+import { loadMyAccount } from "@/app/(member)/_lib/my-account";
 import { registerCelebrants } from "../_lib/birthdays";
 import { todayAndNext } from "@/features/birthdays/data";
 import { SubFamilyTrinity } from "@/features/families/components/SubFamilyTrinity";
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
  * from `lg` up.
  */
 export default async function DashboardPage() {
-  const record = await signedInRecord();
+  const account = await loadMyAccount();
   const { today, upcoming } = todayAndNext(registerCelebrants(), new Date());
 
   return (
@@ -45,7 +45,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <ProfileNudge registeredBornOn={record?.bornOn ?? ""} />
+      {/* Nothing to ask for when the account could not be read. */}
+      {account ? <ProfileNudge bornOn={account.bornOn} /> : null}
 
       <div className="grid grid-cols-1 items-start gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
         <PopularArticles className="order-2 lg:order-1" />

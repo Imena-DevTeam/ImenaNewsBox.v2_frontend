@@ -589,7 +589,7 @@ export function MembersTable({
                           className="text-body-sm text-brand focus-visible:outline-brand hover:bg-member-tint rounded-pill px-3 py-2 font-semibold"
                         >
                           Edit
-                          <span className="sr-only"> {person.fullName}</span>
+                          <span className="sr-only">{` ${person.fullName}`}</span>
                         </button>
                         {gone ? (
                           <button

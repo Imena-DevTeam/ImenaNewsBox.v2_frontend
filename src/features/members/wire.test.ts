@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { UserRead } from "@/types/wire";
 import {
+  accountFromMe,
+  deviceFromSession,
   memberFromAccount,
   personFromPublic,
   promotionLabel,
@@ -92,6 +94,39 @@ describe("the backend's people, as the register reads them", () => {
       birthday: { month: 5, day: 4 },
       photo: "https://res.cloudinary.com/x.jpg",
       bio: "Hello",
+    });
+  });
+
+  /* An administrator's change of address clears the confirmation, and the
+     profile asks for the code until it is typed in. */
+  it("reads your own account, and whether its address is confirmed", () => {
+    expect(accountFromMe(account())).toMatchObject({
+      familyName: "RWEMA",
+      emailConfirmed: true,
+      bornOn: "1990-05-04",
+      bio: "",
+    });
+    expect(
+      accountFromMe(account({ email_verified_at: null })).emailConfirmed,
+    ).toBe(false);
+  });
+
+  it("reads a signed-in device", () => {
+    expect(
+      deviceFromSession({
+        id: "s-1",
+        device_label: "Safari on iPhone",
+        created_at: "2026-11-01T10:00:00Z",
+        last_used_at: "2026-11-26T08:00:00Z",
+        expires_at: "2027-02-24T08:00:00Z",
+        current: false,
+      }),
+    ).toEqual({
+      id: "s-1",
+      label: "Safari on iPhone",
+      signedInAt: "2026-11-01T10:00:00Z",
+      lastUsedAt: "2026-11-26T08:00:00Z",
+      current: false,
     });
   });
 });

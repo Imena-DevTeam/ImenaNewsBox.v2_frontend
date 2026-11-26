@@ -12,6 +12,7 @@ import { authMode } from "@/lib/auth-mode";
 import { readSession, SESSION_COOKIE, type Role } from "@/lib/session";
 import { usersService } from "@/services/users.service";
 import { ApiError } from "@/types/api";
+import type { UserRead } from "@/types/wire";
 
 /**
  * Who is reading the page. **Server-only.**
@@ -33,6 +34,9 @@ export interface Viewer {
   id: string;
   role: Role;
   person: Person;
+  /** The whole account, with a backend: the profile reads it rather than
+      asking `/users/me` a second time. Absent in fixture mode. */
+  account?: UserRead;
 }
 
 export const getViewer = cache(async (): Promise<Viewer | null> => {
@@ -58,6 +62,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
       id: account.id,
       role: account.role,
       person: personFromAccount(account),
+      account,
     };
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) return null;

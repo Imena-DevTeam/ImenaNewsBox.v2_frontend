@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
        that reads the request, and it is an auth step, not something to
        re-show from cache. */
     staleTimes: { static: 600, dynamic: 30 },
+
+    /* A profile photo is up to 5 MB and goes through a server action, whose
+       body is 1 MB by default. The backend refuses anything larger itself. */
+    serverActions: { bodySizeLimit: "6mb" },
   },
 
   images: {

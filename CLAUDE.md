@@ -1918,7 +1918,7 @@ Each one is a PR on its own and leaves the gate green.
 | 3   | invitations: one `/invitation` page reading `location.hash`; `/invite/[token]` and its `/signup` retired. **Done**, see below                                                                  |
 | 4   | forgot password and the reset queue, against B2. **Done**, merged as #28                                                                                                                       |
 | 5   | the register and directory: `family_name` field, sub-family and promotion selects, **Remove** becomes **Deactivate**, **Undo** reactivates, **Send a new link**. **Done**, see below           |
-| 6   | profile: display name, birthday, bio, photo; confirming a changed email; devices from `/auth/sessions`                                                                                         |
+| 6   | profile: display name, birthday, bio, photo; confirming a changed email; devices from `/auth/sessions`. **Done**, see below                                                                    |
 | 7   | wishes and upcoming birthdays                                                                                                                                                                  |
 | 8   | blog reading: a Portable Text renderer for the backend's block set, Sanity images                                                                                                              |
 | 9   | studio posts: image upload, then create, patch or delete by Sanity id; drafts stay on the device                                                                                               |
@@ -2210,6 +2210,40 @@ has no screen yet; it belongs with the studio's posts (step 9).
 `pnpm build` compiles. 23 of 24 Playwright tests pass; "public pages hold at
 360px" times out loading `/family-tree` here, on `main` as well, which no
 page in this step touches.
+
+### Step 6, applied 26 Nov 2026: the profile
+
+`/profile` is the signed-in account: `getViewer()` now keeps the `/users/me`
+it already asks for, and `_lib/my-account.ts` reads it, so the page costs no
+second call. In fixture mode it is the sample register's row for the
+session's role.
+
+| What                | Now                                                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| the member edits    | name, date of birth, bio (`PATCH /users/me`, only what changed; an empty date or bio clears it), and their photograph         |
+| shown, not edited   | family name ("what you log in with"), email, promotion, branch and its motto: an administrator's to change                    |
+| the photograph      | `PUT`/`DELETE /users/{id}/photo` through a server action; JPEG, PNG, WebP or HEIC up to 5 MB, checked before it is sent       |
+| a changed email     | while `email_verified_at` is empty, a band asks for the code sent to the new address, with **Send a new code** (one a minute) |
+| devices             | `GET /auth/sessions`: this device marked, any other signed out with `DELETE /auth/sessions/{id}`                              |
+| the dashboard nudge | reads the account's birthday; only "hide this" stays on the device                                                            |
+| gone                | the birthday kept in `localStorage` (`completion.ts`), `signed-in-record.ts`, "Verified member" and the invented promotion    |
+
+**The body limit.** A server action takes 1 MB by default, so
+`experimental.serverActions.bodySizeLimit` is `6mb` in `next.config.ts` for
+the 5 MB photo. On Vercel a function still takes at most 4.5 MB per request
+(see Risks): settle hosting before relying on photos near the limit.
+
+**Saving the name refreshes every page** (`revalidatePath("/", "layout")`),
+because the frame greets the member by it.
+
+**Also fixed:** a button labelled by an `sr-only` span that starts with a
+space (" {name}") lost the space, so screen readers heard "EditRwema". Three
+places (the register, the album board, the device list) now keep it.
+
+**Gate:** typecheck, lint and format clean. **466 tests over 57 files.**
+`pnpm build` compiles. `tests/profile.spec.ts` is new. The sign-in
+Playwright tests time out on this machine's network on `main` as well (the
+page after the code never finishes loading); CI is the judge.
 
 ### Step 12, later: Google sign-in
 

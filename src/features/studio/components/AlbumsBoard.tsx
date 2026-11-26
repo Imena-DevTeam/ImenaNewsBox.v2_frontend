@@ -293,7 +293,7 @@ export function AlbumsBoard({
                     className="text-body-sm text-brand focus-visible:outline-brand hover:bg-member-tint rounded-pill h-10 px-3 font-semibold"
                   >
                     Edit
-                    <span className="sr-only"> {album.title}</span>
+                    <span className="sr-only">{` ${album.title}`}</span>
                   </button>
                   <Link
                     href={`${ROUTES.GALLERY}/${album.slug}`}

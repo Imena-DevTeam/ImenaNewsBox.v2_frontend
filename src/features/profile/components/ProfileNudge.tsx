@@ -4,25 +4,20 @@ import { ButtonLink } from "@/components/ui/Button";
 import { X } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { useStoredValue } from "@/hooks/useStoredValue";
-import { useProfileCompletion } from "../completion";
 
 /**
- * A short note on the dashboard when the register has no date of birth for
- * the member: the birthdays page cannot celebrate somebody it cannot place.
- * One button to add it, and it can be put away for later.
+ * A short note on the dashboard when the account has no date of birth: the
+ * birthdays page cannot celebrate somebody it cannot place. One button to
+ * add it, and it can be put away for later — the one thing kept on the
+ * device, because it is a preference about this screen, not a fact.
  */
-export function ProfileNudge({
-  registeredBornOn,
-}: {
-  registeredBornOn: string;
-}) {
-  const { complete } = useProfileCompletion(registeredBornOn);
+export function ProfileNudge({ bornOn }: { bornOn: string }) {
   const [dismissed, setDismissed] = useStoredValue(
     "imena:profile_nudge_dismissed",
     "0",
   );
 
-  if (complete || dismissed === "1") return null;
+  if (bornOn || dismissed === "1") return null;
 
   return (
     <section
