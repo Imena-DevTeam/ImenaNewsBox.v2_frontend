@@ -49,14 +49,14 @@ export function shortMonth(month: number): string {
 
 /**
  * Everybody the birthdays page can place: people with a date of birth who
- * have not been suspended, in calendar order.
+ * have not been deactivated, in calendar order.
  */
 export function celebrantsFrom(
   people: BirthdayPerson[],
   branchName: (slug: string) => string,
 ): Celebrant[] {
   return people
-    .filter((person) => person.bornOn && person.status !== "suspended")
+    .filter((person) => person.bornOn && person.status !== "deactivated")
     .map((person) => {
       const [, month, day] = person.bornOn.split("-").map(Number);
       return {

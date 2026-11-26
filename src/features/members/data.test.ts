@@ -32,6 +32,15 @@ describe("the family register", () => {
     }
   });
 
+  /* The family name is what somebody logs in with: the backend refuses a
+     second one ignoring case, so the sample register must not hold one. */
+  it("gives every person their own family name", () => {
+    const seen = new Set(
+      FAMILY_REGISTER.map((person) => person.familyName.toLowerCase()),
+    );
+    expect(seen.size).toBe(FAMILY_REGISTER.length);
+  });
+
   /* Email is how a person signs in, so a duplicate is a broken login, not an
      untidy fixture. */
   it("gives every person their own address", () => {
@@ -84,7 +93,7 @@ describe("the family register", () => {
      look like cover while nobody could actually help. */
   it("does not count a suspended admin towards the floor", () => {
     const suspended = administrators(FAMILY_REGISTER).map((person, index) =>
-      index === 0 ? person : { ...person, status: "suspended" as const },
+      index === 0 ? person : { ...person, status: "deactivated" as const },
     );
     expect(administrators(suspended)).toHaveLength(1);
   });
@@ -107,7 +116,8 @@ describe("the family register", () => {
       FAMILY_REGISTER.filter((person) => person.status === "invited").length,
     ).toBeGreaterThan(0);
     expect(
-      FAMILY_REGISTER.filter((person) => person.status === "suspended").length,
+      FAMILY_REGISTER.filter((person) => person.status === "deactivated")
+        .length,
     ).toBeGreaterThan(0);
   });
 });

@@ -1,5 +1,5 @@
 import { ToastProvider } from "@/components/ui/Toaster";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   fireEvent,
   render,
@@ -12,12 +12,45 @@ import {
   countByBranch,
   FAMILY_REGISTER,
   missingBirthday,
+  SAMPLE_CHOICES,
   SIGNED_IN_ID,
 } from "@/features/members/data";
-import { MembersTable } from "./MembersTable";
+import type { FamilyMember } from "@/types/member";
+
+/* The server actions are the backend's door; here they are stand-ins, so
+   each test says what the backend answered. */
+const actions = vi.hoisted(() => ({
+  addMember: vi.fn(),
+  updateMember: vi.fn(),
+  deactivateMember: vi.fn(),
+  reactivateMember: vi.fn(),
+  sendNewLink: vi.fn(),
+}));
+vi.mock("@/app/actions/members", () => actions);
+
+const { MembersTable } = await import("./MembersTable");
+
+afterEach(() => {
+  for (const action of Object.values(actions)) action.mockReset();
+});
+
+function show(
+  props: Partial<Parameters<typeof MembersTable>[0]> = {},
+  people: FamilyMember[] = FAMILY_REGISTER,
+) {
+  render(
+    <MembersTable
+      people={people}
+      choices={SAMPLE_CHOICES}
+      selfId={SIGNED_IN_ID}
+      {...props}
+    />,
+    { wrapper: ToastProvider },
+  );
+}
 
 /* The status line, then whatever the toast is saying about the last action. */
-const count = () =>
+const said = () =>
   `${screen.getByRole("status").textContent ?? ""} ${
     document.querySelector("[data-toaster]")?.textContent ?? ""
   }`;
@@ -31,71 +64,60 @@ const search = (text: string) =>
 
 const openFirstEdit = () => fireEvent.click(screen.getAllByText("Edit")[0]!);
 
-describe("MembersTable", () => {
+const aMember = FAMILY_REGISTER.find(
+  (one) => one.role === "member" && one.status === "active" && one.bornOn,
+)!;
+
+describe("MembersTable, reading", () => {
   it("shows a screenful and keeps the rest one click away", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+    show();
 
     expect(rows()).toBe(25);
+    expect(said()).toMatch("showing the first 25");
     fireEvent.click(screen.getByText(`Show all ${FAMILY_REGISTER.length}`));
     expect(rows()).toBe(FAMILY_REGISTER.length);
+    expect(said()).not.toMatch("showing the first");
   });
 
-  /* Whoever is looking a person up has the name or the address, not both. */
-  it("finds a person by their email address", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+  it("finds a person by email, by name, and by the family name they log in with", () => {
+    show();
 
     search(FAMILY_REGISTER[9]!.email);
-
-    expect(count()).toMatch(`1 of ${FAMILY_REGISTER.length} people`);
-    expect(rows()).toBe(1);
-  });
-
-  it("finds a person by name", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+    expect(said()).toMatch(`1 of ${FAMILY_REGISTER.length} people`);
 
     search(FAMILY_REGISTER[3]!.fullName);
-
     expect(rows()).toBe(1);
+
+    const admin = FAMILY_REGISTER.find((one) => one.id === SIGNED_IN_ID)!;
+    search(admin.familyName);
+    expect(rows()).toBe(1);
+    expect(screen.getByRole("rowheader")).toHaveTextContent(admin.fullName);
   });
 
   it("narrows to one branch, and says how many of how many", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+    show();
 
     fireEvent.change(screen.getByLabelText("Filter by branch"), {
       target: { value: "wihogora" },
     });
 
-    expect(count()).toMatch(
+    expect(said()).toMatch(
       `${countByBranch()["wihogora"]} of ${FAMILY_REGISTER.length} people`,
     );
   });
 
-  /* The one data gap the rest of the site visibly suffers from: these people
-     are missing from the Birthdays page until somebody fills it in. */
   it("narrows to the people with no date of birth", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+    show();
 
     fireEvent.click(screen.getByLabelText("Missing a date of birth"));
 
-    expect(count()).toMatch(
+    expect(said()).toMatch(
       `${missingBirthday().length} of ${FAMILY_REGISTER.length} people`,
     );
   });
 
   it("says so in a sentence when nobody matches", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+    show();
 
     search("nobody at all");
 
@@ -103,12 +125,9 @@ describe("MembersTable", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
-  /* Active is the norm, and marking the norm is noise — the same judgement
-     the archive makes about published posts. */
+  /* Active is the norm, and marking the norm is noise. */
   it("marks only the people who are not active", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+    show();
     fireEvent.click(screen.getByText(`Show all ${FAMILY_REGISTER.length}`));
 
     const table = screen.getByRole("table");
@@ -117,272 +136,380 @@ describe("MembersTable", () => {
     );
 
     expect(within(table).queryByText("Active")).not.toBeInTheDocument();
-    expect(within(table).getAllByText(/^(Invited|Suspended)$/)).toHaveLength(
+    expect(within(table).getAllByText(/^(Invited|Deactivated)$/)).toHaveLength(
       notActive.length,
     );
   });
 
-  it("opens a person for editing, and reports an email change", async () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+  it("opens with the person a link asked about", () => {
+    show({ initialSearch: FAMILY_REGISTER[11]!.fullName });
 
-    const person = FAMILY_REGISTER.find(
-      (one) => one.id !== SIGNED_IN_ID && one.bornOn,
-    )!;
-    search(person.fullName);
+    expect(rows()).toBe(1);
+    /* Twice: the email column, and the copy the name cell carries on a
+       narrow screen where that column is dropped. */
+    expect(screen.getAllByText(FAMILY_REGISTER[11]!.email)).toHaveLength(2);
+  });
+});
+
+describe("MembersTable, editing", () => {
+  it("sends only what changed, and shows the record the backend sent back", async () => {
+    actions.updateMember.mockResolvedValue({
+      ok: true,
+      person: { ...aMember, email: "somebody.new@example.com" },
+      message: `${aMember.fullName} now uses somebody.new@example.com, and was asked to confirm it there.`,
+    });
+    show();
+    search(aMember.fullName);
     openFirstEdit();
 
     expect(
-      screen.getByRole("heading", { name: person.fullName }),
+      screen.getByRole("heading", { name: aMember.fullName }),
     ).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "somebody.new@imenafamily.rw" },
+      target: { value: "somebody.new@example.com" },
     });
     fireEvent.click(screen.getByText("Save changes"));
 
     await waitFor(() =>
-      expect(count()).toMatch(/would sign in with somebody.new@imenafamily.rw/),
+      expect(said()).toMatch(/was asked to confirm it there/),
     );
-    expect(count()).toMatch(/Nothing was stored/);
+    expect(actions.updateMember).toHaveBeenCalledWith(aMember.id, {
+      email: "somebody.new@example.com",
+    });
+    expect(screen.getAllByText("somebody.new@example.com")).toHaveLength(2);
   });
 
-  /* Two people on one address is a broken login, not an untidy register. */
-  it("refuses an address somebody else already uses", async () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
-
-    const [first, second] = FAMILY_REGISTER;
-    search(second!.fullName);
+  it("sends nothing when nothing changed", async () => {
+    show();
+    search(aMember.fullName);
     openFirstEdit();
-
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: first!.email },
-    });
     fireEvent.click(screen.getByText("Save changes"));
 
     await waitFor(() =>
       expect(
-        screen.getByText(
-          "Somebody else in the register already uses that address",
-        ),
-      ).toBeInTheDocument(),
+        screen.queryByRole("heading", { name: aMember.fullName }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(actions.updateMember).not.toHaveBeenCalled();
+  });
+
+  it("changes the branch and the promotion by their ids", async () => {
+    actions.updateMember.mockResolvedValue({
+      ok: true,
+      person: null,
+      message: "The changes were kept.",
+    });
+    show();
+    search(aMember.fullName);
+    openFirstEdit();
+
+    const other = SAMPLE_CHOICES.subFamilies.find(
+      (one) => one.slug !== aMember.branch,
+    )!;
+    fireEvent.change(screen.getByLabelText("Family branch"), {
+      target: { value: String(other.id) },
+    });
+    fireEvent.change(screen.getByLabelText("Promotion"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByText("Save changes"));
+
+    await waitFor(() => expect(actions.updateMember).toHaveBeenCalled());
+    const [, changes] = actions.updateMember.mock.calls[0]!;
+    expect(changes).toMatchObject({ subFamilyId: other.id });
+    if (aMember.promotion) expect(changes).toMatchObject({ promotionId: null });
+  });
+
+  /* The backend's own refusal lands on the field it is about, and the
+     dialog stays open so it can be corrected. */
+  it("shows a family name somebody else has on that field", async () => {
+    actions.updateMember.mockResolvedValue({
+      ok: false,
+      field: "familyName",
+      message: "That family name is already taken.",
+    });
+    show();
+    search(aMember.fullName);
+    openFirstEdit();
+    fireEvent.change(screen.getByLabelText("Family name"), {
+      target: { value: "SOMEONE" },
+    });
+    fireEvent.click(screen.getByText("Save changes"));
+
+    expect(
+      await screen.findByText("That family name is already taken."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: aMember.fullName }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows any other refusal under the form", async () => {
+    actions.updateMember.mockResolvedValue({
+      ok: false,
+      message: "There must always be at least two active admins.",
+    });
+    show();
+    search(aMember.fullName);
+    openFirstEdit();
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "A new name" },
+    });
+    fireEvent.click(screen.getByText("Save changes"));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "There must always be at least two active admins.",
     );
   });
 
-  /* Taking your own admin role away locks you out of the page you are on. */
-  it("will not let the signed-in admin drop their own role", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
+  /* Checked before anything is sent: two people on one address is a code
+     that reaches the wrong person. */
+  it("refuses an address or a family name somebody else already has", async () => {
+    const [first, second] = FAMILY_REGISTER;
+    show();
+    search(second!.fullName);
+    openFirstEdit();
 
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: first!.email.toUpperCase() },
+    });
+    fireEvent.change(screen.getByLabelText("Family name"), {
+      target: { value: first!.familyName },
+    });
+    fireEvent.click(screen.getByText("Save changes"));
+
+    expect(
+      await screen.findByText(
+        "Somebody else in the register already uses that address",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Somebody else already logs in with that family name"),
+    ).toBeInTheDocument();
+    expect(actions.updateMember).not.toHaveBeenCalled();
+  });
+
+  it("will not let the signed-in admin change their own role", () => {
     const me = FAMILY_REGISTER.find((person) => person.id === SIGNED_IN_ID)!;
+    show();
     search(me.fullName);
     openFirstEdit();
 
     expect(screen.getByLabelText("Role")).toBeDisabled();
+    expect(screen.getByText(/This is your own record/)).toBeInTheDocument();
   });
+});
 
-  it("adds a person through the same panel, and says nothing was stored", async () => {
-    render(<MembersTable people={FAMILY_REGISTER} initialAdd />, {
-      wrapper: ToastProvider,
+describe("MembersTable, adding", () => {
+  it("adds a person through the same panel, and shows them first", async () => {
+    actions.addMember.mockResolvedValue({
+      ok: true,
+      person: null,
+      message: "Keza Marie would be added and sent an invitation link.",
     });
+    show({ initialAdd: true });
 
     expect(
       screen.getByRole("heading", { name: "Add a member" }),
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Full name"), {
+    fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "Keza Marie" },
     });
+    fireEvent.change(screen.getByLabelText("Family name"), {
+      target: { value: "KEZA" },
+    });
     fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "keza.marie@imenafamily.rw" },
+      target: { value: "keza@example.com" },
     });
     fireEvent.click(screen.getByText("Send the invitation"));
 
-    await waitFor(() =>
-      expect(count()).toMatch(/Keza Marie would be added to the register/),
-    );
-    expect(count()).toMatch(/no email was sent/);
-  });
-
-  it("asks before removing somebody, and keeps them if told to", async () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
+    await waitFor(() => expect(said()).toMatch(/Keza Marie would be added/));
+    expect(actions.addMember).toHaveBeenCalledWith({
+      fullName: "Keza Marie",
+      familyName: "KEZA",
+      email: "keza@example.com",
+      subFamilyId: SAMPLE_CHOICES.subFamilies[0]!.id,
+      promotionId: null,
+      bornOn: null,
+      role: "member",
     });
+    search("KEZA");
+    expect(rows()).toBe(1);
+    expect(screen.getByRole("rowheader")).toHaveTextContent("Keza Marie");
+    expect(screen.getByRole("rowheader")).toHaveTextContent("Invited");
+  });
+});
 
-    const person = FAMILY_REGISTER[5]!;
-    search(person.fullName);
-    fireEvent.click(screen.getByLabelText(`Remove ${person.fullName}`));
+describe("MembersTable, deactivating", () => {
+  it("asks first, keeps them if told to, and offers Undo, which reactivates", async () => {
+    actions.deactivateMember.mockResolvedValue({
+      ok: true,
+      person: null,
+      message: `${aMember.fullName} was deactivated and signed out everywhere.`,
+    });
+    actions.reactivateMember.mockResolvedValue({
+      ok: true,
+      person: null,
+      message: "",
+    });
+    show();
+    search(aMember.fullName);
 
+    fireEvent.click(screen.getByLabelText(`Deactivate ${aMember.fullName}`));
     expect(
-      screen.getByRole("heading", {
-        name: `Remove ${person.fullName} from the register?`,
-      }),
+      screen.getByRole("heading", { name: `Deactivate ${aMember.fullName}?` }),
     ).toBeInTheDocument();
-
     fireEvent.click(screen.getByText("Keep them"));
-    expect(rows()).toBe(1);
+    expect(actions.deactivateMember).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByLabelText(`Remove ${person.fullName}`));
-    fireEvent.click(screen.getByText("Remove them"));
+    fireEvent.click(screen.getByLabelText(`Deactivate ${aMember.fullName}`));
+    fireEvent.click(screen.getByRole("button", { name: "Deactivate" }));
 
-    await waitFor(() =>
-      expect(count()).toMatch(new RegExp(`${person.fullName} was removed`)),
-    );
-  });
-
-  it("opens with the person a link asked about", () => {
-    const person = FAMILY_REGISTER[11]!;
-    render(
-      <MembersTable people={FAMILY_REGISTER} initialSearch={person.fullName} />,
-    );
-
-    expect(rows()).toBe(1);
-    /* Twice: the email column, and the copy the name cell carries on a
-       narrow screen where that column is dropped. One of the two is always
-       hidden by CSS. */
-    expect(screen.getAllByText(person.email)).toHaveLength(2);
-  });
-  /* The confirmation is the only thing between a mis-aimed click and a
-     relative disappearing from the register, so the removal is offered back
-     for as long as the outcome line is on screen. Nothing was stored, so
-     putting them back costs one splice. */
-  it("offers a removal back, and puts them where they were", async () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
-    });
-
-    const person = FAMILY_REGISTER[7]!;
-    search(person.fullName);
-    fireEvent.click(screen.getByLabelText(`Remove ${person.fullName}`));
-    fireEvent.click(screen.getByText("Remove them"));
-
-    /* The row slides out before it goes, so the register catches up a beat
-       after the outcome is reported. */
     const undo = await screen.findByText("Undo");
-    expect(screen.queryByText("Nobody matches that.")).toBeInTheDocument();
+    expect(actions.deactivateMember).toHaveBeenCalledWith(aMember.id);
+    expect(
+      within(screen.getByRole("table")).getByText("Deactivated"),
+    ).toBeInTheDocument();
+    /* Still in the register: deactivating keeps the record. */
+    expect(rows()).toBe(1);
 
     fireEvent.click(undo);
 
-    expect(count()).toMatch(`${person.fullName} is back in the register`);
-    expect(rows()).toBe(1);
-    expect(screen.queryByText("Undo")).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(said()).toMatch(`${aMember.fullName} can log in again`),
+    );
+    expect(actions.reactivateMember).toHaveBeenCalledWith(aMember.id);
+    expect(
+      within(screen.getByRole("table")).queryByText("Deactivated"),
+    ).not.toBeInTheDocument();
   });
 
-  /* Twenty-five of seventy-three looks exactly like all twenty-five of
-     twenty-five, and the difference matters to somebody about to say the
-     register is short. */
-  it("says which slice of the register is on screen", () => {
-    render(<MembersTable people={FAMILY_REGISTER} />, {
-      wrapper: ToastProvider,
+  it("reactivates somebody deactivated from their row", async () => {
+    const gone = FAMILY_REGISTER.find((one) => one.status === "deactivated")!;
+    actions.reactivateMember.mockResolvedValue({
+      ok: true,
+      person: { ...gone, status: "active" },
+      message: `${gone.fullName} can log in again.`,
     });
+    show();
+    search(gone.fullName);
 
-    expect(count()).toMatch("showing the first 25");
-
-    fireEvent.click(screen.getByText(`Show all ${FAMILY_REGISTER.length}`));
-    expect(count()).not.toMatch("showing the first");
-  });
-  /**
-   * The two-administrator floor.
-   *
-   * One administrator means one forgotten password locks the register for
-   * good: the reset works by another administrator sending the link, so
-   * there has to be another administrator. These hold the three routes to
-   * breaking it — demote, suspend, remove — closed from the UI.
-   *
-   * They are a courtesy and not a rule, and the test says so because the
-   * backend has to refuse the same thing: a disabled control stops a
-   * mis-click, not a request.
-   */
-  describe("the two-administrator floor", () => {
-    const anAdmin = administrators(FAMILY_REGISTER).find(
-      (person) => person.id !== SIGNED_IN_ID,
-    )!;
-
-    it("will not let the last administrators be removed", () => {
-      render(<MembersTable people={FAMILY_REGISTER} />, {
-        wrapper: ToastProvider,
-      });
-      search(anAdmin.fullName);
-
-      const remove = screen.getByRole("button", {
-        name: new RegExp(`${anAdmin.fullName} cannot be removed`),
-      });
-      expect(remove).toBeDisabled();
-    });
-
-    it("will not let their role be changed, and says why", async () => {
-      render(<MembersTable people={FAMILY_REGISTER} />, {
-        wrapper: ToastProvider,
-      });
-      search(anAdmin.fullName);
-      openFirstEdit();
-
-      await waitFor(() => expect(screen.getByLabelText("Role")).toBeDisabled());
-      expect(
-        screen.getByText(/register needs two administrators/),
-      ).toBeInTheDocument();
-    });
-
-    /* Suspending an administrator takes the role away as surely as demoting
-       them, so closing one door and leaving the other open would be worse
-       than closing neither. */
-    it("will not let them be suspended either", async () => {
-      render(<MembersTable people={FAMILY_REGISTER} />, {
-        wrapper: ToastProvider,
-      });
-      search(anAdmin.fullName);
-      openFirstEdit();
-
-      /* Scoped to the panel's own select: the filter row above the table
-         offers a Suspended option too, and that one is not the floor's
-         business. */
-      const status = await screen.findByLabelText("Status");
-      expect(
-        within(status).getByRole("option", { name: "Suspended" }),
-      ).toBeDisabled();
-    });
-
-    /* Nobody else is locked: the floor is about the role, not about being
-       in the register. */
-    it("leaves everybody else alone", () => {
-      const member = FAMILY_REGISTER.find(
-        (person) => person.role === "member",
-      )!;
-      render(<MembersTable people={FAMILY_REGISTER} />, {
-        wrapper: ToastProvider,
-      });
-      search(member.fullName);
-
-      expect(
-        screen.getByRole("button", { name: `Remove ${member.fullName}` }),
-      ).toBeEnabled();
-    });
-  });
-
-  /* An invitation is the only way in, and the outcome has to say so rather
-     than implying an account now exists. */
-  it("reports the invitation, not an account", async () => {
-    render(<MembersTable people={FAMILY_REGISTER} initialAdd />, {
-      wrapper: ToastProvider,
-    });
-
-    fireEvent.change(screen.getByLabelText("Full name"), {
-      target: { value: "Kalisa Shema" },
-    });
-    fireEvent.change(screen.getByLabelText("Email address"), {
-      target: { value: "kalisa.shema@imenafamily.rw" },
-    });
-    fireEvent.click(screen.getByText("Send the invitation"));
+    fireEvent.click(screen.getByLabelText(`Reactivate ${gone.fullName}`));
 
     await waitFor(() =>
-      expect(count()).toMatch(
-        /sent an invitation link at kalisa.shema@imenafamily\.rw/,
-      ),
+      expect(said()).toMatch(`${gone.fullName} can log in again`),
     );
-    expect(count()).toMatch(/stay invited until they opened it/);
+  });
+
+  it("says what the backend said when it refuses", async () => {
+    actions.deactivateMember.mockResolvedValue({
+      ok: false,
+      message: "We could not reach the server. Try again in a moment.",
+    });
+    show();
+    search(aMember.fullName);
+    fireEvent.click(screen.getByLabelText(`Deactivate ${aMember.fullName}`));
+    fireEvent.click(screen.getByRole("button", { name: "Deactivate" }));
+
+    await waitFor(() => expect(said()).toMatch(/could not reach the server/));
+    expect(
+      within(screen.getByRole("table")).queryByText("Deactivated"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("will not offer to deactivate the signed-in administrator", () => {
+    const me = FAMILY_REGISTER.find((person) => person.id === SIGNED_IN_ID)!;
+    show();
+    search(me.fullName);
+
+    expect(
+      screen.getByRole("button", { name: new RegExp(`${me.fullName} is you`) }),
+    ).toBeDisabled();
+  });
+});
+
+describe("MembersTable, a new link", () => {
+  it("is offered to somebody who has not used theirs, and sent on request", async () => {
+    const invited = FAMILY_REGISTER.find((one) => one.status === "invited")!;
+    actions.sendNewLink.mockResolvedValue({
+      ok: true,
+      person: null,
+      message: `A new invitation link went to ${invited.email}.`,
+    });
+    show();
+    search(invited.fullName);
+    openFirstEdit();
+
+    fireEvent.click(screen.getByText("Send a new link"));
+
+    await waitFor(() =>
+      expect(said()).toMatch(`A new invitation link went to ${invited.email}`),
+    );
+    expect(actions.sendNewLink).toHaveBeenCalledWith(invited.id);
+  });
+
+  it("is not offered to a member who has already joined", () => {
+    show();
+    search(aMember.fullName);
+    openFirstEdit();
+
+    expect(screen.queryByText("Send a new link")).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * The two-administrator floor.
+ *
+ * One administrator means one forgotten password locks the register for
+ * good: the reset works by another administrator sending the link. These
+ * hold both routes to breaking it — demote and deactivate — closed from the
+ * UI. They are a courtesy and not a rule: the backend refuses the same
+ * thing with 409 `too_few_admins`.
+ */
+describe("the two-administrator floor", () => {
+  const anAdmin = administrators(FAMILY_REGISTER).find(
+    (person) => person.id !== SIGNED_IN_ID,
+  )!;
+
+  it("will not let the last administrators be deactivated", () => {
+    show();
+    search(anAdmin.fullName);
+
+    expect(
+      screen.getByRole("button", {
+        name: new RegExp(`${anAdmin.fullName} cannot be deactivated`),
+      }),
+    ).toBeDisabled();
+  });
+
+  it("will not let their role be changed, and says why", async () => {
+    show();
+    search(anAdmin.fullName);
+    openFirstEdit();
+
+    await waitFor(() => expect(screen.getByLabelText("Role")).toBeDisabled());
+    expect(
+      screen.getByText(/register needs two administrators/),
+    ).toBeInTheDocument();
+  });
+
+  /* An administrator's new link is also their password reset. */
+  it("offers an administrator a new link", () => {
+    show();
+    search(anAdmin.fullName);
+    openFirstEdit();
+
+    expect(screen.getByText(/choose a new password/)).toBeInTheDocument();
+  });
+
+  it("leaves everybody else alone", () => {
+    show();
+    search(aMember.fullName);
+
+    expect(
+      screen.getByRole("button", { name: `Deactivate ${aMember.fullName}` }),
+    ).toBeEnabled();
   });
 });

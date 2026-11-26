@@ -2,54 +2,42 @@ import { Quote } from "@/components/ui/Quote";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Cake, CalendarDays, Network, Users } from "lucide-react";
+import { Cake, GraduationCap, Network, Users } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { ROUTES } from "@/constants/routes";
 import { getSubfamilyBySlug } from "@/features/families/data";
-import { FAMILY_REGISTER } from "@/features/members/data";
+import { promotionLabel } from "@/features/members/wire";
+import { loadPerson } from "@/app/(member)/_lib/people";
 
 type Params = { params: Promise<{ id: string }> };
 
-/** Suspended people are kept in the register and out of the site. */
-function findPerson(id: string) {
-  const person = FAMILY_REGISTER.find((one) => one.id === id);
-  return person && person.status !== "suspended" ? person : undefined;
-}
-
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const person = findPerson((await params).id);
+  const person = await loadPerson((await params).id);
   return { title: person?.fullName ?? "Family member" };
 }
 
-const ROLE_LABEL = {
-  member: "Family member",
-  social_media_manager: "Social media manager",
-  admin: "Administrator",
-} as const;
-
-function birthday(iso: string): string {
-  /* Day and month only: a relative's age is theirs to share. */
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    timeZone: "UTC",
-  });
+/** Day and month only: the backend never sends another member the year. */
+function birthday(date: { month: number; day: number }): string {
+  return new Date(Date.UTC(2000, date.month - 1, date.day)).toLocaleDateString(
+    "en-US",
+    { day: "numeric", month: "long", timeZone: "UTC" },
+  );
 }
 
 /**
- * One relative: their branch, their birthday, when they joined, and the ways
- * on from here. What search, the birthdays and the tree can point at.
+ * One relative: their branch, their birthday, their promotion, what they
+ * wrote about themselves, and the ways on from here. What search, the
+ * birthdays and the tree can point at.
  *
- * No email address: members do not see each other's sign-in details. The
- * face is their portrait when the register has one, their initials if not.
- *
- * TODO: the members service, and a place in the tree once the tree data
- * carries register ids.
+ * It is `GET /users/{id}`, the shape every member may see of every other:
+ * no email address, no role and no account status. The face is their
+ * portrait when they have one, their initials if not. Somebody deactivated
+ * is not found, like somebody who never existed.
  */
 export default async function PersonPage({ params }: Params) {
-  const person = findPerson((await params).id);
+  const person = await loadPerson((await params).id);
   if (!person) notFound();
 
   const branch = getSubfamilyBySlug(person.branch);
@@ -71,12 +59,14 @@ export default async function PersonPage({ params }: Params) {
     {
       icon: Cake,
       label: "Birthday",
-      value: person.bornOn ? birthday(person.bornOn) : "Not added yet",
+      value: person.birthday ? birthday(person.birthday) : "Not added yet",
     },
     {
-      icon: CalendarDays,
-      label: "In the register since",
-      value: new Date(`${person.joinedOn}T00:00:00Z`).getUTCFullYear(),
+      icon: GraduationCap,
+      label: "Promotion",
+      value: person.promotion
+        ? promotionLabel(person.promotion.name)
+        : "Not added yet",
     },
   ];
 
@@ -92,12 +82,14 @@ export default async function PersonPage({ params }: Params) {
           className="text-h2 size-28"
         />
         <div className="min-w-0">
-          <p className="text-caption text-brand font-semibold">
-            {ROLE_LABEL[person.role]}
-          </p>
-          <h1 className="text-h1-m md:text-h1 text-member-ink mt-1">
+          <h1 className="text-h1-m md:text-h1 text-member-ink">
             {person.fullName}
           </h1>
+          {person.bio ? (
+            <p className="text-body text-text mt-3 text-pretty whitespace-pre-line">
+              {person.bio}
+            </p>
+          ) : null}
           {branch ? (
             <Quote
               meaning={branch.mottoMeaning}

@@ -10,6 +10,7 @@ import { MemberFooter } from "@/components/layout/MemberFooter";
 import { MinimalFooter } from "@/components/layout/MinimalFooter";
 import { MemberFooterSwitch } from "@/components/layout/MemberFooterSwitch";
 import { requireViewer } from "@/lib/viewer";
+import { loadDirectory } from "./_lib/people";
 
 /* The member frames are set in their own faces. Loading them here rather
    than in the root layout keeps them off every other page, the same way
@@ -40,6 +41,9 @@ export default async function MemberLayout({
      it. With a backend this is its answer to /users/me, asked once per
      request (see lib/viewer.ts). */
   const { role, person } = await requireViewer();
+  /* The palette's people. Read here once, not per page: a layout is not
+     rendered again when somebody moves between the pages under it. */
+  const directory = await loadDirectory();
 
   return (
     <div
@@ -71,7 +75,7 @@ export default async function MemberLayout({
             minimal={<MinimalFooter />}
             rich={<MemberFooter />}
           />
-          <CommandPalette commands={searchCommands(role)} />
+          <CommandPalette commands={searchCommands(role, directory)} />
         </ToastProvider>
       </SignedInProvider>
     </div>

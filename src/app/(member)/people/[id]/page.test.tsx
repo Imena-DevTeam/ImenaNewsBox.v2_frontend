@@ -52,9 +52,9 @@ describe("a person's page", () => {
     ).not.toBeNull();
   });
 
-  it("is not found for somebody who is suspended, or nobody", async () => {
-    const suspended = FAMILY_REGISTER.find((p) => p.status === "suspended")!;
-    await expect(open(suspended.id)).rejects.toThrow("NEXT_NOT_FOUND");
+  it("is not found for somebody who is deactivated, or nobody", async () => {
+    const gone = FAMILY_REGISTER.find((p) => p.status === "deactivated")!;
+    await expect(open(gone.id)).rejects.toThrow("NEXT_NOT_FOUND");
     await expect(open("m-999")).rejects.toThrow("NEXT_NOT_FOUND");
   });
 });

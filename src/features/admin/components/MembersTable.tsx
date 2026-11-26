@@ -1,13 +1,20 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState, type CSSProperties } from "react";
-import { Search, Trash2, UserPlus } from "lucide-react";
+import { RotateCcw, Search, UserMinus, UserPlus } from "lucide-react";
 import { useToast } from "@/components/ui/Toaster";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CONTROL, Picker } from "@/components/ui/Picker";
+import {
+  addMember,
+  deactivateMember,
+  reactivateMember,
+  sendNewLink,
+  updateMember,
+} from "@/app/actions/members";
 import { TRINITY } from "@/features/families/data";
 import {
   branchName,
@@ -21,14 +28,17 @@ import {
 } from "@/features/members/data";
 import { cn } from "@/lib/cn";
 import { withViewTransition } from "@/lib/viewTransition";
-import type { MemberEditValues } from "../schemas";
-import { MemberPanel } from "./MemberPanel";
+import type { RegisterChoices } from "@/types/member";
+import {
+  toFields,
+  type MemberChanges,
+  type MemberEditValues,
+  type MemberFields,
+} from "../schemas";
+import { MemberPanel, type SaveRefusal } from "./MemberPanel";
 
 /** How many rows before the list stops and offers the rest. */
 const PAGE = 25;
-
-/** Matches the row-leave animation in globals.css. */
-const LEAVE_MS = 200;
 
 /** Rows past this one arrive together. A stagger that runs the length of a
     twenty-five row page reads as the page being slow. */
@@ -43,7 +53,7 @@ const ROLE_LABEL: Record<string, string> = {
 const STATUS_LABEL: Record<MemberStatus, string> = {
   active: "Active",
   invited: "Invited",
-  suspended: "Suspended",
+  deactivated: "Deactivated",
 };
 
 /** Stored ISO, read US-ordered, the way every other date on the site is. */
@@ -57,33 +67,78 @@ function readDate(iso: string): string {
   });
 }
 
+/** A record's editable fields, in the shape the form saves. */
+function fieldsOf(
+  person: FamilyMember,
+  choices: RegisterChoices,
+): MemberFields {
+  return {
+    fullName: person.fullName,
+    familyName: person.familyName,
+    email: person.email,
+    subFamilyId:
+      choices.subFamilies.find((one) => one.slug === person.branch)?.id ?? 0,
+    promotionId: person.promotion?.id ?? null,
+    bornOn: person.bornOn || null,
+    role: person.role,
+  };
+}
+
+/** Only what the form changed: the backend is sent nothing else. */
+function changesFrom(before: MemberFields, after: MemberFields): MemberChanges {
+  const changes: Record<string, unknown> = {};
+  for (const key of Object.keys(after) as (keyof MemberFields)[]) {
+    if (after[key] !== before[key]) changes[key] = after[key];
+  }
+  return changes as MemberChanges;
+}
+
+/** The record as the form left it: what the table shows when the sample
+    register answered, since no record comes back from a backend. */
+function applied(
+  person: FamilyMember,
+  fields: MemberFields,
+  choices: RegisterChoices,
+): FamilyMember {
+  return {
+    ...person,
+    fullName: fields.fullName,
+    familyName: fields.familyName,
+    email: fields.email,
+    branch:
+      choices.subFamilies.find((one) => one.id === fields.subFamilyId)?.slug ??
+      person.branch,
+    promotion:
+      choices.promotions.find((one) => one.id === fields.promotionId) ?? null,
+    bornOn: fields.bornOn ?? "",
+    role: fields.role,
+  };
+}
+
 /**
  * The family register, and the administrator's work on it.
  *
  * A table, not cards: name, email, branch, role and joining date all carry
- * comparison, which is exactly why /admin/posts stopped being one and this
- * is. Narrow screens drop the columns from the right and the name cell picks
- * up what they were carrying, so nothing scrolls sideways and nothing is
- * lost.
+ * comparison. Narrow screens drop the columns from the right and the name
+ * cell picks up what they were carrying, so nothing scrolls sideways and
+ * nothing is lost.
  *
  * Only a status that is not "active" is marked. Active is the norm, and
- * marking the norm is noise — the same judgement the archive makes about
- * published posts.
+ * marking the norm is noise.
  *
  * There is no select-all and no bulk action. Bulk-editing people is how an
- * administrator removes forty relatives at once, and nobody asked for it.
+ * administrator deactivates forty relatives at once, and nobody asked for it.
  *
- * Nothing saves: the CRUD runs over a copy of the register in state, and
- * every outcome says so.
+ * Every change goes to the backend through a server action, and the row
+ * shows the record the backend sent back. The table keeps its own copy of
+ * the register, so the row changes the moment the answer arrives.
  *
- * Four things move, and each of them is telling the administrator something
- * they would otherwise have to find for themselves:
+ * Three things move, and each tells the administrator something they would
+ * otherwise have to find for themselves:
  *
- * - The row just edited flashes once, because coming back from the dialog to
- *   seventy-three rows with no idea which one changed is the normal case —
- *   and for an email change the only visible difference is one address.
- * - The row being removed slides out before it goes, which both shows what
- *   left and buys the second in which **Undo** is still offered.
+ * - The row just changed flashes once, because coming back from the dialog
+ *   to a long list with no idea which row changed is the normal case — and
+ *   for an email change the only visible difference is one address.
  * - Rows arrive in order after a filter, so a list that has become a
  *   different list reads as one.
  * - The name clicked carries into the dialog's heading, where the browser
@@ -91,11 +146,16 @@ function readDate(iso: string): string {
  */
 export function MembersTable({
   people,
+  choices,
+  selfId,
   initialAdd = false,
   initialSearch,
   initialBranch,
 }: {
   people: FamilyMember[];
+  choices: RegisterChoices;
+  /** The signed-in administrator's own record. */
+  selfId: string;
   /** /admin/members/new renders this page with the panel already open. */
   initialAdd?: boolean;
   /** A name, from a link that came here asking about one person. */
@@ -111,14 +171,14 @@ export function MembersTable({
   const [showAll, setShowAll] = useState(false);
   const [editing, setEditing] = useState<FamilyMember | null>(null);
   const [adding, setAdding] = useState(initialAdd);
-  const [removing, setRemoving] = useState<FamilyMember | null>(null);
+  const [deactivating, setDeactivating] = useState<FamilyMember | null>(null);
+  /* The person with a request on its way, so their buttons wait for it. */
+  const [busy, setBusy] = useState<string | null>(null);
   const toast = useToast();
   const say = (message: string) => toast({ message });
 
-  /* The row to flash, and the row on its way out. Both are ids rather than
-     records: they point at a row, they are not a copy of one. */
+  /* The row to flash: an id, pointing at a row rather than copying one. */
   const [changed, setChanged] = useState<string | null>(null);
-  const [leaving, setLeaving] = useState<string | null>(null);
 
   /* The name that travels into the dialog. It is set on the frame before the
      dialog opens, because a view transition needs the name present in the
@@ -127,8 +187,7 @@ export function MembersTable({
 
   /* Typing rebuilds twenty-five rows per keystroke. Deferring the needle
      lets the keystroke land first and the table catch up, which is what a
-     debounce is for without a timer to clean up — and without the debounce's
-     own cost, a list that is briefly wrong after you stop typing. */
+     debounce is for without a timer to clean up. */
   const needle = useDeferredValue(search);
 
   const found = useMemo(
@@ -152,12 +211,8 @@ export function MembersTable({
   const open = adding || editing !== null;
 
   /* Opening a record: the row takes the shared name, then the dialog takes
-     it over inside a view transition, so the name slides from the table into
-     the heading. flushSync is what makes the first of those two a frame of
-     its own. Where the API is missing this is one plain state change.
-
-     The flash is cleared here too: opening the same row twice should flash
-     it twice. */
+     it over inside a view transition. The flash is cleared here too:
+     opening the same row twice should flash it twice. */
   const edit = (person: FamilyMember) => {
     setChanged(null);
     setMorphing(person.id);
@@ -172,81 +227,133 @@ export function MembersTable({
      locks open on the same render.
 
      > [!IMPORTANT]
-     > This disables controls and says why. It is a courtesy, not a rule —
-     > the backend has to refuse the same thing, because a disabled <select>
-     > stops a mis-click and not a request. See MIN_ADMINS. */
+     > This disables controls and says why. It is a courtesy, not a rule:
+     > the backend refuses the same thing (409 `too_few_admins`), because a
+     > disabled <select> stops a mis-click and not a request. */
   const floorHolds = editing !== null && !mayLoseAdmin(editing, register);
 
-  /* Everyone else's address, so the panel can refuse a duplicate without
-     refusing the record its own email. */
-  const takenEmails = register
-    .filter((person) => person.id !== editing?.id)
-    .map((person) => person.email);
+  /* Everyone else's address and family name, so the panel can refuse a
+     duplicate without refusing the record its own. */
+  const others = register.filter((person) => person.id !== editing?.id);
+  const takenEmails = others.map((person) => person.email);
+  const takenFamilyNames = others.map((person) => person.familyName);
 
-  // TODO: post to the members service once the API exists.
-  const save = (values: MemberEditValues) => {
-    if (editing) {
-      const before = editing.email;
-      setRegister((was) =>
-        was.map((person) =>
-          person.id === editing.id ? { ...person, ...values } : person,
-        ),
-      );
-      say(
-        before === values.email
-          ? `${values.fullName} would be saved. Nothing was stored: the members service does not exist yet.`
-          : `${values.fullName} would sign in with ${values.email} instead of ${before}. Nothing was stored, and no email was sent.`,
-      );
-      setChanged(editing.id);
-    } else {
-      const id = `m-new-${register.length + 1}`;
-      /* Joined today, because they were added today. */
-      const joinedOn = new Date().toISOString().slice(0, 10);
-      setRegister((was) => [{ id, joinedOn, photo: "", ...values }, ...was]);
-      say(
-        /* What the invitation actually does, in the order it happens. The
-           link is the only way in: nobody is added already signed up. */
-        `${values.fullName} would be added to the register and sent an invitation link at ${values.email}, and would stay invited until they opened it. Nothing was stored, and no email was sent.`,
-      );
-      setChanged(id);
-    }
+  /* The backend's record replaces the row, or a new one leads the list. */
+  const put = (next: FamilyMember) => {
+    setRegister((was) => {
+      const at = was.findIndex((one) => one.id === next.id);
+      if (at === -1) return [next, ...was];
+      const copy = [...was];
+      copy[at] = next;
+      return copy;
+    });
+    setChanged(next.id);
+  };
+
+  const close = () => {
     setEditing(null);
     setAdding(false);
   };
 
-  /* Removing somebody has two halves. The outcome is reported at once, so
-     nothing waits on an animation that may never run; the row slides out and
-     is taken from the register when it has, which is also the second in
-     which Undo is worth offering. */
-  const remove = (person: FamilyMember) => {
-    const at = register.findIndex((one) => one.id === person.id);
-    setRemoving(null);
-    setLeaving(person.id);
+  const save = async (
+    values: MemberEditValues,
+  ): Promise<SaveRefusal | null> => {
+    const fields = toFields(values);
 
-    window.setTimeout(() => {
-      setRegister((was) => was.filter((one) => one.id !== person.id));
-      setLeaving(null);
-      toast({
-        message: `${person.fullName} was removed. Nothing was stored.`,
-        action: { label: "Undo", run: () => putBack(person, at) },
-      });
-    }, LEAVE_MS);
+    if (editing) {
+      const changes = changesFrom(fieldsOf(editing, choices), fields);
+      if (Object.keys(changes).length === 0) {
+        close();
+        return null;
+      }
+      const outcome = await updateMember(editing.id, changes);
+      if (!outcome.ok) return outcome;
+      put(outcome.person ?? applied(editing, fields, choices));
+      say(outcome.message);
+      close();
+      return null;
+    }
+
+    const outcome = await addMember(fields);
+    if (!outcome.ok) return outcome;
+    const blank: FamilyMember = {
+      id: `m-new-${register.length + 1}`,
+      fullName: "",
+      familyName: "",
+      email: "",
+      branch: "",
+      promotion: null,
+      bornOn: "",
+      role: "member",
+      status: "invited",
+      /* Joined today, because they were added today. */
+      joinedOn: new Date().toISOString().slice(0, 10),
+      photo: "",
+    };
+    put(outcome.person ?? applied(blank, fields, choices));
+    say(outcome.message);
+    close();
+    return null;
   };
 
-  /* Nothing was stored, so putting somebody back costs one splice. It is
-     offered because the confirmation is the only thing standing between a
-     mis-aimed click and a relative disappearing from the register. */
-  const putBack = (person: FamilyMember, at: number) => {
-    setRegister((was) => {
-      const next = [...was];
-      next.splice(Math.min(at, next.length), 0, person);
-      return next;
+  /* Deactivating asks first, then offers Undo as well: it signs somebody
+     out of every device, and a relative is worth the extra click. Undo is
+     reactivating them, which the backend allows at any time. */
+  const deactivate = async (person: FamilyMember) => {
+    setDeactivating(null);
+    setBusy(person.id);
+    const outcome = await deactivateMember(person.id);
+    setBusy(null);
+    if (!outcome.ok) {
+      say(outcome.message);
+      return;
+    }
+    put(outcome.person ?? { ...person, status: "deactivated" });
+    toast({
+      message: outcome.message,
+      action: { label: "Undo", run: () => void reactivate(person) },
     });
-    setChanged(person.id);
-    say(`${person.fullName} is back in the register.`);
   };
 
-  const withoutBirthday = missingBirthday(register).length;
+  /* `person` is the record as it was before it was deactivated, so the
+     sample register can put back the status it had. */
+  const reactivate = async (person: FamilyMember) => {
+    setBusy(person.id);
+    const outcome = await reactivateMember(person.id);
+    setBusy(null);
+    if (!outcome.ok) {
+      say(outcome.message);
+      return;
+    }
+    const back = person.status === "deactivated" ? "active" : person.status;
+    put(outcome.person ?? { ...person, status: back });
+    say(
+      outcome.person ? outcome.message : `${person.fullName} can log in again.`,
+    );
+  };
+
+  const resend = async (person: FamilyMember) => {
+    setBusy(person.id);
+    const outcome = await sendNewLink(person.id);
+    setBusy(null);
+    if (outcome.ok && outcome.person) put(outcome.person);
+    say(outcome.message);
+  };
+
+  const withoutBirthday = missingBirthday(
+    register.filter((person) => person.status !== "deactivated"),
+  ).length;
+
+  /* Deactivating has two locks, like the role: yourself, and the floor. */
+  const deactivateLabel = (person: FamilyMember): string | null => {
+    if (person.id === selfId) {
+      return `${person.fullName} is you: another administrator can deactivate your account`;
+    }
+    if (!mayLoseAdmin(person, register)) {
+      return `${person.fullName} cannot be deactivated: the register needs ${MIN_ADMINS} administrators`;
+    }
+    return null;
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -284,7 +391,7 @@ export function MembersTable({
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name or email"
+              placeholder="Search by name, family name or email"
               className={cn(CONTROL, "w-full pl-11")}
             />
           </div>
@@ -313,7 +420,7 @@ export function MembersTable({
           <option value="all">Any status</option>
           <option value="active">Active</option>
           <option value="invited">Invited</option>
-          <option value="suspended">Suspended</option>
+          <option value="deactivated">Deactivated</option>
         </Picker>
 
         <Picker
@@ -340,8 +447,7 @@ export function MembersTable({
 
       {/* One live region, so a save and a filter are announced as one
           sentence rather than racing each other. It says which slice is on
-          screen as well as how many matched: without that, page one and the
-          first twenty-five of seventy-three look identical. */}
+          screen as well as how many matched. */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p role="status" aria-live="polite" className="text-body-sm text-muted">
           {found.length} of {register.length} people
@@ -362,7 +468,7 @@ export function MembersTable({
             <caption className="sr-only">
               Everyone in the family register
             </caption>
-            {/* Sticky, because seventy-three rows is three screens and the
+            {/* Sticky, because a long register is several screens and the
                 columns are what the rows mean. It needs its own background:
                 a transparent head over scrolling rows is unreadable. */}
             <thead className="border-member-border bg-member-panel/95 sticky top-0 z-10 border-b backdrop-blur-sm">
@@ -400,107 +506,130 @@ export function MembersTable({
               </tr>
             </thead>
             <tbody key={listing} className="divide-member-border divide-y">
-              {shown.map((person, index) => (
-                <tr
-                  key={person.id}
-                  style={
-                    { "--i": Math.min(index, STAGGER_CAP) } as CSSProperties
-                  }
-                  className={cn(
-                    "hover:bg-member-tint transition-fast row-in",
-                    person.id === leaving && "row-leave",
-                    person.id === changed && "row-flash",
-                  )}
-                >
-                  <th scope="row" className="px-4 py-3 font-normal">
-                    <div className="flex items-center gap-3">
-                      <PersonAvatar
-                        name={person.fullName}
-                        photo={person.photo}
-                        sizes="2.25rem"
-                        className="text-caption size-9"
-                      />
-                      <div className="min-w-0">
-                        <span
-                          className="text-body-sm text-member-ink block font-medium"
-                          style={
-                            person.id === morphing
-                              ? ({
-                                  viewTransitionName: "member-open",
-                                } as CSSProperties)
-                              : undefined
-                          }
-                        >
-                          {person.fullName}
-                          {person.status !== "active" ? (
-                            <span className="text-caption bg-member-tint text-brand ml-2 rounded-full px-2.5 py-1 font-semibold">
-                              {STATUS_LABEL[person.status]}
+              {shown.map((person, index) => {
+                const locked = deactivateLabel(person);
+                const gone = person.status === "deactivated";
+                return (
+                  <tr
+                    key={person.id}
+                    style={
+                      { "--i": Math.min(index, STAGGER_CAP) } as CSSProperties
+                    }
+                    className={cn(
+                      "hover:bg-member-tint transition-fast row-in",
+                      person.id === changed && "row-flash",
+                    )}
+                  >
+                    <th scope="row" className="px-4 py-3 font-normal">
+                      <div className="flex items-center gap-3">
+                        <PersonAvatar
+                          name={person.fullName}
+                          photo={person.photo}
+                          sizes="2.25rem"
+                          className={cn(
+                            "text-caption size-9",
+                            gone && "opacity-50",
+                          )}
+                        />
+                        <div className="min-w-0">
+                          <span
+                            className="text-body-sm text-member-ink block font-medium"
+                            style={
+                              person.id === morphing
+                                ? ({
+                                    viewTransitionName: "member-open",
+                                  } as CSSProperties)
+                                : undefined
+                            }
+                          >
+                            {person.fullName}
+                            {person.status !== "active" ? (
+                              <span className="text-caption bg-member-tint text-brand ml-2 rounded-full px-2.5 py-1 font-semibold">
+                                {STATUS_LABEL[person.status]}
+                              </span>
+                            ) : null}
+                          </span>
+                          {/* What they log in with, when it is not simply
+                              their name. */}
+                          {person.familyName !== person.fullName ? (
+                            <span className="text-caption text-muted mt-0.5 block">
+                              {person.familyName}
                             </span>
                           ) : null}
-                        </span>
-                        {/* What the dropped columns were carrying. */}
-                        <span className="text-caption text-muted mt-0.5 block md:hidden">
-                          {person.email}
-                        </span>
-                        <span className="text-caption text-muted mt-0.5 block lg:hidden">
-                          {branchName(person.branch)}
-                          {person.role !== "member"
-                            ? ` · ${ROLE_LABEL[person.role]}`
-                            : ""}
-                        </span>
+                          {/* What the dropped columns were carrying. */}
+                          <span className="text-caption text-muted mt-0.5 block md:hidden">
+                            {person.email}
+                          </span>
+                          <span className="text-caption text-muted mt-0.5 block lg:hidden">
+                            {branchName(person.branch)}
+                            {person.role !== "member"
+                              ? ` · ${ROLE_LABEL[person.role]}`
+                              : ""}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </th>
-                  <td className="text-body-sm text-muted hidden px-4 py-3 md:table-cell">
-                    {person.email}
-                  </td>
-                  <td className="text-body-sm text-muted hidden px-4 py-3 lg:table-cell">
-                    {branchName(person.branch)}
-                  </td>
-                  <td className="text-body-sm text-muted hidden px-4 py-3 lg:table-cell">
-                    {ROLE_LABEL[person.role] ?? person.role}
-                  </td>
-                  <td className="text-body-sm text-muted hidden px-4 py-3 tabular-nums xl:table-cell">
-                    {readDate(person.joinedOn)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => edit(person)}
-                        className="text-body-sm text-brand focus-visible:outline-brand hover:bg-member-tint rounded-pill px-3 py-2 font-semibold"
-                      >
-                        Edit
-                        <span className="sr-only"> {person.fullName}</span>
-                      </button>
-                      {/* Removing an administrator is the third way to
-                          break the floor, after demoting and suspending
-                          them. The reason is on the control, in its label,
-                          rather than waiting to refuse the confirmation. */}
-                      <button
-                        type="button"
-                        onClick={() => setRemoving(person)}
-                        disabled={!mayLoseAdmin(person, register)}
-                        aria-label={
-                          mayLoseAdmin(person, register)
-                            ? `Remove ${person.fullName}`
-                            : `${person.fullName} cannot be removed: the register needs ${MIN_ADMINS} administrators`
-                        }
-                        className="text-muted hover:text-danger focus-visible:outline-brand transition-fast flex size-10 items-center justify-center rounded-full disabled:pointer-events-none disabled:opacity-40"
-                      >
-                        <Trash2 aria-hidden className="size-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </th>
+                    <td className="text-body-sm text-muted hidden px-4 py-3 md:table-cell">
+                      {person.email}
+                    </td>
+                    <td className="text-body-sm text-muted hidden px-4 py-3 lg:table-cell">
+                      {branchName(person.branch)}
+                    </td>
+                    <td className="text-body-sm text-muted hidden px-4 py-3 lg:table-cell">
+                      {ROLE_LABEL[person.role] ?? person.role}
+                    </td>
+                    <td className="text-body-sm text-muted hidden px-4 py-3 tabular-nums xl:table-cell">
+                      {readDate(person.joinedOn)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => edit(person)}
+                          className="text-body-sm text-brand focus-visible:outline-brand hover:bg-member-tint rounded-pill px-3 py-2 font-semibold"
+                        >
+                          Edit
+                          <span className="sr-only"> {person.fullName}</span>
+                        </button>
+                        {gone ? (
+                          <button
+                            type="button"
+                            onClick={() => void reactivate(person)}
+                            disabled={busy === person.id}
+                            aria-label={`Reactivate ${person.fullName}`}
+                            className="text-muted hover:text-brand focus-visible:outline-brand transition-fast flex size-10 items-center justify-center rounded-full disabled:pointer-events-none disabled:opacity-40"
+                          >
+                            <RotateCcw aria-hidden className="size-4" />
+                          </button>
+                        ) : (
+                          /* The reason a person cannot be deactivated is on
+                             the control, in its label, rather than waiting
+                             for the backend to refuse the confirmation. */
+                          <button
+                            type="button"
+                            onClick={() => setDeactivating(person)}
+                            disabled={locked !== null || busy === person.id}
+                            aria-label={
+                              locked ?? `Deactivate ${person.fullName}`
+                            }
+                            className="text-muted hover:text-danger focus-visible:outline-brand transition-fast flex size-10 items-center justify-center rounded-full disabled:pointer-events-none disabled:opacity-40"
+                          >
+                            <UserMinus aria-hidden className="size-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* 73 rows is 73 rows: the admin would scroll past the person they
-          came for. The rest is one click away, not hidden behind paging. */}
+      {/* A long list is a long list: the admin would scroll past the person
+          they came for. The rest is one click away, not hidden behind
+          paging. */}
       {!showAll && found.length > PAGE ? (
         <div>
           <Button
@@ -517,28 +646,30 @@ export function MembersTable({
       <MemberPanel
         open={open}
         person={editing}
+        choices={choices}
         takenEmails={takenEmails}
+        takenFamilyNames={takenFamilyNames}
+        self={editing?.id === selfId}
         lastAdmins={floorHolds}
         onSave={save}
-        onClose={() => {
-          setEditing(null);
-          setAdding(false);
-        }}
+        onResend={editing ? () => void resend(editing) : undefined}
+        resending={editing !== null && busy === editing.id}
+        onClose={close}
       />
 
       <ConfirmDialog
-        open={removing !== null}
+        open={deactivating !== null}
         destructive
         title={
-          removing
-            ? `Remove ${removing.fullName} from the register?`
-            : "Remove this person?"
+          deactivating
+            ? `Deactivate ${deactivating.fullName}?`
+            : "Deactivate this person?"
         }
-        description="They leave the family tree and the birthdays page with their record. Suspending them instead keeps the record and takes away their access, and that can be undone."
-        confirmLabel="Remove them"
+        description="They are signed out of every device and cannot log in. Their record, family name and wishes are kept, and they can be reactivated at any time."
+        confirmLabel="Deactivate"
         cancelLabel="Keep them"
-        onCancel={() => setRemoving(null)}
-        onConfirm={() => removing && remove(removing)}
+        onCancel={() => setDeactivating(null)}
+        onConfirm={() => deactivating && void deactivate(deactivating)}
       />
     </div>
   );

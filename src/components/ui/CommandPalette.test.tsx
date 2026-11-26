@@ -1,6 +1,10 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { searchCommands } from "@/features/search/commands";
+import { sampleDirectory } from "@/features/members/data";
+import { searchCommands as commandsFor } from "@/features/search/commands";
+import type { Role } from "@/lib/session";
+
+const searchCommands = (role: Role) => commandsFor(role, sampleDirectory());
 import { CommandPalette, openSearch } from "./CommandPalette";
 
 const push = vi.fn();

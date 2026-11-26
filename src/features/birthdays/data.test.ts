@@ -24,12 +24,12 @@ const people = [
   someone("b", "1985-03-30"),
   someone("c", "2001-12-02"),
   someone("d", ""),
-  someone("e", "1970-03-28", "suspended"),
+  someone("e", "1970-03-28", "deactivated"),
 ];
 const celebrants = celebrantsFrom(people, (slug) => `Branch ${slug}`);
 
 describe("birthdays from the register", () => {
-  it("leaves out people with no date and people who are suspended", () => {
+  it("leaves out people with no date and people who are deactivated", () => {
     expect(celebrants.map((c) => c.id)).toEqual(["a", "b", "c"]);
     expect(celebrants[0]).toMatchObject({
       month: 2,

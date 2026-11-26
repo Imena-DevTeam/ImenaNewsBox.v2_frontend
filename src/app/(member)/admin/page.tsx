@@ -15,6 +15,7 @@ import { ResetRequests } from "@/features/admin/components/ResetRequests";
 import { ACTIVITY, attentionItems } from "@/features/admin/data";
 import { TRINITY } from "@/features/families/data";
 import { countByBranch } from "@/features/members/data";
+import { loadRegister } from "./_lib/register";
 import { loadResetRequests } from "./_lib/reset-requests";
 
 export const metadata: Metadata = {
@@ -23,13 +24,22 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminPage() {
-  const { person } = await requireViewer();
-  const waiting = attentionItems();
+  const { id, person } = await requireViewer();
 
-  /* Administrators who cannot get in. This band is the other half of
+  /* The register, read once for the queue and the counts; and the
+     administrators who cannot get in. That band is the other half of
      /admin/forgot-password: the family's answer to a lost password is
      another administrator rather than an inbox. */
-  const resets = await loadResetRequests();
+  const [register, resets] = await Promise.all([
+    loadRegister(id),
+    loadResetRequests(),
+  ]);
+
+  /* Deactivated people are kept in the register and out of the family:
+     nobody has to fill in their birthday, and they are not counted. */
+  const present =
+    register?.people.filter((one) => one.status !== "deactivated") ?? [];
+  const waiting = attentionItems(present);
 
   /* Fixed at render on the server and handed down, so the server and the
      client agree what "2 hours ago" means. */
@@ -40,7 +50,7 @@ export default async function AdminPage() {
      a branch at a time, because that is the shape an administrator is asked
      about. Each number comes from the register itself, never from
      TRINITY[].members, or the two disagree the moment somebody is added. */
-  const byBranch = countByBranch();
+  const byBranch = countByBranch(present);
   const counts = TRINITY.map((family) => ({
     label: family.name,
     value: byBranch[family.slug] ?? 0,
@@ -88,7 +98,11 @@ export default async function AdminPage() {
               body: (
                 <AttentionQueue
                   items={waiting}
-                  emptyDescription="Everybody has a date of birth, and nobody is still waiting on an invitation."
+                  emptyDescription={
+                    register
+                      ? "Everybody has a date of birth, and nobody is still waiting on an invitation."
+                      : "The register could not be loaded, so nothing can be checked. Reload the page in a moment."
+                  }
                 />
               ),
             },
@@ -107,36 +121,39 @@ export default async function AdminPage() {
         />
       </div>
 
-      {/* The counts, last and quiet. */}
-      <section aria-labelledby="admin-counts" className="mt-10 md:mt-14">
-        <h2 id="admin-counts" className="sr-only">
-          The register, by branch
-        </h2>
-        <ul className="border-member-border divide-member-border bg-member-panel flex flex-col divide-y rounded-md border sm:flex-row sm:divide-x sm:divide-y-0">
-          {counts.map((count) => (
-            <li key={count.label} className="flex-1">
-              <Link
-                href={count.href}
-                className="focus-visible:outline-brand hover:bg-member-tint transition-fast flex flex-col items-center gap-1 px-5 py-7"
-              >
-                {/* The figure climbs to itself once, when the strip is
+      {/* The counts, last and quiet, and absent rather than zero when the
+          register could not be read. */}
+      {register ? (
+        <section aria-labelledby="admin-counts" className="mt-10 md:mt-14">
+          <h2 id="admin-counts" className="sr-only">
+            The register, by branch
+          </h2>
+          <ul className="border-member-border divide-member-border bg-member-panel flex flex-col divide-y rounded-md border sm:flex-row sm:divide-x sm:divide-y-0">
+            {counts.map((count) => (
+              <li key={count.label} className="flex-1">
+                <Link
+                  href={count.href}
+                  className="focus-visible:outline-brand hover:bg-member-tint transition-fast flex flex-col items-center gap-1 px-5 py-7"
+                >
+                  {/* The figure climbs to itself once, when the strip is
                     scrolled to. Still no chart in here: a number that moves
                     is text, and it is the one sign this page is live rather
                     than a screenshot. Shorter than the public pages' climb,
                     because these are read rather than admired. */}
-                <CountUp
-                  value={count.value}
-                  durationMs={420}
-                  className="text-h1-m text-member-ink font-bold"
-                />
-                <span className="text-caption text-muted tracking-widest uppercase">
-                  {count.label}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+                  <CountUp
+                    value={count.value}
+                    durationMs={420}
+                    className="text-h1-m text-member-ink font-bold"
+                  />
+                  <span className="text-caption text-muted tracking-widest uppercase">
+                    {count.label}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

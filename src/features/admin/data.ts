@@ -46,7 +46,7 @@ export function attentionItems(
     items.push({
       id: `invited-${person.id}`,
       label: person.fullName,
-      reason: "Invited, but has never signed in",
+      reason: "Invited, but has not opened their invitation",
       href: `${ROUTES.ADMIN_MEMBERS}?find=${person.id}`,
       action: "Review",
     });
@@ -97,7 +97,7 @@ export const ACTIVITY: ActivityEntry[] = [
   {
     id: "a4",
     actor: "Aganze",
-    did: "suspended",
+    did: "deactivated",
     subject: "an account signing in from two places",
     at: "2026-11-02T11:15:00Z",
     href: ROUTES.ADMIN_MEMBERS,

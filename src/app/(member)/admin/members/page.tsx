@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AdminTabs } from "@/features/admin/components/AdminTabs";
 import { MembersTable } from "@/features/admin/components/MembersTable";
-import { FAMILY_REGISTER } from "@/features/members/data";
+import { RegisterUnavailable } from "@/features/admin/components/RegisterUnavailable";
 import { TRINITY } from "@/features/families/data";
+import { requireViewer } from "@/lib/viewer";
+import { loadRegister } from "@/app/(member)/admin/_lib/register";
 
 export const metadata: Metadata = {
   title: "Members",
@@ -24,10 +26,14 @@ export default async function AdminMembersPage({
 }: {
   searchParams: Promise<{ find?: string; branch?: string }>;
 }) {
-  const { find, branch } = await searchParams;
+  const [{ find, branch }, viewer] = await Promise.all([
+    searchParams,
+    requireViewer(),
+  ]);
+  const register = await loadRegister(viewer.id);
 
   const asked = find
-    ? FAMILY_REGISTER.find((person) => person.id === find)
+    ? register?.people.find((person) => person.id === find)
     : undefined;
   const chosen = TRINITY.some((family) => family.slug === branch)
     ? branch
@@ -46,11 +52,17 @@ export default async function AdminMembersPage({
       </div>
 
       <div className="mt-8">
-        <MembersTable
-          people={FAMILY_REGISTER}
-          initialSearch={asked?.fullName}
-          initialBranch={chosen}
-        />
+        {register ? (
+          <MembersTable
+            people={register.people}
+            choices={register.choices}
+            selfId={register.selfId}
+            initialSearch={asked?.fullName}
+            initialBranch={chosen}
+          />
+        ) : (
+          <RegisterUnavailable />
+        )}
       </div>
     </div>
   );

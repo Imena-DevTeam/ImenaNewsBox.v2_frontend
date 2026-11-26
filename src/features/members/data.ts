@@ -15,17 +15,43 @@ import { TRINITY } from "@/features/families/data";
  * three numbers exactly (18 Wihogora, 24 Light, 31 Hope) so no page's
  * arithmetic changes on the day the register arrives.
  *
- * Every record is invented. There is no members API, so the admin's CRUD
- * runs over a copy of this array in component state and says so.
+ * Every record is invented. It is what the register shows in fixture mode
+ * (no `API_URL`, see lib/auth-mode.ts); with a backend the register is
+ * `GET /users/accounts`, turned into the same shape by ./wire.ts.
  */
 
 /* The record's shape is defined once, in @/types/member, because the API
    sends it and this fixture stands in for the API. Re-exported here so the
    seventy or so places that already import FamilyMember from this module
    keep working, and so the fixture and the wire cannot drift apart. */
-import type { FamilyMember, MemberStatus } from "@/types/member";
+import type {
+  Choice,
+  DirectoryEntry,
+  FamilyMember,
+  MemberStatus,
+  RegisterChoices,
+} from "@/types/member";
 
 export type { FamilyMember, MemberStatus };
+
+/** The backend's promotions, oldest first, as its migration seeds them. */
+export const SAMPLE_PROMOTIONS: Choice[] = [
+  { id: 1, name: "IBIMANUKA" },
+  { id: 2, name: "NKONGI" },
+  { id: 3, name: "SHEJA_NGABO" },
+  { id: 4, name: "IBIHAME" },
+];
+
+/** The lookup lists fixture mode offers: the three branches and the four
+    promotions, with ids the way the backend would number them. */
+export const SAMPLE_CHOICES: RegisterChoices = {
+  subFamilies: TRINITY.map((family, index) => ({
+    id: index + 1,
+    name: family.name.toUpperCase(),
+    slug: family.slug,
+  })),
+  promotions: SAMPLE_PROMOTIONS,
+};
 
 /* Two pools composed by index rather than 73 hand-written names. The strides
    are coprime with the pool lengths and the pair repeats only after 120
@@ -104,6 +130,8 @@ function record(index: number, branch: string): FamilyMember {
   return {
     id: `m-${String(index + 1).padStart(2, "0")}`,
     fullName,
+    /* Unique like the backend's, because it is what they log in with. */
+    familyName: fullName,
     email: `${given}.${surname}@imenafamily.rw`.toLowerCase(),
     branch,
     /* Every nineteenth person has no date of birth, which is the one gap the
@@ -113,9 +141,15 @@ function record(index: number, branch: string): FamilyMember {
       index % 19 === 0
         ? ""
         : `${1948 + ((index * 13) % 60)}-${String(((index * 7) % 12) + 1).padStart(2, "0")}-${String(((index * 17) % 28) + 1).padStart(2, "0")}`,
+    /* One in five has none yet, like the people imported from v1. */
+    promotion: index % 5 === 0 ? null : SAMPLE_PROMOTIONS[index % 4]!,
     role: "member",
     status:
-      index % 23 === 5 ? "invited" : index % 37 === 11 ? "suspended" : "active",
+      index % 23 === 5
+        ? "invited"
+        : index % 37 === 11
+          ? "deactivated"
+          : "active",
     photo: "",
     joinedOn: `${2026 - Math.floor(index / 32)}-${String(((index * 5) % 12) + 1).padStart(2, "0")}-${String(((index * 11) % 28) + 1).padStart(2, "0")}`,
   };
@@ -134,6 +168,7 @@ function register(): FamilyMember[] {
      this row is the whole of what makes her one — see auth/roles.ts. */
   const ngabe = people[1]!;
   ngabe.fullName = `${SOCIAL_MEDIA_MANAGER.name} Uwase`;
+  ngabe.familyName = SOCIAL_MEDIA_MANAGER.name;
   ngabe.email = `${SOCIAL_MEDIA_MANAGER.name}@imenafamily.rw`.toLowerCase();
   ngabe.role = "social_media_manager";
   ngabe.status = "active";
@@ -144,6 +179,7 @@ function register(): FamilyMember[] {
      control locks, so it has to be in the list rather than implied. */
   const me = people[0]!;
   me.fullName = `${MEMBER.name} Rubagumya`;
+  me.familyName = MEMBER.name;
   me.email = `${MEMBER.name}@imenafamily.rw`.toLowerCase();
   me.role = "admin";
   me.status = "active";
@@ -156,6 +192,7 @@ function register(): FamilyMember[] {
      register for good — see MIN_ADMINS and CLAUDE.md §21. */
   const second = people.find((person) => person.id === SECOND_ADMIN_ID)!;
   second.fullName = `${SECOND_ADMINISTRATOR.name} Nkusi`;
+  second.familyName = SECOND_ADMINISTRATOR.name;
   second.email = `${SECOND_ADMINISTRATOR.name}@imenafamily.rw`.toLowerCase();
   second.role = "admin";
   second.status = "active";
@@ -166,6 +203,16 @@ function register(): FamilyMember[] {
 }
 
 export const FAMILY_REGISTER: FamilyMember[] = register();
+
+/** The sample register as members see it in the search palette: everybody
+    who has not been deactivated. */
+export function sampleDirectory(
+  people: FamilyMember[] = FAMILY_REGISTER,
+): DirectoryEntry[] {
+  return people
+    .filter((one) => one.status !== "deactivated")
+    .map((one) => ({ id: one.id, name: one.fullName, branch: one.branch }));
+}
 
 /** How many people each branch holds, read from the register rather than
     from TRINITY[].members — two counts in two places disagree the moment
@@ -201,25 +248,26 @@ export function administrators(
   people: FamilyMember[] = FAMILY_REGISTER,
 ): FamilyMember[] {
   return people.filter(
-    (person) => person.role === "admin" && person.status === "active",
+    (person) => person.role === "admin" && person.status !== "deactivated",
   );
 }
 
 /**
  * Whether this person's administrator role may be taken away — by demoting
- * them, suspending them or removing them altogether. All three have the same
- * answer, so they ask the same question.
+ * them or deactivating them. Both have the same answer, so they ask the same
+ * question. Invited administrators count, as they do in the backend: only a
+ * deactivated one does not.
  */
 export function mayLoseAdmin(
   person: FamilyMember,
   people: FamilyMember[] = FAMILY_REGISTER,
 ): boolean {
-  if (person.role !== "admin" || person.status !== "active") return true;
+  if (person.role !== "admin" || person.status === "deactivated") return true;
   return administrators(people).length > MIN_ADMINS;
 }
 
-/** The record holding an address, case-insensitively, or undefined. Email is
-    how a person signs in, so two people cannot share one. */
+/** The record holding an address, case-insensitively, or undefined. Login
+    codes go to it, so two people cannot share one. */
 export function findByEmail(
   email: string,
   people: FamilyMember[] = FAMILY_REGISTER,
@@ -239,7 +287,7 @@ export function missingBirthday(
 export type MemberSort = "name" | "newest" | "oldest";
 
 export interface MemberQuery {
-  /** Matches the name or the email: whoever is looking has one, not both. */
+  /** Matches either name or the email: whoever is looking has one of them. */
   search?: string;
   branch?: string;
   status?: MemberStatus | "all";
@@ -272,6 +320,7 @@ export function queryMembers(
     if (!needle) return true;
     return (
       person.fullName.toLowerCase().includes(needle) ||
+      person.familyName.toLowerCase().includes(needle) ||
       person.email.toLowerCase().includes(needle)
     );
   });

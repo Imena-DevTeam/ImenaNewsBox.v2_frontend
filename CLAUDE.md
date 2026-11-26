@@ -1916,8 +1916,8 @@ Each one is a PR on its own and leaves the gate green.
 | 1   | transport: types generated from `/openapi.json`, `endpoints.ts` rewritten, `toError()` reading `{error: {code, message, details}}`, `Page` to `Paginated`, `Origin` and `User-Agent`. **Done** |
 | 2   | auth over the BFF; `blogger` becomes `social_media_manager`; `SignedInProvider` from `/users/me`. **Done**, see below                                                                          |
 | 3   | invitations: one `/invitation` page reading `location.hash`; `/invite/[token]` and its `/signup` retired. **Done**, see below                                                                  |
-| 4   | forgot password and the reset queue, against B2                                                                                                                                                |
-| 5   | the register and directory: `family_name` field, sub-family and promotion selects, **Remove** becomes **Deactivate**, **Undo** reactivates, **Send a new link**                                |
+| 4   | forgot password and the reset queue, against B2. **Done**, merged as #28                                                                                                                       |
+| 5   | the register and directory: `family_name` field, sub-family and promotion selects, **Remove** becomes **Deactivate**, **Undo** reactivates, **Send a new link**. **Done**, see below           |
 | 6   | profile: display name, birthday, bio, photo; confirming a changed email; devices from `/auth/sessions`                                                                                         |
 | 7   | wishes and upcoming birthdays                                                                                                                                                                  |
 | 8   | blog reading: a Portable Text renderer for the backend's block set, Sanity images                                                                                                              |
@@ -2169,6 +2169,47 @@ saved page, the screenshots, `design-references/`, `scripts/dev-warm.mjs`
 layout fixed, the resources page back on `useToast`, and `QueryProvider`
 mounted by `/invitation` alone instead of the root layout. `.gitignore`
 refuses `*_files/`.
+
+### Step 5, applied 26 Nov 2026: the register and the directory
+
+`/admin/members` is `GET /users/accounts` now, every page of it and the
+deactivated people too, with `GET /users/sub-families` and
+`/users/promotions` for the selects (`admin/_lib/register.ts`). The table
+still searches, filters and sorts on the client: a family is hundreds of
+people.
+
+| What                | Now                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| the record          | `FamilyMember` gained `familyName` and `promotion`; `features/members/wire.ts` builds it from `UserRead`                                                |
+| status              | `active`, `invited`, `deactivated`. Invited: a member who never confirmed their address, an administrator with no password                              |
+| the panel           | name, **family name** (what they log in with), email, sub-family and promotion selects, date of birth, role. No status select: deactivating is a button |
+| saving              | `actions/members.ts`: add, update (only the fields that changed), deactivate, reactivate, send a new link. The dialog waits for the answer              |
+| refusals            | `family_name_taken` and `email_taken` land on their field; anything else (`too_few_admins`, `cannot_change_own_role`…) under the form, in its own words |
+| **Remove**          | became **Deactivate**, behind a confirmation, then **Undo**, which reactivates. Deactivated rows stay in the list with a reactivate button              |
+| **Send a new link** | in the panel, for somebody still invited and for any administrator (theirs also resets the password)                                                    |
+| the overview        | its counts and its attention queue read the same register, deactivated people left out; absent rather than zero when the backend cannot be asked        |
+| `/people/[id]`      | `GET /users/{id}`: branch, birthday (day and month), promotion, bio. No role and no "year joined": `UserPublicRead` has neither                         |
+| the search palette  | its people are the directory (`GET /users`), loaded once by the member layout (`_lib/people.ts`)                                                        |
+
+**Your own record** is locked for role and deactivation, because the backend
+refuses both (`cannot_change_own_role`, `cannot_deactivate_self`). In fixture
+mode the sample session is not a register row, so the seeded administrator
+(`SIGNED_IN_ID`) stands in for it.
+
+**The floor** counts invited administrators, as the backend does: only a
+deactivated one does not count.
+
+**Fixture mode** stores nothing: every action answers `person: null` and says
+so, and the table applies the change to its own copy of the sample register.
+
+**Not yet:** birthdays still read the sample register (step 7), and so does
+the profile (step 6). Linking a Sanity author (`PUT /users/{id}/sanity-author`)
+has no screen yet; it belongs with the studio's posts (step 9).
+
+**Gate:** typecheck, lint and format clean. **446 tests over 56 files.**
+`pnpm build` compiles. 23 of 24 Playwright tests pass; "public pages hold at
+360px" times out loading `/family-tree` here, on `main` as well, which no
+page in this step touches.
 
 ### Step 12, later: Google sign-in
 
